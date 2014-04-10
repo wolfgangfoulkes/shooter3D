@@ -29,9 +29,10 @@ PVector loc = new PVector(0, 0, 0);
 PImage sky;
 //for sphere you are inside..
 //need to figure out how to map textures to the inside of 3d objects
-float x_acc, y_acc, z_acc, z_button, c_button;
 PVector joystick = new PVector(0, 0); 
 laserObject laser;
+
+float x_acc, y_acc, z_acc, z_button, c_button;
 OscP5 oscP5;
 NetAddress myRemoteLocation;
 //Object3D2 triangle;
@@ -56,13 +57,15 @@ void setup()
   grass = loadImage("Grass.jpg");
 
   oscP5 = new OscP5(this, 1234);//listening
-  myRemoteLocation = new NetAddress("127.0.0.1", 10000);//sending
+  myRemoteLocation = new NetAddress("127.0.0.1", 10000); //sending
   //a way of parsing the OSC data more effectivly
   oscP5.plug(this, "accelData", "/nunchuck/accel");
   oscP5.plug(this, "cButtonData", "/nunchuck/Cbutton");
   oscP5.plug(this, "zButtonData", "/nunchuck/Zbutton");
   oscP5.plug(this, "joystickData", "/nunchuck/joystick");
-  oscP5.plug(this, "respawnData", "/player/respawn");
+  oscP5.plug(this, "movePlayer", "/player/pos");
+  //oscP5.plug(this, "respawnData", "/player/respawn");
+ 
   //calls font
   font = createFont("Georgia", 50);//font type, font size, anti-ailising on
 
@@ -70,15 +73,12 @@ void setup()
   noStroke();
 
   cam = new Camera();
-  cam.look(x_acc, y_acc, 450);
+  cam.look(x_acc, y_acc, 100);
   cam.display();
 
   map = new Map();
-  spawnObjects();
-  //map.objects.add(new Object3D(0, 0, -450, 0, 0, 0)); //0, 360
-  //map.objects.add(new Object3D(450, 10, 0, 0, 0, 0));  //90
-  //map.objects.add(new Object3D(0, 15, 450, 0, 0, 0));  //180
-  //map.objects.add(new Object3D(-450, 20, 0, 0, 0, 0));  //270
+  spawnObjects(30);
+  
   font = createFont("Georgia", 60, true);//font type, font size, anti-ailising on
   frameRate(24);
 }
@@ -101,7 +101,7 @@ void draw()
    }
    else { */
   //renders camera
-  cam.look(x_acc, y_acc, 450);
+  cam.look(x_acc, y_acc, 100);
   cam.display();
   //renders sky
   renderGlobe(); 
@@ -114,6 +114,7 @@ void draw()
 
   if (map.checkBounds(PVector.add(cam.pos, joystick)) == -1)
   {
+    println(PVector.add(cam.pos, joystick));
     cam.move(joystick);
   }
   else
@@ -135,19 +136,25 @@ void draw()
   //line(displayWidth/2,displayHeight/2+25,0,displayWidth/2,displayHeight/2-25,0);
 }
 
-public void spawnObjects(){
-  int amount = (int)random(35,80);
-  for(int i = 0; i < amount; i++){
-    map.objects.add(new Object3D((int)random(-3000,3000), (int)random(0,35), (int)random(-3000, 3000), 0, 0, 0)); //0, 360
-  //  map.objects2.add(new Object3D2(random(-3000,3000), random(0,35), random(-3000, 3000), 0.0, 0.0, 0.0)); //0, 360
+public void spawnObjects(int count){
+  for(int i = 0; i <= count; i++){
+    map.objects.add(new Object3D((int)random(-1080,1080), (int)random(0,35), (int)random(-1080, 1080), 0, 0, 0)); //0, 360
   }
 }
 
+//-----OSC STUFF
+
+//temp for Wolfgang's data
 public void joystickData(int x, int z) {
+    joystick.x = map(constrain(x, -10, 10), -10, 10, -1, 1); //need to be -1 - 1 //you had a small typo here that was probably causing all kinda havok
+    joystick.z = map(constrain(z, -10, 10), -10, 10, -1, 1);
+}
+
+/*public void joystickData(int x, int z) {
 
   if (x > 132 || x < 118)
   {
-    joystick.x = map(constrain(x, -100, 100), 50, 200, -1, 1); //need to be -1 - 1 //you had a small typo here that was probably causing all kinda havok
+    joystick.x = map(constrain(x, 50, 200), 50, 200, -1, 1); //need to be -1 - 1 //you had a small typo here that was probably causing all kinda havok
     //println("Received Joystick Data");
     //convert to 0-1 to control speed.
     print("Joystick X :");
@@ -158,7 +165,7 @@ public void joystickData(int x, int z) {
   }
   
   if (z > 132 || z < 118) {
-    joystick.z = map(constrain(z, -100, 100), 50, 200, -1, 1);
+    joystick.z = map(constrain(z, 50, 200), 50, 200, -1, 1);
     println("Received Joystick Data");
     print("Joystick Z :");
     println(joystick.z);
@@ -167,34 +174,38 @@ public void joystickData(int x, int z) {
     joystick.z = 0;
   }
   println(joystick.x, joystick.z);
-}
+} */
 
 
 public void zButtonData(int z) {
+  map.destroy(cam.pos, cam.look);
   z_button = z;
   println("Received Z Button Bang");
-  println(z_button);
+  //println(z_button);
   sendShot();
 }
 public void cButtonData(int c) {
   c_button = c;
-  println("Received C Button Bang");
-  println(c_button);
+  //println("Received C Button Bang");
+  //println(c_button);
   //if (c > 0){
   sendShot();
 
   //}
 }
-public void respawnData(int status) {
-  if (status == 0) {
-    //please scream to respawn
+
+
+//temp for Wolfgang's inputs 
+public void accelData(int x, int y, int z) { 
+    x_acc = map(constrain(x, -10, 10), -10, 10, -1, 1); //needs to be -1 - 1
+    y_acc = map(constrain(y, -10, 10), -10, 10, -1, 1); 
+    z_acc = map(constrain(z, -10, 10), -10, 10, -1, 1);
+    //println("Received accel Data");
+    //println(x_acc, y_acc, z_acc);
   }
-  if (status == 1) {
-    //Kill The Other Players
-    //respawn player
-  }
-}
-public void accelData(int x, int y, int z) {
+
+
+/*public void accelData(int x, int y, int z) {
   if (x > 50 && x < 70) {  //pretty silly, this is what was here //if (x < 50 && x > 50) {
   x_acc = 0;
   }
@@ -213,17 +224,34 @@ public void accelData(int x, int y, int z) {
   }
   ///println("Received accel Data");
   //println(x_acc, y_acc, z_acc);
-}
+}*/
 
 public void buttons(int z, int c)
 {
   if (map.destroy(cam.pos, cam.look) == -1)
   {
-    println("missed!", PVector.sub(cam.look, cam.pos));
+    //println("missed!", PVector.sub(cam.look, cam.pos));
   }
   else
   {
-    println("shot 'em dead!");
+    //println("shot 'em dead!");
+  }
+}
+
+public void playerPos(int ix, int iy, int iz, int irx, int iry, int irz)
+{
+  
+}
+
+//-----
+
+public void respawnData(int status) {
+  if (status == 0) {
+    //please scream to respawn
+  }
+  if (status == 1) {
+    //Kill The Other Players
+    //respawn player
   }
 }
 
@@ -231,10 +259,12 @@ void sendShot() {
   look = cam.pInfo();
   loc = cam.lInfo();
   //laser.fire(loc.x, loc.y, loc.z, look.x, look.y, look.z);
-  println("Send Shot");
-  println(look);
-  println(loc);
+  //println("Send Shot");
+  //println(look);
+  //println(loc);
 }
+
+//-----Backdrop
 
 void grassFloor() {
   noStroke();

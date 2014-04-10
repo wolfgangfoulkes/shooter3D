@@ -10,7 +10,7 @@ class Object3D
     sprite = loadImage("redMonster.jpeg");
     p = new PVector(ix, iy, iz);
     r = new PVector(ixr, iyr, izr);
-    radius = 80; //this value needs to be larger than the area of the cube, I guess.
+    radius = 100; //this value needs to be larger than the area of the cube, I guess.
   }
   
   void display()
@@ -25,5 +25,14 @@ class Object3D
     box(80, 80, 80);
     //println(modelX(0, 0, 0), modelY(0, 0, 0), modelZ(0, 0, 0));
     popMatrix();
+  }
+  
+  void destroy() 
+  {
+  }
+  
+  String getType()
+  {
+    return "object";
   }
 }

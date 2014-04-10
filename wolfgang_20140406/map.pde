@@ -1,7 +1,7 @@
 class Map
 {
   ArrayList<Object3D> objects;
-  //ArrayList<Object3D2> objects2;
+  
   Map()
   {
     objects = new ArrayList<Object3D>();
@@ -25,6 +25,7 @@ class Map
     {
       Object3D oobject = objects.get(i);
       //println("distance", PVector.dist(icoord, oobject.p));
+      if (Math.abs(icoord.x) >= 1080.0 || Math.abs(icoord.z) >= 1080.0) { println("arena bounds!"); return i; }
       if (PVector.dist(icoord, oobject.p) <= oobject.radius) //((oobject.p.x == icoord.x) && (oobject.p.y == icoord.y) && (oobject.p.z == icoord.z))
       {        
         return i; 
@@ -39,6 +40,7 @@ class Map
     {
       Object3D oobject = objects.get(i);
       PVector icoord = new PVector(ix, iy, iz);
+      if (Math.abs(icoord.x) >= 1080.0 || Math.abs(icoord.z) >= 1080.0) { println("arena bounds!"); return i; }
       if (PVector.dist(icoord, oobject.p) <= oobject.radius)
       {
         return i;
@@ -46,7 +48,6 @@ class Map
     }  
     return -1;
   }
-  
   
   int checkCoord(PVector icoord)
   {
@@ -102,21 +103,8 @@ class Map
     return null;
   }
   
-  int removeCoord(float ix, float iy, float iz)
-  {
-    int indx = this.checkCoord(ix, iy, iz);
-    if (indx != -1)
-    {
-      objects.remove(indx);
-      return indx;
-    }
-    else 
-    {
-      return -1;
-    }
-  }
-  
-  int destroy(PVector ipos, PVector iaim)
+
+  int destroy(PVector ipos, PVector iaim) //need to check null up in here.
   {
     int shotEm = -1; 
     for (int i = objects.size() - 1; i >= 0; i--)
@@ -126,7 +114,7 @@ class Map
       float vecangle = degrees(PVector.angleBetween(vec1, vec2));
       if (vecangle < 10)
       {
-       // println(objects.get(i).p, objects.get(i).r);
+        objects.get(i).destroy(); 
         objects.remove(i);
         shotEm = 1;
       }
