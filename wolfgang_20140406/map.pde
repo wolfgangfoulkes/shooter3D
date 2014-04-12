@@ -5,11 +5,17 @@ class Map
   Map()
   {
     objects = new ArrayList<Object3D>();
-  }  
-   void Map2()
+  }
+  
+  int add(Object3D iobject)
   {
-    //objects2 = new ArrayList<Object3D2>();
-  }  
+    if (checkBounds(iobject.p) == -1)
+    {
+      objects.add(iobject);
+      return 0;
+    }  
+    return -1;
+  }
   
   void display()
   {
@@ -103,10 +109,8 @@ class Map
     return null;
   }
   
-
-  int destroy(PVector ipos, PVector iaim) //need to check null up in here.
+  int getIndexByAngle(PVector ipos, PVector iaim)
   {
-    int shotEm = -1; 
     for (int i = objects.size() - 1; i >= 0; i--)
     {
       PVector vec1 = PVector.sub(iaim, ipos);
@@ -114,12 +118,9 @@ class Map
       float vecangle = degrees(PVector.angleBetween(vec1, vec2));
       if (vecangle < 10)
       {
-        objects.get(i).destroy(); 
-        objects.remove(i);
-        shotEm = 1;
+        return i;
       }
     }
-  
-  return shotEm;
+    return -1;
   }
 }

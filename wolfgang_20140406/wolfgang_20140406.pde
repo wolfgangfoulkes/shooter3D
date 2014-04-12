@@ -34,11 +34,9 @@ laserObject laser;
 
 float x_acc, y_acc, z_acc, z_button, c_button;
 OscP5 oscP5;
-NetAddress myRemoteLocation;
-//Object3D2 triangle;
+NetAddress myRemoteLocation; 
 Camera cam;
 Map map;
-
 /*
 boolean sketchFullScreen(){
   return true;
@@ -114,7 +112,7 @@ void draw()
 
   if (map.checkBounds(PVector.add(cam.pos, joystick)) == -1)
   {
-    println(PVector.add(cam.pos, joystick));
+    //println(PVector.add(cam.pos, joystick));
     cam.move(joystick);
   }
   else
@@ -138,7 +136,7 @@ void draw()
 
 public void spawnObjects(int count){
   for(int i = 0; i <= count; i++){
-    map.objects.add(new Object3D((int)random(-1080,1080), (int)random(0,35), (int)random(-1080, 1080), 0, 0, 0)); //0, 360
+    map.add(new Object3D((int)random(-1080,1080), (int)random(0,35), (int)random(-1080, 1080), 0, 0, 0)); //0, 360
   }
 }
 
@@ -178,18 +176,24 @@ public void joystickData(int x, int z) {
 
 
 public void zButtonData(int z) {
-  map.destroy(cam.pos, cam.look);
-  z_button = z;
+  int indexbyangle = map.getIndexByAngle(cam.pos, cam.look);
+  if (indexbyangle != -1)
+  {
+    if (map.objects.get(indexbyangle).getType() == "player") 
+    {
+      //Player destroyedplayer = map.objects.get(indexbyangle); this doesn't work. rethink your life.
+      //String tag = player.tag;
+    }
+    map.objects.get(indexbyangle).destroy();
+    map.objects.remove(indexbyangle);
+  }
   println("Received Z Button Bang");
-  //println(z_button);
-  sendShot();
 }
 public void cButtonData(int c) {
   c_button = c;
   //println("Received C Button Bang");
   //println(c_button);
   //if (c > 0){
-  sendShot();
 
   //}
 }
@@ -225,44 +229,6 @@ public void accelData(int x, int y, int z) {
   ///println("Received accel Data");
   //println(x_acc, y_acc, z_acc);
 }*/
-
-public void buttons(int z, int c)
-{
-  if (map.destroy(cam.pos, cam.look) == -1)
-  {
-    //println("missed!", PVector.sub(cam.look, cam.pos));
-  }
-  else
-  {
-    //println("shot 'em dead!");
-  }
-}
-
-public void playerPos(int ix, int iy, int iz, int irx, int iry, int irz)
-{
-  
-}
-
-//-----
-
-public void respawnData(int status) {
-  if (status == 0) {
-    //please scream to respawn
-  }
-  if (status == 1) {
-    //Kill The Other Players
-    //respawn player
-  }
-}
-
-void sendShot() {
-  look = cam.pInfo();
-  loc = cam.lInfo();
-  //laser.fire(loc.x, loc.y, loc.z, look.x, look.y, look.z);
-  //println("Send Shot");
-  //println(look);
-  //println(loc);
-}
 
 //-----Backdrop
 

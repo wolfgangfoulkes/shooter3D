@@ -7,7 +7,6 @@ class Object3D
   
   Object3D (float ix, float iy, float iz, float ixr, float iyr, float izr)
   {
-    sprite = loadImage("redMonster.jpeg");
     p = new PVector(ix, iy, iz);
     r = new PVector(ixr, iyr, izr);
     radius = 100; //this value needs to be larger than the area of the cube, I guess.
