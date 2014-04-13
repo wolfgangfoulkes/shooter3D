@@ -3,16 +3,9 @@ class Avatar extends Object3D
   Player player;
   //boolean isLiving;
   
-  Avatar(Player iplayer)
+  Avatar(Player iplayer, PVector ip, PVector ir)
   {
-    super();
-    player = iplayer;
-    //isLiving = false;
-  }
-  
-  Avatar(Player iplayer, PVector ipos, PVector irot)
-  {
-    super(ipos.x, ipos.y, ipos.z, irot.x, irot.y, irot.z);
+    super(ip, ir);
     player = iplayer;
     //isLiving = true; //might want to keep it dead until it's initialized
   }
