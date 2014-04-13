@@ -1,15 +1,16 @@
 class Player
 {
-  int lport;
+  
   String IP;
+  int port;
   Avatar avatar;
   
-  Player(int ilport, String iIP)
+  Player(String iIP, int iport)
   {
-    lport = ilport;
+    
     IP = iIP;
+    port = iport;
     avatar = null;
-    //avatar = new Avatar(this); //could just initialize null
   }
 
   NetAddress getNetAddress()

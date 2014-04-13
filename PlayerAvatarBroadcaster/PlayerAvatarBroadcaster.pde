@@ -5,16 +5,11 @@ import netP5.*;
 
 OscP5 oscP5;
 NetAddressList myNetAddressList = new NetAddressList();
-/* listeningPort is the port the server is listening for incoming messages */
 int myListeningPort = 32000;
-/* the broadcast port is the port the clients should listen for incoming messages from the server*/
 int myBroadcastPort = 12000;
 
 String myConnectPattern = "/server/connect";
 String myDisconnectPattern = "/server/disconnect";
-
-ArrayList<String>IPs = new ArrayList(0); //must send primitive values. //this object is redundant
-//ArrayList<int>ports = new ArrayList(0); doesn't work? ints?
 
 void setup() {
   oscP5 = new OscP5(this, myListeningPort);
@@ -29,11 +24,13 @@ void oscEvent(OscMessage theOscMessage)
 {
   if (theOscMessage.addrPattern().equals(myConnectPattern)) 
   {
-    connect(theOscMessage.netAddress().address());
+    String iIP = theOscMessage.netAddress().address();
+    int ip = theOscMessage.get(0).intValue();
+    connect(iIP, ip);
   }
   else if (theOscMessage.addrPattern().equals(myDisconnectPattern)) 
   {
-    disconnect(theOscMessage.netAddress().address());
+    //disconnect(theOscMessage.netAddress());
   }
   /**
    * if pattern matching was not successful, then broadcast the incoming
@@ -45,24 +42,24 @@ void oscEvent(OscMessage theOscMessage)
 }
 
 
- private void connect(String theIPaddress) 
+ private void connect(String iIP, int ip) 
  {
-     if (!myNetAddressList.contains(theIPaddress, myBroadcastPort)) 
+     if (!myNetAddressList.contains(iIP, ip)) //doesn't work checking it with a net address.
      {
-       myNetAddressList.add(new NetAddress(theIPaddress, myBroadcastPort));
-       IPs.add(theIPaddress); //this object is redundant
-       println("### adding "+theIPaddress+" to the list.");
-       
-       OscMessage olist = new OscMessage("/players/add");
-       if (IPs.size() > 0)
-        {
-          olist.add(IPs.toArray());
-          oscP5.send(olist, myNetAddressList);
+       myNetAddressList.add(new NetAddress(iIP, ip));
+       println("### adding "+iIP+", listening at port "+ip+" to the list.");
+ 
+       for (int i = 0; i < myNetAddressList.list().size(); i++)
+       {
+          OscMessage oaddr = new OscMessage("/players/add");
+          oaddr.add(myNetAddressList.get(i).address());
+          oaddr.add(myNetAddressList.get(i).port());
+          oscP5.send(oaddr, myNetAddressList);
         }
      } 
      else 
      {
-       println("### "+theIPaddress+" is already connected.");
+       println("### "+iIP+", listening at port "+ip+" is already connected.");
      }
      
      println("### currently there are "+myNetAddressList.list().size()+" remote locations connected.");
@@ -70,21 +67,22 @@ void oscEvent(OscMessage theOscMessage)
 
 
 
-private void disconnect(String theIPaddress) 
+private void disconnect(String iIP, int ip) 
 {
   
-  if (myNetAddressList.contains(theIPaddress, myBroadcastPort)) 
+  if (myNetAddressList.contains(iIP, ip)) 
   {
-  		myNetAddressList.remove(theIPaddress, myBroadcastPort);
-    println("### removing "+theIPaddress+" from the list.");
+    myNetAddressList.remove(iIP, ip);
+    println("### removing "+iIP+" from the list.");
     
-    OscMessage ostring = new OscMessage("players/remove");
-    ostring.add(theIPaddress);
-    oscP5.send(ostring, myNetAddressList);
+    OscMessage oaddr = new OscMessage("players/remove");
+    oaddr.add(iIP);
+    oaddr.add(ip);
+    oscP5.send(oaddr, myNetAddressList);
   } 
   else 
   {
-    println("### "+theIPaddress+" is not connected.");
+    println("### "+iIP+" is not connected.");
   }
   
   println("### currently there are "+myNetAddressList.list().size());

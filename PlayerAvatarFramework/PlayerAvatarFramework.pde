@@ -19,7 +19,8 @@ void setup() {
 
   oscP5 = new OscP5(this,lport);
   myBroadcastLocation = new NetAddress("169.254.76.33",bcport);
-  connect();
+  connect(lport);
+  connect(lport + 1);
 }
 
 
@@ -27,9 +28,10 @@ void draw() {
   background(0);
 }
 
-void connect() //should do all this crap automatically before players "spawn" because we ought to have bugs in this worked out before players are allowed to see anything
+void connect(int ilport) //should do all this crap automatically before players "spawn" because we ought to have bugs in this worked out before players are allowed to see anything
 {
   OscMessage m = new OscMessage("/server/connect");
+  m.add(ilport);
   oscP5.send(m, myBroadcastLocation);
 }
 
@@ -39,24 +41,27 @@ void oscEvent(OscMessage theOscMessage)
   theOscMessage.print();
   
   String messageIP = theOscMessage.netaddress().address();
+  int messageport = theOscMessage.netaddress().port();
   String messageaddr = theOscMessage.addrPattern();
   String messagetag = theOscMessage.typetag();
-  int isin = roster.indexFromIP(messageIP);
+  int isin = roster.indexFromNA(messageIP, messageport);
 
   //player initialization message. 
   if (messageaddr.equals("/players/add")) //remember this fucking string functions you fucking cunt don't fuck up and fucking == with two strings.
   {
-    for (int i = 0; i < messagetag.length(); i++)
-    {
-      roster.add(lport, theOscMessage.get(0).stringValue()); //function checks "isin"
-    }
-    //return;
+    String iIP = theOscMessage.get(0).stringValue();
+    int iport = theOscMessage.get(1).intValue();
+    roster.add(iIP, iport); //function checks "isin"
+    roster.print();
+    return;
   }
   
   //player removal message
   if (messageaddr.equals("/players/remove")) //remember this fucking string functions you fucking cunt don't fuck up and fucking == with two strings.
   {
-    int wasin = roster.remove(lport, theOscMessage.get(0).stringValue());
+    String iIP = theOscMessage.get(0).stringValue();
+    int iport = theOscMessage.get(1).intValue();
+    roster.remove(iIP, iport);
     return;
   }
   
