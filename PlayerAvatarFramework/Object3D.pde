@@ -3,7 +3,13 @@ class Object3D
   PVector p;
   PVector r;
   float radius;
-  PImage sprite;
+ 
+ Object3D ()
+  {
+    p = null;
+    r = null;
+    radius = 0;
+  }
   
   Object3D (float ix, float iy, float iz, float ixr, float iyr, float izr)
   {

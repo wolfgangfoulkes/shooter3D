@@ -1,6 +1,5 @@
 class Camera
 {
-  laserObject laserO;
  PVector pos; //camera "eye"
  PVector rot; //camera angle
  PVector look; //camera "center"

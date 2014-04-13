@@ -4,7 +4,7 @@ class Map
   
   Map()
   {
-    objects = new ArrayList<Object3D>();
+    objects = new ArrayList<Object3D>(0);
   }
   
   int add(Object3D iobject)
@@ -14,6 +14,7 @@ class Map
       objects.add(iobject);
       return 0;
     }  
+    
     return -1;
   }
   
@@ -32,7 +33,7 @@ class Map
       Object3D oobject = objects.get(i);
       //println("distance", PVector.dist(icoord, oobject.p));
       if (Math.abs(icoord.x) >= 1080.0 || Math.abs(icoord.z) >= 1080.0) { println("arena bounds!"); return i; }
-      if (PVector.dist(icoord, oobject.p) <= oobject.radius) //((oobject.p.x == icoord.x) && (oobject.p.y == icoord.y) && (oobject.p.z == icoord.z))
+      if (PVector.dist(icoord, oobject.p) <= oobject.radius)
       {        
         return i; 
       }
