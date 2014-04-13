@@ -20,7 +20,7 @@ void setup() {
   oscP5 = new OscP5(this,lport);
   myBroadcastLocation = new NetAddress("169.254.76.33",bcport);
   connect(lport);
-  connect(lport + 1);
+  //connect(lport + 1);
 }
 
 
@@ -31,7 +31,7 @@ void draw() {
 void connect(int ilport) //should do all this crap automatically before players "spawn" because we ought to have bugs in this worked out before players are allowed to see anything
 {
   OscMessage m = new OscMessage("/server/connect");
-  m.add(ilport);
+  m.add(ilport); 
   oscP5.send(m, myBroadcastLocation);
 }
 
