@@ -1,16 +1,17 @@
 class Player
 {
-  int lport;
+  
   String IP;
+  int port;
   Avatar avatar;
   
-  Player(int ilport, String iIP)
+  Player(String iIP, int iport)
   {
-    lport = ilport;
+    
     IP = iIP;
+    port = iport;
     avatar = null;
-    println("new Player!", lport, IP);
-    //avatar = new Avatar(this); //could just initialize null
+    println("new Player! IP: "+IP+" port "+port+"");
   }
   
   void initAvatar(PVector ip, PVector ir)
@@ -26,6 +27,6 @@ class Player
 
   NetAddress getNetAddress()
   {
-    return new NetAddress(IP, lport);
+    return new NetAddress(IP, port);
   }
 }

@@ -15,6 +15,6 @@ class Player
 
   NetAddress getNetAddress()
   {
-    return new NetAddress(IP, lport);
+    return new NetAddress(IP, port);
   }
 }

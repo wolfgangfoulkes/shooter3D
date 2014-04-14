@@ -3,13 +3,12 @@ class Object3D
   PVector p;
   PVector r;
   float radius;
- 
+  
   Object3D (float ix, float iy, float iz, float ixr, float iyr, float izr)
   {
     p = new PVector(ix, iy, iz);
     r = new PVector(ixr, iyr, izr);
     radius = 100; //this value needs to be larger than the area of the cube, I guess.
-    println("new Object3D!", p, r);
   }
   
   Object3D (PVector ip, PVector ir)

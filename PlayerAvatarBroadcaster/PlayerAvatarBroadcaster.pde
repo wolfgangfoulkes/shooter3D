@@ -1,10 +1,9 @@
-
- 
 import oscP5.*;
 import netP5.*;
 
 OscP5 oscP5;
 NetAddressList myNetAddressList = new NetAddressList();
+ArrayList<String>prefixes = new ArrayList<String>(0);
 int myListeningPort = 32000;
 int myBroadcastPort = 12000;
 
@@ -26,7 +25,8 @@ void oscEvent(OscMessage theOscMessage)
   {
     String iIP = theOscMessage.netAddress().address();
     int ip = theOscMessage.get(0).intValue();
-    connect(iIP, ip);
+    String ipre = theOscMessage.get(1).stringValue();
+    connect(iIP, ip, ipre);
   }
   else if (theOscMessage.addrPattern().equals(myDisconnectPattern)) 
   {
@@ -42,11 +42,13 @@ void oscEvent(OscMessage theOscMessage)
 }
 
 
- private void connect(String iIP, int ip) 
+ private void connect(String iIP, int ip, String ipre) 
  {
      if (!myNetAddressList.contains(iIP, ip)) //doesn't work checking it with a net address.
      {
        myNetAddressList.add(new NetAddress(iIP, ip));
+       prefixes.add(ipre);
+       
        println("### adding "+iIP+", listening at port "+ip+" to the list.");
  
        for (int i = 0; i < myNetAddressList.list().size(); i++)
@@ -54,6 +56,7 @@ void oscEvent(OscMessage theOscMessage)
           OscMessage oaddr = new OscMessage("/players/add");
           oaddr.add(myNetAddressList.get(i).address());
           oaddr.add(myNetAddressList.get(i).port());
+          oaddr.add(prefixes.get(i));
           oscP5.send(oaddr, myNetAddressList);
         }
      } 
@@ -65,20 +68,23 @@ void oscEvent(OscMessage theOscMessage)
      println("### currently there are "+myNetAddressList.list().size()+" remote locations connected.");
  }
 
-
-
-private void disconnect(String iIP, int ip) 
+private void disconnect(String iIP, int ip, String ipre) 
 {
   
-  if (myNetAddressList.contains(iIP, ip)) 
+  if (myNetAddressList.contains(iIP, ip) && prefixes.contains(ipre)) 
   {
-    myNetAddressList.remove(iIP, ip);
     println("### removing "+iIP+" from the list.");
+    for (int i = 0; i < myNetAddressList.list().size(); i++)
+       {
+        OscMessage oaddr = new OscMessage("/players/remove");
+        oaddr.add(myNetAddressList.get(i).address());
+        oaddr.add(myNetAddressList.get(i).port());
+        oaddr.add(prefixes.get(i));
+        oscP5.send(oaddr, myNetAddressList);
+       }
     
-    OscMessage oaddr = new OscMessage("players/remove");
-    oaddr.add(iIP);
-    oaddr.add(ip);
-    oscP5.send(oaddr, myNetAddressList);
+    myNetAddressList.remove(iIP, ip);
+    prefixes.remove(ipre);
   } 
   else 
   {

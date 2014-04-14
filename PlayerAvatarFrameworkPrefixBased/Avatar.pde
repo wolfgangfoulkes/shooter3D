@@ -9,7 +9,7 @@ class Avatar extends Object3D
     super(ip, ir);
     player = iplayer;
     //isLiving = true; //might want to keep it dead until it's initialized
-    println("new Avatar!", p, r, player.IP);
+     println("new Avatar!", p, r, player.prefix);
   }
   
   void move()
@@ -20,8 +20,8 @@ class Avatar extends Object3D
   {
   }
   
-  NetAddress getNetAddress()
+  void print()
   {
-    return player.getNetAddress();
+    println("Avatar for player "+player.prefix+"", "position:", p, "rotation", r);
   }
 }
