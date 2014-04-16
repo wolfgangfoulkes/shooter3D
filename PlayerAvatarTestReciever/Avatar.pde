@@ -12,7 +12,6 @@ class Avatar extends Object3D
     println("new Avatar!", p, r, player.prefix);
   }
   
-  
   void destroy() //overrides base class
   {
   }

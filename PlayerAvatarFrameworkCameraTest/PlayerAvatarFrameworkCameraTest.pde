@@ -2,15 +2,20 @@
 import oscP5.*;
 import netP5.*;
 
+OscP5 pos_in;
 OscP5 oscP5;
 Map map;
+Camera cam;
 
-int lport = 12001;
+int lport = 12000;
 int bcport = 32000;
-String myprefix = "/derp";
+String myprefix = "/slurp";
 
 NetAddress myBroadcastLocation; 
-Roster roster = new Roster();
+Roster roster;
+
+PVector acc = new PVector(0, 0, 0);
+PVector joystick = new PVector(0, 0, 0);
 
 void setup() 
 {
@@ -18,24 +23,64 @@ void setup()
   size(1000,1000, P3D);
   frameRate(24);
   
+  pos_in = new OscP5(this, 1234);
+  pos_in.plug(this, "accelData", "/nunchuck/accel");
+  pos_in.plug(this, "joystickData", "/nunchuck/joystick");
+  
   oscP5 = new OscP5(this,lport);
   myBroadcastLocation = new NetAddress("169.254.76.33",bcport);
   connect(lport, myprefix);
   
   map = new Map();
+  roster = new Roster();
+  cam = new Camera();
+  cam.look(acc.x, acc.y, 100);
+  sendInit(cam.pos.x, cam.pos.y, cam.pos.z);
+  cam.display();
 }
 
 void draw() 
 {
   background(0);
-  camera(0, 1000, 0, 0, 0, 0, 1, 0, 0); //note this "up" shit. this was necessary to get this to display right.
+  cam.look(acc.x, acc.y, 100);
+  map.display();
+  
+  if (map.checkBounds(PVector.add(cam.pos, joystick)) == -1)
+  {
+    cam.move(joystick);
+    sendPos(cam.pos.x, cam.pos.y, cam.pos.z);
+  }
+  else
+  {
+    //println("boundary!", cam.pos);
+  }
+  
+  
+  /*
+  background(0);
+  camera(0, 1000, 0, 0, 0, 0, 1, 0, 0);
   map.add(new Object3D(new PVector(100, 0, 0), new PVector(0, 0, 0)));
   map.add(new Object3D(new PVector(0, 0, 100), new PVector(0, 0, 0)));
   map.add(new Object3D(new PVector(-100, 0, 0), new PVector(0, 0, 0)));
   map.add(new Object3D(new PVector(0, 0, -100), new PVector(0, 0, 0)));
   
   map.display();
+  */
 }
+
+public void joystickData(int x, int z) {
+    joystick.x = map(constrain(x, -10, 10), -10, 10, -1, 1); //need to be -1 - 1 //you had a small typo here that was probably causing all kinda havok
+    joystick.z = map(constrain(z, -10, 10), -10, 10, -1, 1);
+    println("joystick called!", joystick);
+}
+
+public void accelData(int x, int y, int z) { 
+    acc.x = map(constrain(x, -10, 10), -10, 10, -1, 1); //needs to be -1 - 1
+    acc.y = map(constrain(y, -10, 10), -10, 10, -1, 1); 
+    acc.z = map(constrain(z, -10, 10), -10, 10, -1, 1);
+    println("accel called!", acc);
+
+ }
 
 void connect(int ilport, String ipre) //should do all this crap automatically before players "spawn" because we ought to have bugs in this worked out before players are allowed to see anything
 {
@@ -47,22 +92,21 @@ void connect(int ilport, String ipre) //should do all this crap automatically be
 
 void oscEvent(OscMessage theOscMessage) 
 {
-  println("### received an osc message with addrpattern "+theOscMessage.addrPattern()+" and typetag "+theOscMessage.typetag());
-  theOscMessage.print();
+  //println("###2 received an osc message with addrpattern "+theOscMessage.addrPattern()+" and typetag "+theOscMessage.typetag());
+  //theOscMessage.print();
   
   String messageIP = theOscMessage.netaddress().address();
   String messageaddr = theOscMessage.addrPattern();
   String messagetag = theOscMessage.typetag();
   int isin = roster.indexFromAddrPattern(messageaddr); //this could be the only check function, because "begins with" is the same as "equals"
-  //boolean isme = messageaddr.startsWith(myprefix); 
 
   //player initialization message. 
   if (messageaddr.equals("/players/add")) //remember this fucking string functions you fucking cunt don't fuck up and fucking == with two strings.
   {
     String iprefix = theOscMessage.get(0).stringValue();
-    if (iprefix.equals(myprefix)) {return;}
+    if (roster.isMe(iprefix)) {return;}
     roster.add(iprefix); //function checks "isin"
-    roster.print();
+    //roster.print();
     return;
   }
   
@@ -70,27 +114,34 @@ void oscEvent(OscMessage theOscMessage)
   if (messageaddr.equals("/players/remove")) //remember this fucking string functions you fucking cunt don't fuck up and fucking == with two strings.
   {
     String iprefix = theOscMessage.get(0).stringValue();
-    if (iprefix.equals(myprefix)) {return;}
+    if (roster.isMe(iprefix)) {return;}
     roster.remove(iprefix); //function checks "isin"
-    roster.print();
+    //roster.print();
     return;
   }
-  
   
   if (isin != -1)
   {
     Player iplayer = roster.players.get(isin);
     String iaddr = roster.removePrefix(messageaddr);
-    if (iaddr.equals("/init") && messagetag.equals("fff")) //"ffffff"
+    if (iaddr.equals("/init") && messagetag.equals("fff")) //"ffffff" //this is redundant and confusing.
     {
       float ix = theOscMessage.get(0).floatValue();
       float iy = theOscMessage.get(1).floatValue();
       float iz = theOscMessage.get(2).floatValue();
       
-      iplayer.setAvatar(new PVector(ix, iy, iz), new PVector(0, 0, 0));
-      int didInit = map.add(iplayer.avatar);
-      //if (didInit == -1) //the shit that'll not be in sync will be the Players. 
-      println(iplayer.prefix, iaddr, ix, iy, iz);
+      PVector ip = new PVector(ix, iy, iz);
+      int isInBounds = map.checkBounds(ip);
+      if (isInBounds == -1) 
+      { 
+        iplayer.setAvatar(ip, new PVector(0, 0, 0)); 
+        map.add(iplayer.avatar);
+      }
+      else 
+      { 
+        println("avatar was not initialized at position: "+ip+""); 
+      } //the shit that'll not be in sync will be the Players. 
+      //println(iplayer.prefix, iaddr, ix, iy, iz);
     }
     else if (iaddr.equals("/pos") && messagetag.equals("fff"))
     {
@@ -98,15 +149,40 @@ void oscEvent(OscMessage theOscMessage)
       float iy = theOscMessage.get(1).floatValue();
       float iz = theOscMessage.get(2).floatValue();
       
-      iplayer.setAvatar(new PVector(ix, iy, iz), new PVector(0, 0, 0)); 
-      println(iplayer.prefix, iaddr, ix, iy, iz);
+      PVector ip = new PVector(ix, iy, iz);
+      int isInBounds = map.checkBounds(ip);
+      if (isInBounds == -1) 
+      {
+        iplayer.setAvatar(ip, new PVector(0, 0, 0)); 
+      }
+      else { println("Bounds!: "+ip+""); } //the shit that'll not be in sync will be the Players. 
+      //println(iplayer.prefix, iaddr, ix, iy, iz);
     }
     }
     else
     {
-      println("she doesn't even go here..", messageaddr);
+      //println("she doesn't even go here..", messageaddr);
     }
 }
+
+void sendInit(float ix, float iy, float iz) //+ rotation
+{
+  OscMessage ocoor = new OscMessage(myprefix + "/init");
+  ocoor.add(ix);
+  ocoor.add(iy);
+  ocoor.add(iz);
+  oscP5.send(ocoor, myBroadcastLocation);
+}
+
+void sendPos(float ix, float iy, float iz) //+ rotation
+{
+  OscMessage ocoor = new OscMessage(myprefix + "/pos");
+  ocoor.add(ix);
+  ocoor.add(iy);
+  ocoor.add(iz);
+  oscP5.send(ocoor, myBroadcastLocation);
+}
+
 
 /*
 void keyPressed()

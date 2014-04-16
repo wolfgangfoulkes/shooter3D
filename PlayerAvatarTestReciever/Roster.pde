@@ -27,12 +27,18 @@ class Roster
     return indx;
   }
   
+  boolean isMe(String ipre)
+  {
+    if (ipre.equals(myprefix)) return true;
+    else return false;
+  }
+  
   int indexFromPrefix(String ipre)
   {
     for(int i = 0; i < players.size(); i++)
     {
       Player p = players.get(i);
-      if (p.prefix.equals(ipre))
+      if (ipre.equals(p.prefix))
       {
         return i;
       }
