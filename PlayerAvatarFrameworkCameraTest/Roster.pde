@@ -79,6 +79,8 @@ class Roster
   
   void print()
   {
+    println("-----ROSTER-----");
+    println("size = "+players.size()+"");
     for (int i = 0; i < players.size(); i++)
     {
       Player player = players.get(i);

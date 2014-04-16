@@ -7,15 +7,44 @@ class Map
     objects = new ArrayList<Object3D>(0);
   }
   
-  int add(Object3D iobject)
+  int add(Object3D iobject) //type-check to include "isIn?" right now.
   {
-    if (checkBounds(iobject.p) == -1)
+    int isIn = objects.indexOf(iobject);
+    int isInBounds = checkBounds(iobject.p);
+    if ( (isIn == -1) && (isInBounds == -1) )
     {
       objects.add(iobject);
       return 0;
-    }  
+    }
     
     return -1;
+  }
+  
+  int remove(Object3D iobject)
+  {
+    int indexof = objects.indexOf(iobject);
+    if (indexof != -1)
+    {
+      objects.remove(iobject);
+      return indexof;
+    }
+    
+    return -1;
+  }
+  
+  int move(Object3D iobject, PVector icoord)
+  {
+    int iindx = objects.indexOf(iobject);
+    int isInBounds = checkBounds(icoord);
+    if ( (iindx != -1) && (isInBounds == iindx) ) 
+    {
+      objects.get(iindx).p = icoord;
+      return iindx;
+    }
+    else 
+    {
+      return -1;
+    }
   }
   
   void display()
@@ -26,7 +55,7 @@ class Map
     }
   }
   
-  int checkBounds(PVector icoord)
+  int checkBounds(PVector icoord) //this function may be the cause of many of our problems
   {
     for (int i = objects.size() - 1; i >= 0; i--)
     {
@@ -128,6 +157,7 @@ class Map
   void print()
   {
     println("-----MAP-----");
+    println("size = "+objects.size()+"");
     for (int i = objects.size() - 1; i >= 0; i--)
     {
       Object3D oobject = objects.get(i);
@@ -135,3 +165,4 @@ class Map
     }
   }
 }
+  
