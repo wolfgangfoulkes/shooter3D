@@ -94,21 +94,21 @@ String[] skyTex = new String[] {//could load fog as background
 String[] droidTex = new String[] {
   "droid1.jpg", "droid2.jpg", "droid3.jpg", "droid4.jpg","droid5.jpg","droid6.jpg","droid7.JPG","droid8.jpg",
 };
-/*
+
 boolean sketchFullScreen() {
   return true;
 }
-*/
+
 void setup() {
 
-   size(1404, 1080, P3D);
+  // size(1404, 1080, P3D);
    mouseX = width/2;
    mouseY = height/2;
   cursor(CROSS);//sets curser as cross
   noLights();
   noStroke();
  
-  //size(displayWidth, displayHeight, P3D);
+  size(displayWidth, displayHeight, P3D);
   //initalizing the sky/globe
   texGlobe = loadImage(skyTex[(int)random(0, skyTex.length)]);    
   initializeSphere(sDetail);
