@@ -4,7 +4,6 @@ import netP5.*;
 OscP5 oscP5;
 
 Map map;
-Camera cam;
 
 int lport = 12001;
 int bcport = 32000;
@@ -20,15 +19,11 @@ void setup()
   frameRate(24);
 
   oscP5 = new OscP5(this, lport);
-  myBroadcastLocation = new NetAddress("169.254.76.33",bcport);
+  myBroadcastLocation = new NetAddress("169.254.47.210",bcport);
   //connect(lport, myprefix);
   
   roster = new Roster();
-  map = new Map();
-  map.add(new Object3D(new PVector(500, 0, 0), new PVector(0, 0, 0)));
-  map.add(new Object3D(new PVector(0, 0, 500), new PVector(0, 0, 0)));
-  map.add(new Object3D(new PVector(-500, 0, 0), new PVector(0, 0, 0)));
-  map.add(new Object3D(new PVector(0, 0, -500), new PVector(0, 0, 0)));
+  map = new Map(1001, 1001);
 }
 
 void draw() 
@@ -41,12 +36,8 @@ void draw()
 
 void connect(int ilport, String ipre) //should do all this crap automatically before players "spawn" because we ought to have bugs in this worked out before players are allowed to see anything
 {
-   for (int i = 0; i < roster.players.size(); i++)
-   {
-     Player p = roster.players.get(i);
-     map.remove(p.avatar); //checks isIn
-     roster.players.remove(p);
-   } //really should put a "roster.remove" function, so that deallocation can be handled
+  roster.clear();
+  map.clear();
   OscMessage m = new OscMessage("/server/connect");
   m.add(ilport); 
   m.add(ipre);
@@ -55,12 +46,8 @@ void connect(int ilport, String ipre) //should do all this crap automatically be
 
 void disconnect(int ilport, String ipre)
 {
-  for (int i = 0; i < roster.players.size(); i++)
-   {
-     Player p = roster.players.get(i);
-     map.remove(p.avatar); //checks isIn
-     roster.players.remove(p);
-   } //really should put a "roster.remove" function, so that deallocation can be handled
+  roster.clear();
+  map.clear();
   OscMessage m = new OscMessage("/server/disconnect");
   m.add(ilport); 
   m.add(ipre);
@@ -106,6 +93,18 @@ void oscEvent(OscMessage theOscMessage)
     
     //roster.print();
     return;
+  }
+  
+  if (messageaddr.equals("/object") && messagetag.equals("ffffff"))
+  {
+    float ix = theOscMessage.get(0).floatValue();
+    float iy = theOscMessage.get(1).floatValue();
+    float iz = theOscMessage.get(2).floatValue();
+    float irx = theOscMessage.get(3).floatValue();
+    float iry = theOscMessage.get(4).floatValue();
+    float irz = theOscMessage.get(5).floatValue();
+    Object3D iobject = new Object3D(ix, iy, iz, irx, iry, irz);
+    map.add(iobject);
   }
   
   if (isin != -1)
@@ -199,17 +198,9 @@ void keyPressed()
 {
   switch(key)
   {
-    case 'c': connect(lport, myprefix); break;
+    case 'c': disconnect(lport, myprefix); connect(lport, myprefix); break;
     case 'd': disconnect(lport, myprefix); break;
     case 'r': roster.print(); break;
     case 'm': map.print(); break;
   }
 }
-
-/*
-public void spawnObjects(int count){
-  for(int i = 0; i <= count; i++){
-    map.add(new Object3D((int)random(-1080,1080), (int)random(0,35), (int)random(-1080, 1080), 0, 0, 0)); //0, 360
-  }
-}
-*/

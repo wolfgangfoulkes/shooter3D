@@ -27,6 +27,11 @@ class Roster
     return indx;
   }
   
+  void clear ()
+  {
+    players.clear();
+  }
+  
   boolean isMe(String ipre)
   {
     if (ipre.equals(myprefix)) return true;

@@ -95,7 +95,6 @@ class Map
     return -1;
   }
   
-  
   int checkCoord(PVector icoord)
   {
     for (int i = objects.size() - 1; i >= 0; i--)
@@ -144,11 +143,12 @@ class Map
   {
     for (int i = 0; i < many; i++)
     {
-      Object3D robject = new Object3D(random(-(xsize/2), xsize/2), 0, random(-(zsize/2), zsize/2), 0, 0, 0);
-      add(robject);
+      //Object3D robject = new Object3D(random(-(xsize/2), xsize/2), 0, random(-(zsize/2), zsize/2), 0, 0, 0);
+      Object3D robject = new Object3D(random(-500, 500), 0, random(-500, 500), 0, 0, 0);
+      this.add(robject);
+      println(robject.p);
     }
   }
-  
   
   void print()
   {
@@ -161,4 +161,5 @@ class Map
     }
   }
 }
+  
   

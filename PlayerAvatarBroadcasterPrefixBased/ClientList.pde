@@ -33,6 +33,11 @@ class Clientlist
     return -1;
   }
   
+  void clear()
+  {
+    clients.clear();
+  }
+  
   void print()
   {
     for (int i = 0; i < clients.size(); i++)

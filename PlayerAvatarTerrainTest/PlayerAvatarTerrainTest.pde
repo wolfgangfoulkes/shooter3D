@@ -32,33 +32,25 @@ void setup()
   pos_in.plug(this, "joystickData", "/nunchuck/joystick");
   
   oscP5 = new OscP5(this,lport);
-  myBroadcastLocation = new NetAddress("169.254.76.33",bcport);
+  myBroadcastLocation = new NetAddress("169.254.47.210",bcport);
   //connect(lport, myprefix);
   
-  map = new Map();
   roster = new Roster();
-  cam = new Camera(this);
-  cam.look(acc.x, 0, 0);
+  map = new Map(1001, 1001);
   
-  map.add(new Object3D(new PVector(500, 0, 0), new PVector(0, 0, 0)));
-  map.add(new Object3D(new PVector(0, 0, 500), new PVector(0, 0, 0)));
-  map.add(new Object3D(new PVector(-500, 0, 0), new PVector(0, 0, 0)));
-  map.add(new Object3D(new PVector(0, 0, -500), new PVector(0, 0, 0)));
-  cam.spawnCamera(new PVector(0, 0, 0), new PVector(0, 0, 0));
+  //have these initialized by spawn, because you'll display the noLoop screen here anyway.
+  cam = new Camera(this);
 }
-
-int i = 0;
 
 void draw() 
 {
   background(0);
   lights();
   
-  if (cam.living == false)
+  if(cam.living == false)
   {
-    //for some kind of animation we could call noLoop here. 
-    //might have to make everything else "else"
-    //more fun idea is having ChucK handle the display by sending frames.
+    killCamera();
+    noLoop(); 
   }
   
   cam.cam.camera();
@@ -76,11 +68,6 @@ void draw()
     cam.move(new PVector(0, 0, 0));
     println("boundary!", cam.pos);
   }
-  
-  map.display();
-  
-  
-  
 }
 
 public void joystickData(int x, int z) 
@@ -101,12 +88,6 @@ public void accelData(int x, int y, int z)
 
 void connect(int ilport, String ipre) //should do all this crap automatically before players "spawn" because we ought to have bugs in this worked out before players are allowed to see anything
 {
-   for (int i = 0; i < roster.players.size(); i++)
-   {
-     Player p = roster.players.get(i);
-     map.remove(p.avatar); //checks isIn
-     roster.players.remove(p);
-   } //really should put a "roster.remove" function, so that deallocation can be handled
   OscMessage m = new OscMessage("/server/connect");
   m.add(ilport); 
   m.add(ipre);
@@ -115,12 +96,8 @@ void connect(int ilport, String ipre) //should do all this crap automatically be
 
 void disconnect(int ilport, String ipre)
 {
-  for (int i = 0; i < roster.players.size(); i++)
-   {
-     Player p = roster.players.get(i);
-     map.remove(p.avatar); //checks isIn
-     roster.players.remove(p);
-   } //really should put a "roster.remove" function, so that deallocation can be handled
+  roster.clear();
+  map.clear();
   OscMessage m = new OscMessage("/server/disconnect");
   m.add(ilport); 
   m.add(ipre);
@@ -162,6 +139,18 @@ void oscEvent(OscMessage theOscMessage)
     
     //roster.print();
     return;
+  }
+  
+  if (messageaddr.equals("/object") && messagetag.equals("ffffff"))
+  {
+    float ix = theOscMessage.get(0).floatValue();
+    float iy = theOscMessage.get(1).floatValue();
+    float iz = theOscMessage.get(2).floatValue();
+    float irx = theOscMessage.get(3).floatValue();
+    float iry = theOscMessage.get(4).floatValue();
+    float irz = theOscMessage.get(5).floatValue();
+    Object3D iobject = new Object3D(ix, iy, iz, irx, iry, irz);
+    map.add(iobject);
   }
   
   if (isin != -1)
@@ -234,6 +223,7 @@ void oscEvent(OscMessage theOscMessage)
       
     }
     }
+    
     else
     {
       //println("she doesn't even go here..", messageaddr);
@@ -271,11 +261,11 @@ void keyPressed()
 {
   switch(key)
   {
-    case 'c': connect(lport, myprefix); break;
+    case 'c': disconnect(lport, myprefix); connect(lport, myprefix); break;
     case 'f': disconnect(lport, myprefix); break;
     case 'r': roster.print(); break;
     case 'm': map.print(); break;
-    case 'i': loop(); cam.spawnCamera(randomPos(100), new PVector(0, 0, 0)); sendInit(cam.pos.x, cam.pos.y, cam.pos.z); break;
+    case 'i': loop(); randomSpawnCamera(5000); sendInit(cam.pos.x, cam.pos.y, cam.pos.z); break;
     case 'v': noLoop(); cam.living = false; killCamera(); sendKill(myprefix); break;
     
     //temp testing variables
@@ -298,18 +288,21 @@ void keyPressed()
   }
 }
 
-PVector randomSpawnCamera(int tries) //this null-returning function is more dangerous than just calling this thing wherever it's used.
+
+int randomSpawnCamera(int tries) //this null-returning function is more dangerous than just calling this thing wherever it's used.
 {
-  for (int i = 0; i < tries; i++)
+  for (int i = 0; i <= tries; i++)
   {
-    PVector rvec = new PVector(random(-1080, 1080), 0, random(-1080, 1080));
-    if (map.checkBounds(rvec) == -1)
+    PVector pvec = new PVector(random( -(map.xsize / 2), (map.xsize / 2) ), 0, random( -(map.zsize / 2), (map.zsize / 2) ));
+    PVector rvec = new PVector(0, 0, 0);
+    if (map.checkBounds(pvec) == -1)
     {
-      return rvec;
+      cam.spawnCamera(pvec, rvec);
+      return 0;
     }
   }
   
-  return null;
+  return -1;
 }
 
 void killCamera()
@@ -322,9 +315,4 @@ void killCamera()
   text("Scream, Jailbait!", width/2, height/2);
 }
 
-public void spawnObjects(int count){
-  for(int i = 0; i <= count; i++){
-    map.add(new Object3D((int)random(-1080,1080), (int)random(0,35), (int)random(-1080, 1080), 0, 0, 0)); //0, 360
-  }
-}
 

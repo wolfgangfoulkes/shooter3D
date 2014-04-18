@@ -1,9 +1,13 @@
 class Map
 {
+  float xsize;
+  float zsize;
   ArrayList<Object3D> objects;
   
-  Map()
+  Map(float ixs, float izs)
   {
+    xsize = ixs;
+    zsize = izs;
     objects = new ArrayList<Object3D>(0);
   }
   
@@ -32,6 +36,11 @@ class Map
     return -1;
   }
   
+  void clear()
+  {
+    objects.clear();
+  }
+  
   int move(Object3D iobject, PVector icoord)
   {
     int iindx = objects.indexOf(iobject);
@@ -57,11 +66,11 @@ class Map
   
   int checkBounds(PVector icoord) //this function may be the cause of many of our problems
   {
+    if (Math.abs(icoord.x) >= ( xsize / 2 ) || Math.abs(icoord.z) >= ( zsize / 2 )) 
+    { println("map bounds!"); return 0; }
     for (int i = objects.size() - 1; i >= 0; i--)
     {
       Object3D oobject = objects.get(i);
-      //println("distance", PVector.dist(icoord, oobject.p));
-      if (Math.abs(icoord.x) >= 1080.0 || Math.abs(icoord.z) >= 1080.0) { println("arena bounds!"); return i; }
       if (PVector.dist(icoord, oobject.p) <= oobject.radius)
       {        
         return i; 
@@ -72,11 +81,12 @@ class Map
   
   int checkBounds(float ix, float iy, float iz)
   {
+    PVector icoord = new PVector(ix, iy, iz);
+    if (Math.abs(icoord.x) >= ( xsize / 2 ) || Math.abs(icoord.z) >= ( zsize / 2 )) 
+    { println("map bounds!"); return 0; }
     for (int i = objects.size() - 1; i >= 0; i--)
     {
       Object3D oobject = objects.get(i);
-      PVector icoord = new PVector(ix, iy, iz);
-      if (Math.abs(icoord.x) >= 1080.0 || Math.abs(icoord.z) >= 1080.0) { println("arena bounds!"); return i; }
       if (PVector.dist(icoord, oobject.p) <= oobject.radius)
       {
         return i;
@@ -84,6 +94,7 @@ class Map
     }  
     return -1;
   }
+  
   
   int checkCoord(PVector icoord)
   {
@@ -113,45 +124,29 @@ class Map
   }
   
   
-  Object3D getCoord(float ix, float iy, float iz)
-  {
-    for (int i = objects.size() - 1; i >= 0; i--)
-    {
-      Object3D oobject = objects.get(i);
-      if ((oobject.p.x == ix) && (oobject.p.y == iy) && (oobject.p.z == iz))
-      {
-        return oobject;
-      }
-    }  
-    return null;
-  }
-  
-  Object3D getCoord(PVector icoord)
-  {
-    for (int i = objects.size() - 1; i >= 0; i--)
-    {
-      Object3D oobject = objects.get(i);
-      if (oobject.p == icoord) //((oobject.p.x == icoord.x) && (oobject.p.y == icoord.y) && (oobject.p.z == icoord.z))
-      {
-        return oobject;
-      }
-    }  
-    return null;
-  }
-  
-  int getIndexByAngle(PVector ipos, PVector iaim)
+  int getIndexByAngle(PVector ipos, PVector iaim) //this function needs to be rewritten. 
+  //solution might be multiplying the look by the distance between the two points, or normalizing that second angle.
   {
     for (int i = objects.size() - 1; i >= 0; i--)
     {
       PVector vec1 = PVector.sub(iaim, ipos);
       PVector vec2 = PVector.sub(objects.get(i).p, ipos);
       float vecangle = degrees(PVector.angleBetween(vec1, vec2));
-      if (vecangle < 10)
+      if (vecangle <= 5)
       {
         return i;
       }
     }
     return -1;
+  }
+  
+  void randomObjects(int many)
+  {
+    for (int i = 0; i < many; i++)
+    {
+      Object3D robject = new Object3D(random(-(xsize/2), xsize/2), 0, random(-(zsize/2), zsize/2), 0, 0, 0);
+      add(robject);
+    }
   }
   
   void print()
@@ -165,4 +160,3 @@ class Map
     }
   }
 }
-  
