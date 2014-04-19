@@ -23,11 +23,10 @@ class Object3D
     stroke(2);
     fill(100, 100, 100);
     pushMatrix();
-    rotateX(radians(r.x)); //to radians
-    rotateY(radians(r.y));
-    rotateZ(radians(r.z));
     translate(p.x, p.y, p.z);
-    
+    rotateY(radians(r.x)); //to radians
+    rotateX(radians(r.y));
+    rotateZ(radians(r.z));
     box(80, 80, 80);
     //println(modelX(0, 0, 0), modelY(0, 0, 0), modelZ(0, 0, 0));
     popMatrix();

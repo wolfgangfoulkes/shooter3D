@@ -25,4 +25,5 @@ class Avatar extends Object3D
   {
     println("Avatar for player "+player.prefix+"", "position:", p, "rotation", r);
   }
+  
 }

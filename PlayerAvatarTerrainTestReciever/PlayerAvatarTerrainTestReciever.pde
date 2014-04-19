@@ -108,34 +108,8 @@ void oscEvent(OscMessage theOscMessage)
     Player iplayer = roster.players.get(isin);
     String iaddr = roster.removePrefix(messageaddr);
     
-    //a player was spawned
-    if (iaddr.equals("/init") && messagetag.equals("fff")) //"ffffff" //this is redundant and confusing.
-    {
-      float ix = theOscMessage.get(0).floatValue();
-      float iy = theOscMessage.get(1).floatValue();
-      float iz = theOscMessage.get(2).floatValue();
-      
-      PVector ip = new PVector(ix, iy, iz);
-      Avatar ia = new Avatar(iplayer, ip, new PVector(0, 0, 0));
-      if (map.objects.contains(iplayer.avatar))
-      {
-        map.objects.remove(iplayer.avatar);
-        iplayer.avatar = null;
-      }
-      
-      if (map.add(ia) != -1)
-      {
-        iplayer.avatar = ia;
-      }
-      else 
-      { 
-        println("avatar was not initialized at position: "+ip+""); 
-      } //the shit that'll not be in sync will be the Players. 
-      //println(iplayer.prefix, iaddr, ix, iy, iz);
-    }
-    
     //a player has been killed
-    else if (iaddr.equals("/kill") && messagetag.equals("s"))
+    if (iaddr.equals("/kill") && messagetag.equals("s"))
     {
       String is = theOscMessage.get(0).stringValue();
       if (is.equals(myprefix)) 
@@ -160,14 +134,18 @@ void oscEvent(OscMessage theOscMessage)
     }
     
     //player positions, currently updated at draw-rate (could be just at change))
-    else if (iaddr.equals("/pos") && messagetag.equals("fff"))
+    else if (iaddr.equals("/pos") && messagetag.equals("ffffff"))
     {
         float ix = theOscMessage.get(0).floatValue();
         float iy = theOscMessage.get(1).floatValue();
         float iz = theOscMessage.get(2).floatValue();
+        float irx = theOscMessage.get(3).floatValue();
+        float iry = theOscMessage.get(4).floatValue();
+        float irz = theOscMessage.get(5).floatValue();
         
         PVector ip = new PVector(ix, iy, iz);
-        Avatar ia = new Avatar(iplayer, ip, new PVector(0, 0, 0));
+        PVector ir = new PVector(irx, iry, irz);
+        Avatar ia = new Avatar(iplayer, ip, ir);
         if (map.objects.contains(iplayer.avatar))
         {
           map.objects.remove(iplayer.avatar);
@@ -178,43 +156,9 @@ void oscEvent(OscMessage theOscMessage)
         {
           iplayer.avatar = ia;
         }
-      /*
-      float ix = theOscMessage.get(0).floatValue();
-      float iy = theOscMessage.get(1).floatValue();
-      float iz = theOscMessage.get(2).floatValue();
-      
-      PVector ip = new PVector(ix, iy, iz);
-      if (map.move(iplayer.avatar, ip) != -1)
-      {
-        println("the avatar of "+iplayer.prefix+" was moved to "+ip+"");
-      }
-      else 
-      {
-        println("the avatar of "+iplayer.prefix+" was not moved to "+ip+"");
-      }
-      
-    }*/
     
   }
 }
-}
-
-void sendInit(float ix, float iy, float iz) //+ rotation
-{
-  OscMessage ocoor = new OscMessage(myprefix + "/init"); 
-  ocoor.add(ix);
-  ocoor.add(iy);
-  ocoor.add(iz);
-  oscP5.send(ocoor, myBroadcastLocation);
-}
-
-void sendPos(float ix, float iy, float iz) //+ rotation
-{
-  OscMessage ocoor = new OscMessage(myprefix + "/pos");
-  ocoor.add(ix);
-  ocoor.add(iy);
-  ocoor.add(iz);
-  oscP5.send(ocoor, myBroadcastLocation);
 }
 
 void keyPressed()

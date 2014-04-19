@@ -5,6 +5,7 @@ class Camera
  PVector rot; //camera angle
  PVector look; //camera "center"
  PVector ch;
+ float chheight;
  boolean living;
 
   Camera (PApplet iapp)
@@ -14,6 +15,7 @@ class Camera
     rot = new PVector(0, 0, 0);
     look = new PVector(0, 0, 1);
     ch = PVector.add(pos, PVector.mult(look, 100));
+    chheight = 0;
     living = false;
   }
   
@@ -31,16 +33,18 @@ class Camera
     return cam.eye();
   }
 
-  void look(float ix, float iy, float ir) 
+  void look(float ix, float iy) 
   {
     rot.x += ix; //already in degrees.
+    rot.y += iy;
     cam.rotateViewTo(radians(0));
     cam.rotateViewTo(radians(rot.x));
     // look at 
     look.x = cam.lookDir().x; //lookdir is a normalized vector, so between 0 and 1 to represent direction.
-    look.y = iy;
+    look.y = 0;
     look.z = cam.lookDir().z;
     ch = PVector.add(pos, PVector.mult(look, 100));
+    ch.y += rot.y;
   }
   
 PVector pInfo(){
@@ -50,6 +54,13 @@ PVector pInfo(){
 PVector lInfo(){
  return look; 
 }
+
+  /*
+  void inc(PVector ipos)
+  {
+    pos += ipos;
+  }
+  */
   
   void move(PVector ipos)
   {
