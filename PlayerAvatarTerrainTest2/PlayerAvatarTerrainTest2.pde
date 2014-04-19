@@ -11,9 +11,9 @@ OscP5 oscP5;
 Map map;
 Camera cam;
 
-int lport = 12000;
-int bcport = 32000;
-String myprefix = "/slurp";
+int lport = 12001;
+int bcport = 32001;
+String myprefix = "/lerp";
 int connected;
 
 NetAddress myBroadcastLocation; 

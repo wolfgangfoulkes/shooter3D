@@ -5,7 +5,7 @@ OscP5 oscP5;
 
 Map map;
 
-int lport = 12001;
+int lport = 12002;
 int bcport = 32000;
 String myprefix = "/derp";
 
@@ -78,12 +78,8 @@ void oscEvent(OscMessage theOscMessage)
   if (messageaddr.equals("/players/remove")) //remember this fucking string functions you fucking cunt don't fuck up and fucking == with two strings.
   {
     String iprefix = theOscMessage.get(0).stringValue();
-    if (roster.isMe(iprefix)) {return;}
     int rosterindx = roster.indexFromPrefix(iprefix);
-    if (rosterindx == -1)
-    {
-      return;
-    }
+    if ( rosterindx == -1 || iprefix.equals(myprefix) ) { return; } //isme/isn't in there.
     else 
     {
       Player iplayer = roster.players.get(rosterindx);
@@ -111,6 +107,8 @@ void oscEvent(OscMessage theOscMessage)
   {
     Player iplayer = roster.players.get(isin);
     String iaddr = roster.removePrefix(messageaddr);
+    
+    //a player was spawned
     if (iaddr.equals("/init") && messagetag.equals("fff")) //"ffffff" //this is redundant and confusing.
     {
       float ix = theOscMessage.get(0).floatValue();
@@ -135,10 +133,17 @@ void oscEvent(OscMessage theOscMessage)
       } //the shit that'll not be in sync will be the Players. 
       //println(iplayer.prefix, iaddr, ix, iy, iz);
     }
+    
+    //a player has been killed
     else if (iaddr.equals("/kill") && messagetag.equals("s"))
     {
       String is = theOscMessage.get(0).stringValue();
-      if (is.equals(myprefix)) {}
+      if (is.equals(myprefix)) 
+      {
+        //cam.living = false;
+        //noLoop; 
+        //killCamera(); //crashed shit
+      }
       else //everything below should be encapsulated.
       {
         int indx = roster.indexFromPrefix(is);
@@ -153,8 +158,27 @@ void oscEvent(OscMessage theOscMessage)
         }
       }
     }
+    
+    //player positions, currently updated at draw-rate (could be just at change))
     else if (iaddr.equals("/pos") && messagetag.equals("fff"))
     {
+        float ix = theOscMessage.get(0).floatValue();
+        float iy = theOscMessage.get(1).floatValue();
+        float iz = theOscMessage.get(2).floatValue();
+        
+        PVector ip = new PVector(ix, iy, iz);
+        Avatar ia = new Avatar(iplayer, ip, new PVector(0, 0, 0));
+        if (map.objects.contains(iplayer.avatar))
+        {
+          map.objects.remove(iplayer.avatar);
+          iplayer.avatar = null; //redundant(?)
+        }
+        
+        if (map.add(ia) != -1)
+        {
+          iplayer.avatar = ia;
+        }
+      /*
       float ix = theOscMessage.get(0).floatValue();
       float iy = theOscMessage.get(1).floatValue();
       float iz = theOscMessage.get(2).floatValue();
@@ -168,12 +192,11 @@ void oscEvent(OscMessage theOscMessage)
       {
         println("the avatar of "+iplayer.prefix+" was not moved to "+ip+"");
       }
-    }
+      
+    }*/
+    
   }
-    else
-    {
-      //println("she doesn't even go here..", messageaddr);
-    }
+}
 }
 
 void sendInit(float ix, float iy, float iz) //+ rotation
