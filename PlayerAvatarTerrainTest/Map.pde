@@ -71,7 +71,8 @@ class Map
     for (int i = objects.size() - 1; i >= 0; i--)
     {
       Object3D oobject = objects.get(i);
-      if (PVector.dist(icoord, oobject.p) <= oobject.radius)
+      if ((PVector.dist(icoord, oobject.p) <= oobject.radius.x) && (PVector.dist(icoord, oobject.p) <= oobject.radius.x))
+      //temporary solution
       {        
         return i; 
       }
@@ -87,7 +88,7 @@ class Map
     for (int i = objects.size() - 1; i >= 0; i--)
     {
       Object3D oobject = objects.get(i);
-      if (PVector.dist(icoord, oobject.p) <= oobject.radius)
+      if ((PVector.dist(icoord, oobject.p) <= oobject.radius.x) && (PVector.dist(icoord, oobject.p) <= oobject.radius.x))
       {
         return i;
       }
