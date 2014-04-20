@@ -1,3 +1,7 @@
+import shapes3d.utils.*;
+import shapes3d.animation.*;
+import shapes3d.*;
+
 import oscP5.*;
 import netP5.*;
 

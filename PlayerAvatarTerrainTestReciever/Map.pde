@@ -66,12 +66,13 @@ class Map
   
   int checkBounds(PVector icoord) //this function may be the cause of many of our problems
   {
-    if (Math.abs(icoord.x) >= ( xsize / 2 ) || Math.abs(icoord.z) >= ( zsize / 2 )) 
+    if (Math.abs(icoord.x) > ( xsize / 2 ) || Math.abs(icoord.z) > ( zsize / 2 )) 
     { println("map bounds!"); return 0; }
     for (int i = objects.size() - 1; i >= 0; i--)
     {
       Object3D oobject = objects.get(i);
       if (PVector.dist(icoord, oobject.p) <= oobject.radius)
+      //temporary solution
       {        
         return i; 
       }
@@ -123,7 +124,6 @@ class Map
     return -1;
   }
   
-  
   int getIndexByAngle(PVector ipos, PVector iaim) //this function needs to be rewritten. 
   //solution might be multiplying the look by the distance between the two points, or normalizing that second angle.
   {
@@ -148,6 +148,7 @@ class Map
       add(robject);
     }
   }
+  
   
   void print()
   {

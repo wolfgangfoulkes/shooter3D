@@ -6,27 +6,24 @@ class O3DObelisk extends Object3D
   Ellipsoid obelisk;
   int nbrSl = 4;
   int nbrSg = 20;
-  float height;
-  String tag;
-  int tagno;
+  //String tag;
+  //int tagno;
   
-  O3DObelisk(PApplet pa, PVector ip, PVector ir, PVector iradius)
+  O3DObelisk(PVector ip, PVector ir, float iradius)
   {
-    super(ip, ir);
-    radius = iradius;
-    obelisk = new Ellipsoid(pa, nbrSl, nbrSg);
-    obelisk.setRadius(radius.x, radius.y, radius.z);
-    obelisk.drawMode(S3D.TEXTURE);
+    super(ip, ir, iradius);
+    obelisk = new Ellipsoid(applet, nbrSl, nbrSg);
+    obelisk.setRadius(radius);
+    //obelisk.drawMode(S3D.TEXTURE);
     //we'll do "addShape" within the Map class on the whole array, using the "getEllipsoid" method
   }
   
-  O3DObelisk(PApplet pa, int ix, int iy, int iz, int irx, int iry, int irz, PVector iradius)
+  O3DObelisk(float ix, float iy, float iz, float irx, float iry, float irz, float iradius)
   {
-    super(ix, iy, iz, irx, iry, irz);
-    radius = iradius;
-    obelisk = new Ellipsoid(pa, nbrSl, nbrSg);
-    obelisk.setRadius(radius.x, radius.y, radius.z);
-    obelisk.drawMode(S3D.TEXTURE);
+    super(ix, iy, iz, irx, iry, irz, iradius);
+    obelisk = new Ellipsoid(applet, nbrSl, nbrSg);
+    obelisk.setRadius(radius);
+    //obelisk.drawMode(S3D.TEXTURE);
   }
   
   void display()
@@ -35,6 +32,7 @@ class O3DObelisk extends Object3D
     obelisk.rotateTo(r);
     p = obelisk.getPosVec();
     r = obelisk.getRotVec();
+    obelisk.draw();
   }
   
   void update() //this'll cause more rather than fewer problems. movements will be small enough at a time, that there shouldn't be an issue.
@@ -64,6 +62,7 @@ class O3DObelisk extends Object3D
   {
     return "obelisk"; //should just be "object" unless there's a good reason.
   }
+  
   
   Ellipsoid getEllipsoid ()
   {

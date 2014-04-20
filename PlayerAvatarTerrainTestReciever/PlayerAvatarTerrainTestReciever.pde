@@ -1,3 +1,7 @@
+import shapes3d.utils.*;
+import shapes3d.animation.*;
+import shapes3d.*;
+
 import oscP5.*;
 import netP5.*;
 
@@ -11,6 +15,8 @@ String myprefix = "/derp";
 
 NetAddress myBroadcastLocation; 
 Roster roster;
+
+PApplet applet = this;
 
 void setup() 
 {
@@ -28,7 +34,7 @@ void setup()
 
 void draw() 
 {
-  background(0);
+  background(100, 0, 0);
   camera(0, 1000, 0, 0, 0, 0, 0, 0, -1); //note this "up" shit. this was necessary to get this to display right. right now, the negative Z axis is up.
   map.display();
   //map.print();
@@ -56,8 +62,8 @@ void disconnect(int ilport, String ipre)
 
 void oscEvent(OscMessage theOscMessage) 
 {
-  //println("###2 received an osc message with addrpattern "+theOscMessage.addrPattern()+" and typetag "+theOscMessage.typetag());
-  //theOscMessage.print();
+  println("###2 received an osc message with addrpattern "+theOscMessage.addrPattern()+" and typetag "+theOscMessage.typetag());
+  theOscMessage.print();
   
   String messageIP = theOscMessage.netaddress().address();
   String messageaddr = theOscMessage.addrPattern();
@@ -99,7 +105,7 @@ void oscEvent(OscMessage theOscMessage)
     float irx = theOscMessage.get(3).floatValue();
     float iry = theOscMessage.get(4).floatValue();
     float irz = theOscMessage.get(5).floatValue();
-    Object3D iobject = new Object3D(ix, iy, iz, irx, iry, irz);
+    O3DObelisk iobject = new O3DObelisk(ix, iy, iz, irx, iry, irz, 100.0);
     map.add(iobject);
   }
   

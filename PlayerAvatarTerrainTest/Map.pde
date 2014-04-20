@@ -71,7 +71,7 @@ class Map
     for (int i = objects.size() - 1; i >= 0; i--)
     {
       Object3D oobject = objects.get(i);
-      if ((PVector.dist(icoord, oobject.p) <= oobject.radius.x) && (PVector.dist(icoord, oobject.p) <= oobject.radius.x))
+      if (PVector.dist(icoord, oobject.p) <= oobject.radius)
       //temporary solution
       {        
         return i; 
@@ -88,7 +88,7 @@ class Map
     for (int i = objects.size() - 1; i >= 0; i--)
     {
       Object3D oobject = objects.get(i);
-      if ((PVector.dist(icoord, oobject.p) <= oobject.radius.x) && (PVector.dist(icoord, oobject.p) <= oobject.radius.x))
+      if (PVector.dist(icoord, oobject.p) <= oobject.radius)
       {
         return i;
       }
@@ -123,7 +123,6 @@ class Map
     }  
     return -1;
   }
-  
   
   int getIndexByAngle(PVector ipos, PVector iaim) //this function needs to be rewritten. 
   //solution might be multiplying the look by the distance between the two points, or normalizing that second angle.
