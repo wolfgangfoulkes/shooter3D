@@ -4,10 +4,12 @@ class Camera
  PVector pos; //camera "eye"
  PVector rot; //camera angle
  PVector look; //camera "center"
- PVector move;
- PVector ch;
- float chheight;
+ PVector move; //next position
  boolean living;
+ 
+ 
+ PVector ch; //crosshairs.
+ float chheight;
 
   Camera (PApplet iapp)
   {
@@ -26,8 +28,6 @@ class Camera
     pos = ipos;
     rot = irot;
     cam.eye(pos);
-    //cam.rotateViewTo(radians(rot.y)); //unnecessary, covered by look() from rot.
-    //cam.turnTo(radians(rot.y)); //unnecessary, covered by look() from rot.
     look = cam.lookDir();
     ch = PVector.add(pos, PVector.mult(look, 100));
     living = true;
@@ -38,17 +38,14 @@ class Camera
   void look(float iy, float ih) 
   {
     rot.y += iy; //already in degrees.
-    chheight += ih;
     cam.rotateViewTo(radians(rot.y));
-    // look at 
     look.x = cam.lookDir().x; //lookdir is a normalized vector, so between 0 and 1 to represent direction.
     look.y = 0;
     look.z = cam.lookDir().z;
+    chheight += ih;
     ch = PVector.add(pos, PVector.mult(look, 100));
-    //println(cam.lookDir());
     ch.y += chheight;
-    
-    //println(rot);
+
   }
   
 PVector pInfo(){
@@ -85,6 +82,8 @@ PVector lInfo(){
   void display()
   {
     cam.camera();
+    spotLight(255, 255, 255, pos.x, pos.y, pos.z, look.x, look.y, look.z, radians(180), 800); //concentration: 1 - 10000
+    
     pushMatrix();
     translate(ch.x, ch.y, ch.z);
     rotateY(radians(90 - rot.y)); //think it's this value because the camera looks to the positive x axis.

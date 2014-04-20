@@ -2,7 +2,6 @@ import shapes3d.utils.*;
 import shapes3d.animation.*;
 import shapes3d.*;
 
-
 import oscP5.*;
 import netP5.*;
 
@@ -12,6 +11,7 @@ Map map;
 Camera cam;
 
 PApplet applet = this;
+//Tube laser = new Tube(this, 10, 30); //contained by cam?
 
 int lport = 12000;
 int bcport = 32000;
@@ -56,13 +56,14 @@ void draw()
   else
   {
     background(0);
-    lights();
+    directionalLight(2000, 2000, 2000, 0, 0, 0);
   
-    //cam.cam.camera();
     map.display();
     cam.display();
     cam.look(acc.x, acc.z);
     cam.move(joystick);
+    println(cam.cam.eye());
+    
     
     if (map.checkBounds(PVector.add(cam.pos, cam.move)) == -1) //this don't work, because joystick is a time-value here. would need to calculate that somehow.
     { 
@@ -166,6 +167,21 @@ void oscEvent(OscMessage theOscMessage)
     Player iplayer = roster.players.get(isin);
     String iaddr = roster.removePrefix(messageaddr);
     
+    if (iaddr.equals("/shot") && messagetag.equals("fff"))
+    {
+      //println("###2 received an osc message with addrpattern "+theOscMessage.addrPattern()+" and typetag "+theOscMessage.typetag());
+      //theOscMessage.print();
+        float ix = theOscMessage.get(0).floatValue();
+        float iy = theOscMessage.get(1).floatValue();
+        float iz = theOscMessage.get(2).floatValue();
+        
+        Avatar a = iplayer.avatar;
+        if (a != null) 
+        {
+          a.startLaser(new PVector(ix, iy, iz));
+        }
+    }
+    
     //a player has been killed
     if (iaddr.equals("/kill") && messagetag.equals("s"))
     {
@@ -213,10 +229,17 @@ void oscEvent(OscMessage theOscMessage)
         
         PVector ip = new PVector(ix, iy, iz);
         PVector ir = new PVector(irx, iry, irz);
-        Avatar ia = new Avatar(iplayer, ip, ir);
-        if (map.objects.contains(iplayer.avatar))
+        
+        if (iplayer.avatar != null)
         {
-          map.objects.remove(iplayer.avatar);
+          int indx = map.move(iplayer.avatar, ip, ir);
+          if (indx == -1) {iplayer.avatar = null;}
+        }
+        /*
+        Avatar ia = new Avatar(iplayer, ip, ir);
+        if (map.objects.contains(iplayer.avatar)) 
+        {
+          map.objects.remove(iplayer.avatar); //should use a map.move function instead that does checks.
           iplayer.avatar = null; //redundant(?)
         }
         
@@ -224,6 +247,7 @@ void oscEvent(OscMessage theOscMessage)
         {
           iplayer.avatar = ia;
         }
+        */
     
   }
 }
@@ -238,6 +262,15 @@ void sendPos(float ix, float iy, float iz, float irx, float iry, float irz) //+ 
   ocoor.add(irx);
   ocoor.add(iry);
   ocoor.add(irz);
+  oscP5.send(ocoor, myBroadcastLocation);
+}
+
+void sendShot(PVector iaim)
+{
+  OscMessage ocoor = new OscMessage(myprefix + "/shot");
+  ocoor.add(iaim.x);
+  ocoor.add(iaim.y);
+  ocoor.add(iaim.z);
   oscP5.send(ocoor, myBroadcastLocation);
 }
 
@@ -311,7 +344,8 @@ void killCamera()
 int shoot(PVector pos, PVector aim)
 {
   int indx = map.getIndexByAngle(pos, aim);
-  if (indx != -1) 
+  sendShot(aim);
+  if (indx != -1)
   { 
     if (map.objects.get(indx).getType().equals("avatar"))
     {
@@ -325,3 +359,5 @@ int shoot(PVector pos, PVector aim)
   }
   return -1;
 }
+
+

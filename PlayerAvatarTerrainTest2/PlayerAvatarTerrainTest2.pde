@@ -12,10 +12,11 @@ Map map;
 Camera cam;
 
 PApplet applet = this;
+//Tube laser = new Tube(this, 10, 30); //contained by cam?
 
-int lport = 12001;
+int lport = 12000;
 int bcport = 32000;
-String myprefix = "/lerp";
+String myprefix = "/slurp";
 int connected;
 
 NetAddress myBroadcastLocation; 
@@ -58,11 +59,12 @@ void draw()
     background(0);
     lights();
   
-    //cam.cam.camera();
     map.display();
     cam.display();
     cam.look(acc.x, acc.z);
     cam.move(joystick);
+    println(cam.cam.eye());
+    
     
     if (map.checkBounds(PVector.add(cam.pos, cam.move)) == -1) //this don't work, because joystick is a time-value here. would need to calculate that somehow.
     { 
@@ -166,9 +168,26 @@ void oscEvent(OscMessage theOscMessage)
     Player iplayer = roster.players.get(isin);
     String iaddr = roster.removePrefix(messageaddr);
     
+    if (iaddr.equals("/shot") && messagetag.equals("fff"))
+    {
+      //println("###2 received an osc message with addrpattern "+theOscMessage.addrPattern()+" and typetag "+theOscMessage.typetag());
+      //theOscMessage.print();
+        float ix = theOscMessage.get(0).floatValue();
+        float iy = theOscMessage.get(1).floatValue();
+        float iz = theOscMessage.get(2).floatValue();
+        
+        Avatar a = iplayer.avatar;
+        if (a != null) 
+        {
+          a.startLaser(new PVector(ix, iy, iz));
+        }
+    }
+    
     //a player has been killed
     if (iaddr.equals("/kill") && messagetag.equals("s"))
     {
+      //println("###2 received an osc message with addrpattern "+theOscMessage.addrPattern()+" and typetag "+theOscMessage.typetag());
+      //theOscMessage.print();
       String is = theOscMessage.get(0).stringValue();
       if (is.equals(myprefix)) 
       {
@@ -181,9 +200,17 @@ void oscEvent(OscMessage theOscMessage)
         int indx = roster.indexFromPrefix(is);
         if (indx != -1)
         {
-          Object3D object = roster.players.get(indx).avatar;
+          Avatar object = roster.players.get(indx).avatar;
+          for (int i = 0; i < 50; i++)
+          {
+            println(object.player.prefix);
+          }
           if (map.remove(object) != -1)
           {
+            for (int i = 0; i < 50; i++)
+            {
+              println("removed object!");
+            }
             //object = null; //does this work? call map first ofcourse.
             roster.players.get(indx).avatar = null;
           }
@@ -203,10 +230,17 @@ void oscEvent(OscMessage theOscMessage)
         
         PVector ip = new PVector(ix, iy, iz);
         PVector ir = new PVector(irx, iry, irz);
-        Avatar ia = new Avatar(iplayer, ip, ir);
-        if (map.objects.contains(iplayer.avatar))
+        
+        if (iplayer.avatar != null)
         {
-          map.objects.remove(iplayer.avatar);
+          int indx = map.move(iplayer.avatar, ip, ir);
+          iplayer.avatar = (indx == -1) ? null : iplayer.avatar;
+        }
+        /*
+        Avatar ia = new Avatar(iplayer, ip, ir);
+        if (map.objects.contains(iplayer.avatar)) 
+        {
+          map.objects.remove(iplayer.avatar); //should use a map.move function instead that does checks.
           iplayer.avatar = null; //redundant(?)
         }
         
@@ -214,6 +248,7 @@ void oscEvent(OscMessage theOscMessage)
         {
           iplayer.avatar = ia;
         }
+        */
     
   }
 }
@@ -228,6 +263,15 @@ void sendPos(float ix, float iy, float iz, float irx, float iry, float irz) //+ 
   ocoor.add(irx);
   ocoor.add(iry);
   ocoor.add(irz);
+  oscP5.send(ocoor, myBroadcastLocation);
+}
+
+void sendShot(PVector iaim)
+{
+  OscMessage ocoor = new OscMessage(myprefix + "/shot");
+  ocoor.add(iaim.x);
+  ocoor.add(iaim.y);
+  ocoor.add(iaim.z);
   oscP5.send(ocoor, myBroadcastLocation);
 }
 
@@ -301,17 +345,20 @@ void killCamera()
 int shoot(PVector pos, PVector aim)
 {
   int indx = map.getIndexByAngle(pos, aim);
-  if (indx != -1) 
+  sendShot(aim);
+  if (indx != -1)
   { 
     if (map.objects.get(indx).getType().equals("avatar"))
     {
-      Avatar a =  (Avatar) map.objects.get(indx) ;
+      Avatar a =  (Avatar) map.objects.get(indx);
       println("killed player "+a.player.prefix+"");
       sendKill(a.player.prefix);
-      //map.remove(a); //remove when we recieve word from the hive //maybe if this is jumpy, fuck it later.
-      //a = null; //good place to implement a "Player isLiving"
+      map.remove(a); //remove when we recieve word from the hive //maybe if this is jumpy, fuck it later.
+      a = null; //good place to implement a "Player isLiving"
       return indx;
     }
   }
   return -1;
 }
+
+

@@ -34,6 +34,14 @@ class Object3D
     radius = iradius;
   }
   
+  void move()
+  {
+  }
+  
+  void update()
+  {
+  }  
+  
   void display()
   {
     stroke(2);
@@ -51,9 +59,6 @@ class Object3D
     //noFill();
   }
   
-  void update()
-  {
-  }
   
   void startMoveTo (PVector ip)
   {
@@ -72,5 +77,10 @@ class Object3D
   String getType()
   {
     return "object";
+  }
+  
+  Shape3D getShape()
+  {
+    return null;
   }
 }

@@ -3,6 +3,8 @@ class Map
   float xsize;
   float zsize;
   ArrayList<Object3D> objects;
+  //Terrain terrain;
+  //should add items to terrain whenever they're added to Map, etc.
   
   Map(float ixs, float izs)
   {
@@ -41,13 +43,15 @@ class Map
     objects.clear();
   }
   
-  int move(Object3D iobject, PVector icoord)
+  int move(Object3D iobject, PVector ipos, PVector irot)
   {
     int iindx = objects.indexOf(iobject);
-    int isInBounds = checkBounds(icoord);
+    int isInBounds = checkBounds(ipos);
     if ( (iindx != -1) && (isInBounds == iindx) ) 
     {
-      objects.get(iindx).p = icoord;
+      Object3D object = objects.get(iindx);
+      object.p = ipos;
+      object.r = irot;
       return iindx;
     }
     else 

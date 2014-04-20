@@ -22,7 +22,7 @@ void setup()
   masterMap.add(new Object3D(new PVector(0, 0, 500), new PVector(0, 0, 0)));
   masterMap.add(new Object3D(new PVector(-500, 0, 0), new PVector(0, 0, 0)));
   masterMap.add(new Object3D(new PVector(0, 0, -500), new PVector(0, 0, 0)));
-  masterMap.randomObjects(15);
+  //masterMap.randomObjects(15);
   frameRate(25);
 }
 
