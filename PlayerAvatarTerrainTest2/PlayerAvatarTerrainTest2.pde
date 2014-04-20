@@ -11,9 +11,11 @@ OscP5 oscP5;
 Map map;
 Camera cam;
 
-int lport = 12000;
+PApplet applet = this;
+
+int lport = 12001;
 int bcport = 32000;
-String myprefix = "/slurp";
+String myprefix = "/lerp";
 int connected;
 
 NetAddress myBroadcastLocation; 
@@ -155,7 +157,7 @@ void oscEvent(OscMessage theOscMessage)
     float irx = theOscMessage.get(3).floatValue();
     float iry = theOscMessage.get(4).floatValue();
     float irz = theOscMessage.get(5).floatValue();
-    O3DObelisk iobject = new O3DObelisk(this, ix, iy, iz, irx, iry, irz, 100.0);
+    O3DObelisk iobject = new O3DObelisk(applet, ix, iy, iz, irx, iry, irz, 100.0);
     map.add(iobject);
   }
   

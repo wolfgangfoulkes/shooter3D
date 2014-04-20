@@ -35,7 +35,7 @@ void setup()
 void draw() 
 {
   background(100, 0, 0);
-  camera(0, 1000, 0, 0, 0, 0, 0, 0, -1); //note this "up" shit. this was necessary to get this to display right. right now, the negative Z axis is up.
+  camera(0, 1000, 0, 0, 0, 0, 0, 0, 1); //note this "up" shit. this was necessary to get this to display right. right now, the negative Z axis is up.
   map.display();
   //map.print();
 }
@@ -62,8 +62,8 @@ void disconnect(int ilport, String ipre)
 
 void oscEvent(OscMessage theOscMessage) 
 {
-  println("###2 received an osc message with addrpattern "+theOscMessage.addrPattern()+" and typetag "+theOscMessage.typetag());
-  theOscMessage.print();
+  //println("###2 received an osc message with addrpattern "+theOscMessage.addrPattern()+" and typetag "+theOscMessage.typetag());
+  //theOscMessage.print();
   
   String messageIP = theOscMessage.netaddress().address();
   String messageaddr = theOscMessage.addrPattern();

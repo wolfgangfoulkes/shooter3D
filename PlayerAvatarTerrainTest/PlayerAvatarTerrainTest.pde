@@ -11,6 +11,8 @@ OscP5 oscP5;
 Map map;
 Camera cam;
 
+PApplet applet = this;
+
 int lport = 12000;
 int bcport = 32000;
 String myprefix = "/slurp";
@@ -155,7 +157,7 @@ void oscEvent(OscMessage theOscMessage)
     float irx = theOscMessage.get(3).floatValue();
     float iry = theOscMessage.get(4).floatValue();
     float irz = theOscMessage.get(5).floatValue();
-    O3DObelisk iobject = new O3DObelisk(this, ix, iy, iz, irx, iry, irz, 100.0);
+    O3DObelisk iobject = new O3DObelisk(applet, ix, iy, iz, irx, iry, irz, 100.0);
     map.add(iobject);
   }
   
@@ -167,6 +169,8 @@ void oscEvent(OscMessage theOscMessage)
     //a player has been killed
     if (iaddr.equals("/kill") && messagetag.equals("s"))
     {
+      //println("###2 received an osc message with addrpattern "+theOscMessage.addrPattern()+" and typetag "+theOscMessage.typetag());
+      //theOscMessage.print();
       String is = theOscMessage.get(0).stringValue();
       if (is.equals(myprefix)) 
       {
@@ -179,9 +183,17 @@ void oscEvent(OscMessage theOscMessage)
         int indx = roster.indexFromPrefix(is);
         if (indx != -1)
         {
-          Object3D object = roster.players.get(indx).avatar;
+          Avatar object = roster.players.get(indx).avatar;
+          for (int i = 0; i < 50; i++)
+          {
+            println(object.player.prefix);
+          }
           if (map.remove(object) != -1)
           {
+            for (int i = 0; i < 50; i++)
+            {
+              println("removed object!");
+            }
             //object = null; //does this work? call map first ofcourse.
             roster.players.get(indx).avatar = null;
           }
@@ -303,11 +315,11 @@ int shoot(PVector pos, PVector aim)
   { 
     if (map.objects.get(indx).getType().equals("avatar"))
     {
-      Avatar a =  (Avatar) map.objects.get(indx) ;
+      Avatar a =  (Avatar) map.objects.get(indx);
       println("killed player "+a.player.prefix+"");
       sendKill(a.player.prefix);
-      //map.remove(a); //remove when we recieve word from the hive //maybe if this is jumpy, fuck it later.
-      //a = null; //good place to implement a "Player isLiving"
+      map.remove(a); //remove when we recieve word from the hive //maybe if this is jumpy, fuck it later.
+      a = null; //good place to implement a "Player isLiving"
       return indx;
     }
   }

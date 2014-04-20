@@ -40,8 +40,8 @@ class Object3D
     fill(100, 100, 100);
     pushMatrix();
     translate(p.x, p.y, p.z);
-    rotateY(radians(r.x)); //to radians
-    rotateX(radians(r.y));
+    rotateX(radians(r.x)); //to radians
+    rotateY(radians(r.y));
     rotateZ(radians(r.z));
     rectMode(CENTER);
     box(80, 80, 80);

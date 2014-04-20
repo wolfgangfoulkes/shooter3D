@@ -7,7 +7,7 @@ class Player
   {
     prefix = iprefix;
     avatar = null;
-    println("new Player! prefix "+prefix+"");
+    //println("new Player! prefix "+prefix+"");
   }
   
   void initAvatar(PVector ip, PVector ir)

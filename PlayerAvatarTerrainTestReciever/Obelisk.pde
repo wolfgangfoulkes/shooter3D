@@ -13,7 +13,7 @@ class O3DObelisk extends Object3D
   {
     super(ip, ir, iradius);
     obelisk = new Ellipsoid(applet, nbrSl, nbrSg);
-    obelisk.setRadius(radius);
+    obelisk.setRadius(radius * .5, 0, radius * .1);
     //obelisk.drawMode(S3D.TEXTURE);
     //we'll do "addShape" within the Map class on the whole array, using the "getEllipsoid" method
   }
@@ -22,16 +22,17 @@ class O3DObelisk extends Object3D
   {
     super(ix, iy, iz, irx, iry, irz, iradius);
     obelisk = new Ellipsoid(applet, nbrSl, nbrSg);
-    obelisk.setRadius(radius);
+    obelisk.setRadius(radius * .5, 0, radius * .1);
     //obelisk.drawMode(S3D.TEXTURE);
   }
   
   void display()
   {
     obelisk.moveTo(p);
-    obelisk.rotateTo(r);
-    p = obelisk.getPosVec();
-    r = obelisk.getRotVec();
+    obelisk.rotateToY(radians(90 - r.y));
+    //p = obelisk.getPosVec();
+    //r = obelisk.getRotVec();
+    //println(r);
     obelisk.draw();
   }
   
