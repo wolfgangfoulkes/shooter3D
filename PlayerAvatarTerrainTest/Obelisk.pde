@@ -13,7 +13,7 @@ class O3DObelisk extends Object3D
   {
     super(ip, ir, iradius);
     obelisk = new Ellipsoid(pa, nbrSl, nbrSg);
-    obelisk.setRadius(radius * .5);
+    obelisk.setRadius(radius * .5, radius * .5, radius * .1);
     //obelisk.drawMode(S3D.TEXTURE);
     //we'll do "addShape" within the Map class on the whole array, using the "getEllipsoid" method
   }
@@ -22,16 +22,14 @@ class O3DObelisk extends Object3D
   {
     super(ix, iy, iz, irx, iry, irz, iradius);
     obelisk = new Ellipsoid(pa, nbrSl, nbrSg);
-    obelisk.setRadius(radius * .5);
+    obelisk.setRadius(radius * .5, radius * .5, radius * .1);
     //obelisk.drawMode(S3D.TEXTURE);
   }
   
   void display()
   {
     obelisk.moveTo(p);
-    obelisk.rotateTo(r);
-    p = obelisk.getPosVec();
-    r = obelisk.getRotVec();
+    obelisk.rotateToY(radians(r.y));
     obelisk.draw();
   }
   
@@ -40,6 +38,14 @@ class O3DObelisk extends Object3D
     p = obelisk.getPosVec();
     r = obelisk.getRotVec();
   }
+  
+  /*
+  void moveTo(PVector ip, PVector ir)
+  {
+    p = ip;
+    r = ir;
+  }
+  */
   
   void startMoveTo(PVector ip, float time, float delay) //don't know if I can consolidate this with the object structure, don't know if this lags CPU.
   {
@@ -64,7 +70,7 @@ class O3DObelisk extends Object3D
   }
   
   
-  Ellipsoid getEllipsoid ()
+  Shape3D getShape ()
   {
     return obelisk;
   }

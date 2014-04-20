@@ -26,8 +26,6 @@ class Camera
     pos = ipos;
     rot = irot;
     cam.eye(pos);
-    //cam.rotateViewTo(radians(rot.y)); //unnecessary, covered by look() from rot.
-    //cam.turnTo(radians(rot.y)); //unnecessary, covered by look() from rot.
     look = cam.lookDir();
     ch = PVector.add(pos, PVector.mult(look, 100));
     living = true;
@@ -38,17 +36,14 @@ class Camera
   void look(float iy, float ih) 
   {
     rot.y += iy; //already in degrees.
-    chheight += ih;
     cam.rotateViewTo(radians(rot.y));
-    // look at 
     look.x = cam.lookDir().x; //lookdir is a normalized vector, so between 0 and 1 to represent direction.
     look.y = 0;
     look.z = cam.lookDir().z;
+    chheight += ih;
     ch = PVector.add(pos, PVector.mult(look, 100));
-    //println(cam.lookDir());
     ch.y += chheight;
-    
-    //println(rot);
+
   }
   
 PVector pInfo(){
