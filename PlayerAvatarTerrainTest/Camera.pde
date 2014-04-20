@@ -82,7 +82,6 @@ PVector lInfo(){
   void display()
   {
     cam.camera();
-    spotLight(255, 255, 255, pos.x, pos.y, pos.z, look.x, look.y, look.z, radians(180), 800); //concentration: 1 - 10000
     
     pushMatrix();
     translate(ch.x, ch.y, ch.z);

@@ -11,7 +11,6 @@ Map map;
 Camera cam;
 
 PApplet applet = this;
-//Tube laser = new Tube(this, 10, 30); //contained by cam?
 
 int lport = 12000;
 int bcport = 32000;
@@ -56,7 +55,6 @@ void draw()
   else
   {
     background(0);
-    directionalLight(2000, 2000, 2000, 0, 0, 0);
   
     map.display();
     cam.display();
