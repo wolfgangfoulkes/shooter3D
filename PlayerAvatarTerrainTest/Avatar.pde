@@ -18,20 +18,22 @@ class Avatar extends O3DObelisk
   {
   }
   
-  void display()
+  void update()
   {
     obelisk.moveTo(p);
     obelisk.rotateToY(radians(r.y));
-    p = obelisk.getPosVec();
-    r = obelisk.getRotVec();
-    obelisk.draw();
     laser.update();
+  }
+  
+  void display()
+  {
+    obelisk.draw();
     laser.display();
   }
   
   void startLaser(PVector iaim)
   {
-    laser.set(p, iaim, .001, .001);
+    laser.set(p, iaim, .001, .001); //laser.adjustToTerrain?
   }
   
   String getType()

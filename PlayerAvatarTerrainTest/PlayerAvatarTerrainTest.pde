@@ -57,7 +57,6 @@ void setup()
   cam = new Camera(this);
   map.setCamera(cam.cam);
   //map.setTexture(terrainTex);
-  
 }
 
 void draw() 
@@ -128,7 +127,7 @@ void disconnect(int ilport, String ipre)
 
 void oscEvent(OscMessage theOscMessage) 
 {
-  println("###2 received an osc message with addrpattern "+theOscMessage.addrPattern()+" and typetag "+theOscMessage.typetag());
+  //println("###2 received an osc message with addrpattern "+theOscMessage.addrPattern()+" and typetag "+theOscMessage.typetag());
   //theOscMessage.print();
   
   String messageIP = theOscMessage.netaddress().address();
@@ -172,7 +171,7 @@ void oscEvent(OscMessage theOscMessage)
     float iry = theOscMessage.get(4).floatValue();
     float irz = theOscMessage.get(5).floatValue();
     O3DObelisk iobject = new O3DObelisk(applet, ix, iy, iz, irx, iry, irz, 50.0);
-    //map.add(iobject);
+    map.add(iobject);
   }
   
   if (isin != -1)
@@ -216,8 +215,8 @@ void oscEvent(OscMessage theOscMessage)
           Avatar avatar = player.avatar;
           if (map.remove(avatar) != -1)
           {
-            println("player "+player+" has been killed");
-            //avatar = null; //does this work? call map first ofcourse.
+             println("player "+player+" has been killed");
+             avatar = null; //does this work? call map first ofcourse.
             //roster.players.get(indx).avatar = null;
           }
         }
@@ -237,14 +236,16 @@ void oscEvent(OscMessage theOscMessage)
         PVector ip = new PVector(ix, iy, iz);
         PVector ir = new PVector(irx, iry, irz);
         
-        if (iplayer.avatar != null)
+        if (map.objects.indexOf(iplayer.avatar) == -1)
         {
-          int indx = map.move(iplayer.avatar, ip, ir);
-          println("moved player "+iplayer.prefix+" to "+ip+" and "+ir+"");
-          //if I wanted to use time-based object movement, 
-          //I would use the map.move function to call the objects's move function.
-          if (indx == -1) {iplayer.avatar = null;}
+          Avatar ia = new Avatar(iplayer, ip, ir);
+          iplayer.avatar = (map.add(ia) != -1) ? ia : null;
         }
+        else
+        {
+           map.move(iplayer.avatar, ip, ir);
+        }
+      
         /*
         Avatar ia = new Avatar(iplayer, ip, ir);
         if (map.objects.contains(iplayer.avatar)) 
@@ -259,7 +260,10 @@ void oscEvent(OscMessage theOscMessage)
         }
         */
     
-  }
+        
+    
+  
+    }
 }
 }
 
@@ -318,7 +322,7 @@ void keyPressed()
     
     case 'z':
     {
-      if (shoot(cam.pos, PVector.mult(cam.look, 1000)) == -1) { println( "shootin' blanks" ); }
+      if (shoot(cam.pos, cam.aim) == -1) { println( "in' blanks" ); }
       break;
     }
   }
@@ -363,7 +367,7 @@ int shoot(PVector pos, PVector aim)
       println("killed player "+a.player.prefix+"");
       sendKill(a.player.prefix);
       map.remove(a); //remove when we recieve word from the hive //maybe if this is jumpy, fuck it later.
-      a = null; //good place to implement a "Player isLiving"
+      a.player.avatar = null; //good place to implement a "Player isLiving"
       return indx;
     }
   }

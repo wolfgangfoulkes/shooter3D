@@ -7,9 +7,8 @@ class Camera
  PVector move; //next position
  boolean living;
  
- 
- PVector ch; //crosshairs.
- float chheight;
+ PVector aim;
+ float aimheight;
 
   Camera (PApplet iapp)
   {
@@ -18,8 +17,8 @@ class Camera
     move = new PVector(0, 0, 0);
     rot = new PVector(0, 0, 0);
     look = new PVector(0, 0, 1);
-    ch = PVector.add(pos, PVector.mult(look, 100));
-    chheight = 0;
+    aim = PVector.add(pos, PVector.mult(look, 200));
+    aimheight = 0;
     living = false;
   }
   
@@ -29,7 +28,7 @@ class Camera
     rot = irot;
     cam.eye(pos);
     look = cam.lookDir();
-    ch = PVector.add(pos, PVector.mult(look, 100));
+    aim = PVector.add(pos, PVector.mult(look, 200));
     living = true;
     
     return cam.eye();
@@ -42,9 +41,9 @@ class Camera
     look.x = cam.lookDir().x; //lookdir is a normalized vector, so between 0 and 1 to represent direction.
     look.y = 0;
     look.z = cam.lookDir().z;
-    chheight += ih;
-    ch = PVector.add(pos, PVector.mult(look, 100));
-    ch.y += chheight; //gotta limit this so it doesn't go off the map (limit more than that).
+    aimheight += ih;
+    aim = PVector.add(pos, PVector.mult(look, 200));
+    aim.y += aimheight; //gotta limit this so it doesn't go off the map (limit more than that).
     //println(ch);
 
   }
@@ -86,7 +85,7 @@ PVector lInfo(){
     cam.camera();
     
     pushMatrix();
-    translate(ch.x, ch.y, ch.z);
+    translate(aim.x, aim.y, aim.z);
     rotateY(radians(90 - rot.y)); //think it's this value because the camera looks to the positive x axis.
     stroke(255);
     fill(255);

@@ -18,15 +18,18 @@ class Map
     //terrain.fill(color(255, 0, 0));
   }
   
-  int add(Object3D iobject) //type-check to include "isIn?" right now.
+  int add(Object3D iobject) //type-check to include "?" right now.
   {
+    //iobject.adjustToTerrain(terrain);
     int isIn = objects.indexOf(iobject);
     int isInBounds = checkBounds(iobject.p);
     if ( (isIn == -1) && (isInBounds == -1) )
     {
+
       objects.add(iobject);
-      Shape3D ishape = iobject.getShape();
-      if (ishape != null) { terrain.addShape(ishape); }
+      //?object.addToTerrain?
+      //Shape3D ishape = iobject.getShape();
+      //if (ishape != null) { terrain.addShape(ishape); }
       return 0;
     }
     
@@ -54,13 +57,15 @@ class Map
   
   int move(Object3D iobject, PVector ipos, PVector irot)
   {
-    int iindx = objects.indexOf(iobject);
+    int iindx = map.remove(iobject);
     int isInBounds = checkBounds(ipos);
-    if ( (iindx != -1) && (isInBounds == iindx) ) 
+    if ( (iindx != -1) ) //janky as shit.
     {
-      Object3D object = objects.get(iindx);
-      object.p = ipos;
-      object.r = irot;
+      iobject.p = ipos;
+      iobject.r = irot;
+      map.add(iobject);
+      //object.update()
+      //object.adjustToTerrain(terrain);
       return iindx;
     }
     else 
@@ -74,9 +79,10 @@ class Map
     terrain.draw();
     for (int i = objects.size() - 1; i >= 0; i--)
     {
-      objects.get(i).update();
-      objects.get(i).adjustToTerrain(terrain);
-      objects.get(i).display();
+      Object3D object = objects.get(i);
+      object.update();
+      object.adjustToTerrain(terrain);
+      object.display();
     }
   }
   
@@ -89,7 +95,7 @@ class Map
       Object3D oobject = objects.get(i);
       if (PVector.dist(icoord, oobject.p) <= oobject.radius)
       {        
-        println("object:", oobject.p);
+        //println("object:", oobject.p);
         return i; 
       }
     }  

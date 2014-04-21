@@ -37,6 +37,7 @@ class Laser
      lifespan = 0;
      rate = 0;
      decc = 0;
+
     }
     
   }
@@ -48,6 +49,10 @@ class Laser
     {
       laser.visible(true);
       laser.draw();
+    }
+    else 
+    {
+      laser.visible(false);
     }
   }
 }
