@@ -56,13 +56,6 @@ PVector pInfo(){
 PVector lInfo(){
  return look; 
 }
-
-  /*
-  void inc(PVector ipos)
-  {
-    pos += ipos;
-  }
-  */
   
   void move(PVector ipos)
   {
@@ -83,6 +76,9 @@ PVector lInfo(){
   void adjustToTerrain(Terrain iterrain, float iheight)
   {
     cam.adjustToTerrain(iterrain, Terrain.WRAP, iheight);
+    pos = cam.eye();
+    
+    
   }
 
   void display()

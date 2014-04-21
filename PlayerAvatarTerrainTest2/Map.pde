@@ -3,7 +3,7 @@ class Map
   float xsize;
   float zsize;
   ArrayList<Object3D> objects;
-  //Terrain terrain;
+  Terrain terrain;
   //should add items to terrain whenever they're added to Map, etc.
   
   Map(float ixs, float izs)
@@ -11,6 +11,11 @@ class Map
     xsize = ixs;
     zsize = izs;
     objects = new ArrayList<Object3D>(0);
+    
+    terrain = new Terrain(applet, 16, xsize, 500);
+    terrain.usePerlinNoiseMap(-30, 30, 2.125f, 2.125f);
+    //terrain.drawMode(S3D.SOLID);
+    //terrain.fill(color(255, 0, 0));
   }
   
   int add(Object3D iobject) //type-check to include "isIn?" right now.
@@ -20,6 +25,8 @@ class Map
     if ( (isIn == -1) && (isInBounds == -1) )
     {
       objects.add(iobject);
+      Shape3D ishape = iobject.getShape();
+      if (ishape != null) { terrain.addShape(ishape); }
       return 0;
     }
     
@@ -29,9 +36,11 @@ class Map
   int remove(Object3D iobject)
   {
     int indexof = objects.indexOf(iobject);
+    Shape3D ishape = iobject.getShape();
     if (indexof != -1)
     {
       objects.remove(iobject);
+      if (ishape != null) { terrain.removeShape(ishape); }
       return indexof;
     }
     
@@ -62,22 +71,25 @@ class Map
   
   void display()
   {
+    terrain.draw();
     for (int i = objects.size() - 1; i >= 0; i--)
     {
+      objects.get(i).update();
+      objects.get(i).adjustToTerrain(terrain);
       objects.get(i).display();
     }
   }
   
   int checkBounds(PVector icoord) //this function may be the cause of many of our problems
   {
-    if (Math.abs(icoord.x) > ( xsize / 2 ) || Math.abs(icoord.z) > ( zsize / 2 )) 
-    { println("map bounds!"); return 0; }
+    //if (Math.abs(icoord.x) > ( xsize / 2 ) || Math.abs(icoord.z) > ( zsize / 2 )) 
+    //{ println("map bounds!"); return 0; }
     for (int i = objects.size() - 1; i >= 0; i--)
     {
       Object3D oobject = objects.get(i);
       if (PVector.dist(icoord, oobject.p) <= oobject.radius)
-      //temporary solution
       {        
+        println("object:", oobject.p);
         return i; 
       }
     }  
@@ -87,8 +99,8 @@ class Map
   int checkBounds(float ix, float iy, float iz)
   {
     PVector icoord = new PVector(ix, iy, iz);
-    if (Math.abs(icoord.x) >= ( xsize / 2 ) || Math.abs(icoord.z) >= ( zsize / 2 )) 
-    { println("map bounds!"); return 0; }
+    //if (Math.abs(icoord.x) >= ( xsize / 2 ) || Math.abs(icoord.z) >= ( zsize / 2 )) 
+    //{ println("map bounds!"); return 0; }
     for (int i = objects.size() - 1; i >= 0; i--)
     {
       Object3D oobject = objects.get(i);
@@ -106,7 +118,7 @@ class Map
     for (int i = objects.size() - 1; i >= 0; i--)
     {
       Object3D oobject = objects.get(i);
-      if (oobject.p == icoord) //((oobject.p.x == icoord.x) && (oobject.p.y == icoord.y) && (oobject.p.z == icoord.z))
+      if (oobject.p == icoord) 
       {
         return i;
       }
@@ -153,6 +165,16 @@ class Map
     }
   }
   
+  void setCamera(TerrainCam icam)
+  {
+    terrain.cam = icam;
+  }
+  
+  void setTexture(String ifiles[]) //this could be a global function.
+  {
+    terrain.drawMode(S3D.TEXTURE);
+    terrain.setTexture(ifiles[(int) random(0, ifiles.length)], 16);
+  }
   
   void print()
   {

@@ -81,10 +81,17 @@ class Roster
     return iaddr;
   }
   
+  /*
+  Avatar removeAvatar(String iaddr)
+  {
+    return null;
+  }
+  */
+  
   
   void print()
   {
-    println("-----ROSTER-----");
+    println("-----ROSTER-----1");
     println("size = "+players.size()+"");
     for (int i = 0; i < players.size(); i++)
     {

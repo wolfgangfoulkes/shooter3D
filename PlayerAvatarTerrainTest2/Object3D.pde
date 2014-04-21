@@ -1,10 +1,12 @@
 class Object3D 
+//base class for storage in MAP. put dummies for functions that would need to be called
+//from the MAP or on several objects here.
 {
-  PVector p; //= new PVector(0, 0, 500); //defaults so janky data is visible
-  PVector r; //= new PVector(0, 0, 0);
-  float radius; //= 100;
-  //String tag;
-  //int tagno
+  PVector p;
+  PVector r;
+  //PVector move;
+  float radius;
+
   
   Object3D (PVector ip, PVector ir)
   {
@@ -34,16 +36,28 @@ class Object3D
     radius = iradius;
   }
   
-  void move()
+  void moveTo(PVector imove)
+  {
+    //move = imove;
+  }
+  
+  void startMoveTo (PVector imove)
+  {
+    //move = imove;
+  }
+  
+  void startRotTo (PVector imove)
   {
   }
   
   void update()
   {
-  }  
+    //pos = move;
+  }
   
   void display()
   {
+    //I leave this crap here, so we can tell when the base class has had display called.
     stroke(2);
     fill(100, 100, 100);
     pushMatrix();
@@ -53,25 +67,20 @@ class Object3D
     rotateZ(radians(r.z));
     rectMode(CENTER);
     box(80, 80, 80);
-    //println(modelX(0, 0, 0), modelY(0, 0, 0), modelZ(0, 0, 0));
     popMatrix();
-    //noStroke();
-    //noFill();
   }
   
-  
-  void startMoveTo (PVector ip)
-  {
-    p = ip; 
-  }
-  
-  void startRotTo (PVector ir)
-  {
-    r = ir;
-  }
+  void adjustToTerrain(Terrain t)
+   {
+   } 
+ 
+   void setTex()
+   {
+   }
   
   void destroy() 
   {
+    //explosion animation goes here.
   }
   
   String getType()

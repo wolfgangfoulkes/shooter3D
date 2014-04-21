@@ -12,7 +12,7 @@ class Map
     zsize = izs;
     objects = new ArrayList<Object3D>(0);
     
-    terrain = new Terrain(applet, 16, xsize, 185);
+    terrain = new Terrain(applet, 16, xsize, 500);
     terrain.usePerlinNoiseMap(-30, 30, 2.125f, 2.125f);
     //terrain.drawMode(S3D.SOLID);
     //terrain.fill(color(255, 0, 0));
@@ -25,10 +25,8 @@ class Map
     if ( (isIn == -1) && (isInBounds == -1) )
     {
       objects.add(iobject);
-      //iobject.adjustPosition(terrain);
-      //iobject.update();
       Shape3D ishape = iobject.getShape();
-      if (ishape != null) { terrain.addShape(ishape);}
+      if (ishape != null) { terrain.addShape(ishape); }
       return 0;
     }
     
@@ -38,11 +36,11 @@ class Map
   int remove(Object3D iobject)
   {
     int indexof = objects.indexOf(iobject);
-    Shape3D ishape = iobject.getShape();
+    //Shape3D ishape = iobject.getShape(); //throws an exception. perhaps put it in the if block?
     if (indexof != -1)
     {
+      //if (ishape != null) { terrain.removeShape(ishape); }
       objects.remove(iobject);
-      if (ishape != null) { terrain.removeShape(ishape); }
       return indexof;
     }
     
@@ -76,21 +74,22 @@ class Map
     terrain.draw();
     for (int i = objects.size() - 1; i >= 0; i--)
     {
+      objects.get(i).update();
+      objects.get(i).adjustToTerrain(terrain);
       objects.get(i).display();
     }
-    println(terrain.getPosVec());
   }
   
   int checkBounds(PVector icoord) //this function may be the cause of many of our problems
   {
-    if (Math.abs(icoord.x) > ( xsize / 2 ) || Math.abs(icoord.z) > ( zsize / 2 )) 
-    { println("map bounds!"); return 0; }
+    //if (Math.abs(icoord.x) > ( xsize / 2 ) || Math.abs(icoord.z) > ( zsize / 2 )) 
+    //{ println("map bounds!"); return 0; }
     for (int i = objects.size() - 1; i >= 0; i--)
     {
       Object3D oobject = objects.get(i);
       if (PVector.dist(icoord, oobject.p) <= oobject.radius)
-      //temporary solution
       {        
+        println("object:", oobject.p);
         return i; 
       }
     }  
@@ -100,8 +99,8 @@ class Map
   int checkBounds(float ix, float iy, float iz)
   {
     PVector icoord = new PVector(ix, iy, iz);
-    if (Math.abs(icoord.x) >= ( xsize / 2 ) || Math.abs(icoord.z) >= ( zsize / 2 )) 
-    { println("map bounds!"); return 0; }
+    //if (Math.abs(icoord.x) >= ( xsize / 2 ) || Math.abs(icoord.z) >= ( zsize / 2 )) 
+    //{ println("map bounds!"); return 0; }
     for (int i = objects.size() - 1; i >= 0; i--)
     {
       Object3D oobject = objects.get(i);

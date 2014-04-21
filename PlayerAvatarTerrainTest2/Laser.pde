@@ -41,7 +41,7 @@ class Laser
     
   }
   
-  void display()
+  void display() //the actual visual here is kinda whatever.
   {
     fill((int) (360 * lifespan));
     if (lifespan > 0)

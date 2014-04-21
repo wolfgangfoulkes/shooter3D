@@ -52,11 +52,11 @@ void setup()
   myBroadcastLocation = new NetAddress("169.254.47.210",bcport);
   //connect(lport, myprefix);
   
-  roster = new Roster();
+ roster = new Roster();
   map = new Map(1001, 1001);
   cam = new Camera(this);
   map.setCamera(cam.cam);
-  map.setTexture(terrainTex);
+  //map.setTexture(terrainTex);
   
 }
 
@@ -81,12 +81,11 @@ void draw()
     if (map.checkBounds(PVector.add(cam.pos, cam.move)) == -1) 
     { 
       cam.update();
-      cam.adjustToTerrain(map.terrain, 10); //should be fine, because it only alters the eye, which is overwritten by pos. gottabe after update for that reason. if you wanted to update pos, or an object, use Terrain.adjustPosition.
+      cam.adjustToTerrain(map.terrain, 30); //should be fine, because it only alters the eye, which is overwritten by pos. gottabe after update for that reason. if you wanted to update pos, or an object, use Terrain.adjustPosition.
       sendPos(cam.pos.x, cam.pos.y, cam.pos.z, 0, cam.rot.y, 0);
     }
     else
     {
-      //cam.move(PVector.mult(cam.look, -1));
       println("boundary!", cam.pos);
     }
   }
@@ -129,7 +128,7 @@ void disconnect(int ilport, String ipre)
 
 void oscEvent(OscMessage theOscMessage) 
 {
-  //println("###2 received an osc message with addrpattern "+theOscMessage.addrPattern()+" and typetag "+theOscMessage.typetag());
+  println("###2 received an osc message with addrpattern "+theOscMessage.addrPattern()+" and typetag "+theOscMessage.typetag());
   //theOscMessage.print();
   
   String messageIP = theOscMessage.netaddress().address();
@@ -143,7 +142,7 @@ void oscEvent(OscMessage theOscMessage)
     String iprefix = theOscMessage.get(0).stringValue();
     if (roster.isMe(iprefix)) {return;}
     roster.add(iprefix); //function checks "isin"
-    //roster.print();
+    roster.print();
     return;
   }
   
@@ -172,8 +171,8 @@ void oscEvent(OscMessage theOscMessage)
     float irx = theOscMessage.get(3).floatValue();
     float iry = theOscMessage.get(4).floatValue();
     float irz = theOscMessage.get(5).floatValue();
-    O3DObelisk iobject = new O3DObelisk(applet, ix, iy, iz, irx, iry, irz, 100.0);
-    map.add(iobject);
+    O3DObelisk iobject = new O3DObelisk(applet, ix, iy, iz, irx, iry, irz, 50.0);
+    //map.add(iobject);
   }
   
   if (isin != -1)
@@ -205,7 +204,7 @@ void oscEvent(OscMessage theOscMessage)
       if (is.equals(myprefix)) 
       {
         cam.living = false;
-        //noLoop; 
+        //noLoop; //crashed shit
         //killCamera(); //crashed shit
       }
       else //everything below should be encapsulated.
@@ -213,19 +212,13 @@ void oscEvent(OscMessage theOscMessage)
         int indx = roster.indexFromPrefix(is);
         if (indx != -1)
         {
-          Avatar object = roster.players.get(indx).avatar;
-          for (int i = 0; i < 50; i++)
+          Player player = roster.players.get(indx);
+          Avatar avatar = player.avatar;
+          if (map.remove(avatar) != -1)
           {
-            println(object.player.prefix);
-          }
-          if (map.remove(object) != -1)
-          {
-            for (int i = 0; i < 50; i++)
-            {
-              println("removed object!");
-            }
-            //object = null; //does this work? call map first ofcourse.
-            roster.players.get(indx).avatar = null;
+            println("player "+player+" has been killed");
+            //avatar = null; //does this work? call map first ofcourse.
+            //roster.players.get(indx).avatar = null;
           }
         }
       }
@@ -247,6 +240,9 @@ void oscEvent(OscMessage theOscMessage)
         if (iplayer.avatar != null)
         {
           int indx = map.move(iplayer.avatar, ip, ir);
+          println("moved player "+iplayer.prefix+" to "+ip+" and "+ir+"");
+          //if I wanted to use time-based object movement, 
+          //I would use the map.move function to call the objects's move function.
           if (indx == -1) {iplayer.avatar = null;}
         }
         /*

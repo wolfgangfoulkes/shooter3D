@@ -13,7 +13,7 @@ class O3DObelisk extends Object3D
   {
     super(ip, ir, iradius);
     obelisk = new Ellipsoid(pa, nbrSl, nbrSg);
-    obelisk.setRadius(radius * .5, radius * .5, radius * .1);
+    obelisk.setRadius(radius * 1, radius * .5, radius * 1);
     //obelisk.drawMode(S3D.TEXTURE);
     //we'll do "addShape" within the Map class on the whole array, using the "getEllipsoid" method
   }
@@ -22,22 +22,10 @@ class O3DObelisk extends Object3D
   {
     super(ix, iy, iz, irx, iry, irz, iradius);
     obelisk = new Ellipsoid(pa, nbrSl, nbrSg);
-    obelisk.setRadius(radius * .5, radius * .5, radius * .1);
+    obelisk.setRadius(radius * 1, radius * .5, radius * 1);
     //obelisk.drawMode(S3D.TEXTURE);
   }
   
-  void display()
-  {
-    obelisk.moveTo(p);
-    obelisk.rotateToY(radians(r.y));
-    obelisk.draw();
-  }
-  
-  void update() //this'll cause more rather than fewer problems. movements will be small enough at a time, that there shouldn't be an issue.
-  {
-    p = obelisk.getPosVec();
-    r = obelisk.getRotVec();
-  }
   
   /*
   void moveTo(PVector ip, PVector ir)
@@ -59,9 +47,26 @@ class O3DObelisk extends Object3D
     obelisk.rotateTo(ir, time, delay);
   }
   
-  void setTexture(String itex)
+  void update() //this'll cause more rather than fewer problems. movements will be small enough at a time, that there shouldn't be an issue.
+  {
+    obelisk.moveTo(p);
+    obelisk.rotateToY(radians(r.y));
+  }
+  
+  void display()
+  {
+    obelisk.draw();
+  }
+  
+  void setTex(String itex)
   {
     obelisk.setTexture(itex);
+  }
+  
+  void adjustToTerrain(Terrain iterrain)
+  {
+    obelisk.adjustToTerrain(iterrain, Terrain.WRAP, 30);
+    p = obelisk.getPosVec();
   }
   
   String getType()

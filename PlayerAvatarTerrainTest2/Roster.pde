@@ -81,6 +81,13 @@ class Roster
     return iaddr;
   }
   
+  /*
+  Avatar removeAvatar(String iaddr)
+  {
+    return null;
+  }
+  */
+  
   
   void print()
   {

@@ -7,11 +7,11 @@ class Avatar extends O3DObelisk
   
   Avatar(Player iplayer, PVector ip, PVector ir)
   {
-    super(applet, ip, ir, 100);
+    super(applet, ip, ir, 50);
     player = iplayer;
     laser = new Laser(5.0, 5.0, 5.0, 5.0, p);
     //isLiving = true; //might want to keep it dead until it's initialized
-    //println("new Avatar!", p, r, player.prefix);
+    println("new Avatar!", p, r, player.prefix);
   }
   
   void destroy() //overrides base class

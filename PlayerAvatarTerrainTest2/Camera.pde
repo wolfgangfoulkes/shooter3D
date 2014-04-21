@@ -4,10 +4,12 @@ class Camera
  PVector pos; //camera "eye"
  PVector rot; //camera angle
  PVector look; //camera "center"
- PVector move;
- PVector ch;
- float chheight;
+ PVector move; //next position
  boolean living;
+ 
+ 
+ PVector ch; //crosshairs.
+ float chheight;
 
   Camera (PApplet iapp)
   {
@@ -42,7 +44,8 @@ class Camera
     look.z = cam.lookDir().z;
     chheight += ih;
     ch = PVector.add(pos, PVector.mult(look, 100));
-    ch.y += chheight;
+    ch.y += chheight; //gotta limit this so it doesn't go off the map (limit more than that).
+    //println(ch);
 
   }
   
@@ -53,13 +56,6 @@ PVector pInfo(){
 PVector lInfo(){
  return look; 
 }
-
-  /*
-  void inc(PVector ipos)
-  {
-    pos += ipos;
-  }
-  */
   
   void move(PVector ipos)
   {
@@ -76,10 +72,19 @@ PVector lInfo(){
     pos.add(move);
     cam.eye(pos);
   }
+  
+  void adjustToTerrain(Terrain iterrain, float iheight)
+  {
+    cam.adjustToTerrain(iterrain, Terrain.WRAP, iheight);
+    pos = cam.eye();
+    
+    
+  }
 
   void display()
   {
     cam.camera();
+    
     pushMatrix();
     translate(ch.x, ch.y, ch.z);
     rotateY(radians(90 - rot.y)); //think it's this value because the camera looks to the positive x axis.
