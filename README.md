@@ -10,6 +10,19 @@ CHANGES:
 
   -moves toward angle of rotation now. crosshairs also fixed to correct distance.
 
+-4/21/14 Wolfgang
+	posted all my OSC work to the Master. No textures, and lazers don’t work.
+	Multiplayer on one computer:
+	-open multiple instances of “PlayerAvatarFramework” and change the port, and 		prefix global variables for each
+	-open one instance of PlayerAvatarBroadcaster
+	-use shift->C to connect and shift->I to initialize an avatar
+	-controls are near the bottom under the “Key-Pressed function.
+
 TD:
--change Object3D to instantiate objects by-vertex, perhaps assigning shape somewhat randomly. 
-//could you try this one? I'm on respawn and lazers right now. Also, would you mind putting our list of who-does-what here? thanks a bunch, Wolfgang.
+-assure all object variables are adjusted to Terrain before they are accessed 
+(within Map)
+-limit Y movement on crosshairs
+-closer crosshairs
+-more and different objects
+-fix Textures 
+-explore limiting/obscuring visibility
