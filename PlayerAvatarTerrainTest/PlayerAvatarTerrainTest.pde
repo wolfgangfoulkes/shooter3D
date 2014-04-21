@@ -1,27 +1,42 @@
-import shapes3d.utils.*;
-import shapes3d.animation.*;
-import shapes3d.*;
-
 import oscP5.*;
 import netP5.*;
+import papaya.*;
+
+import java.util.*; 
+
+import processing.video.*;
+import processing.opengl.*;
+
+import shapes3d.*;
+import shapes3d.utils.*;
+import shapes3d.animation.*;
+
+
 
 OscP5 pos_in;
 OscP5 oscP5;
-Map map;
-Camera cam;
-
-PApplet applet = this;
-
 int lport = 12000;
 int bcport = 32000;
-String myprefix = "/slurp";
-int connected;
-
 NetAddress myBroadcastLocation; 
+String myprefix = "/slurp";
+boolean connected = false;
+
+PApplet applet = this;
+Map map;
+Camera cam;
 Roster roster;
+//Terrain terrain;
 
 PVector acc = new PVector(0, 0, 0); //can we set Camera directly from OSC?
 PVector joystick = new PVector(0, 0, 0);
+
+String[] laserTex = new String[] {
+  "laser1.jpg", "laser2.jpg", "laser3.JPG", "laser4.jpg",
+};
+
+String[] terrainTex = new String[] {//textures for terrain
+  "floor1.jpg", "floor2.gif", "floor3.jpg", "floor4.jpg", "floor5.jpg", "floor6.jpg", "floor7.jpg","floor8.jpg","floor9.jpg"
+};
 
 void setup() 
 {
@@ -39,14 +54,15 @@ void setup()
   
   roster = new Roster();
   map = new Map(1001, 1001);
-  
-  //have these initialized by spawn, because you'll display the noLoop screen here anyway.
   cam = new Camera(this);
+  map.setCamera(cam.cam);
+  map.setTexture(terrainTex);
+  
 }
 
 void draw() 
 {
-  if (cam.living == false)
+  if ( (cam.living == false) || (connected == false) )
   {
     background(0);
     killCamera();
@@ -55,17 +71,17 @@ void draw()
   else
   {
     background(0);
+    lights();
   
     map.display();
     cam.display();
-    cam.look(acc.x, acc.z);
+    cam.look(acc.x, acc.y);
     cam.move(joystick);
-    println(cam.cam.eye());
     
-    
-    if (map.checkBounds(PVector.add(cam.pos, cam.move)) == -1) //this don't work, because joystick is a time-value here. would need to calculate that somehow.
+    if (map.checkBounds(PVector.add(cam.pos, cam.move)) == -1) 
     { 
       cam.update();
+      cam.adjustToTerrain(map.terrain, 10); //should be fine, because it only alters the eye, which is overwritten by pos. gottabe after update for that reason. if you wanted to update pos, or an object, use Terrain.adjustPosition.
       sendPos(cam.pos.x, cam.pos.y, cam.pos.z, 0, cam.rot.y, 0);
     }
     else
@@ -284,29 +300,29 @@ void keyPressed()
 {
   switch(key)
   {
-    case 'c': disconnect(lport, myprefix); connect(lport, myprefix); break;
-    case 'f': disconnect(lport, myprefix); break;
-    case 'r': roster.print(); break;
-    case 'm': map.print(); break;
-    case 'i': loop(); randomSpawnCamera(5000); break;
+    case 'C': disconnect(lport, myprefix); connect(lport, myprefix); connected = true; break;
+    case 'f': disconnect(lport, myprefix); connected = false; break;
+    case 'R': roster.print(); break;
+    case 'M': map.print(); break;
+    case 'I': loop(); randomSpawnCamera(5000); break;
     case 'v': cam.living = false; sendKill(myprefix); break; //cam.living = false; killCamera(); sendKill(myprefix); break;
     
     //temp testing variables
     case 'w': joystick.x = 2; break;
     case 'x': joystick.x = -2; break;
-    case 'a': joystick.z = 2; break;
-    case 'd': joystick.z = -2; break;
+    case 'a': joystick.z = -2; break;
+    case 'd': joystick.z = 2; break;
     case 's': joystick.x = 0; joystick.z = 0; break;
     
-    case 'h': acc.x = .5; break;
-    case 'j': acc.x = 0; acc.y = 0; break;
-    case 'k': acc.x = -.5; break;
-    case 'y': acc.y = .5; break;
-    case 'n': acc.y = -.5; break;
+    case 'j': acc.x = -.5; break;
+    case 'k': acc.x = 0; acc.y = 0; break;
+    case 'l': acc.x = .5; break;
+    case 'u': acc.y = .5; break;
+    case 'm': acc.y = -.5; break;
     
     case 'z':
     {
-      if (shoot(cam.pos, cam.ch) == -1) { println( "shootin' blanks" ); }
+      if (shoot(cam.pos, PVector.mult(cam.look, 1000)) == -1) { println( "shootin' blanks" ); }
       break;
     }
   }

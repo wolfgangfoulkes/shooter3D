@@ -40,7 +40,7 @@ class Object3D
   
   void update()
   {
-  }  
+  }
   
   void display()
   {
@@ -70,8 +70,18 @@ class Object3D
     r = ir;
   }
   
+  void setTex()
+  {
+  }
+  
+  void adjustPosition(Terrain t)
+ {
+   t.adjustPosition(p, Terrain.WRAP);
+ } 
+  
   void destroy() 
   {
+    //explosion animation goes here.
   }
   
   String getType()

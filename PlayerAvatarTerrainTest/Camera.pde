@@ -44,7 +44,8 @@ class Camera
     look.z = cam.lookDir().z;
     chheight += ih;
     ch = PVector.add(pos, PVector.mult(look, 100));
-    ch.y += chheight;
+    ch.y += chheight; //gotta limit this so it doesn't go off the map (limit more than that).
+    //println(ch);
 
   }
   
@@ -77,6 +78,11 @@ PVector lInfo(){
   {
     pos.add(move);
     cam.eye(pos);
+  }
+  
+  void adjustToTerrain(Terrain iterrain, float iheight)
+  {
+    cam.adjustToTerrain(iterrain, Terrain.WRAP, iheight);
   }
 
   void display()
