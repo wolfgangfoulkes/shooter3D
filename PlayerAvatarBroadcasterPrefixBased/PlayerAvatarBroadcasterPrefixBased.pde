@@ -1,8 +1,19 @@
+<<<<<<< HEAD
+=======
+import shapes3d.utils.*;
+import shapes3d.animation.*;
+import shapes3d.*;
+
+>>>>>>> stringprefix_textures_20140424
 import oscP5.*;
 import netP5.*;
 
 OscP5 oscP5;
 Clientlist clients = new Clientlist();
+<<<<<<< HEAD
+=======
+Map masterMap;
+>>>>>>> stringprefix_textures_20140424
 int myListeningPort = 32000;
 int myBroadcastPort = 12000;
 
@@ -12,6 +23,15 @@ String myDisconnectPattern = "/server/disconnect";
 void setup() 
 {
   oscP5 = new OscP5(this, myListeningPort);
+<<<<<<< HEAD
+=======
+  masterMap = new Map(1001, 1001);
+  masterMap.add(new Object3D(new PVector(500, 0, 0), new PVector(0, 0, 0), "obelisk"));
+  masterMap.add(new Object3D(new PVector(0, 0, 500), new PVector(0, 0, 0), "cone"));
+  masterMap.add(new Object3D(new PVector(-500, 0, 0), new PVector(0, 0, 0), "obelisk"));
+  masterMap.add(new Object3D(new PVector(0, 0, -500), new PVector(0, 0, 0), "cone"));
+  //masterMap.randomObjects(15);
+>>>>>>> stringprefix_textures_20140424
   frameRate(25);
 }
 
@@ -46,7 +66,10 @@ void oscEvent(OscMessage theOscMessage)
   
 }
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> stringprefix_textures_20140424
  private void connect(String iIP, int ip, String ipre) 
  {
      if (clients.indexFromPrefix(ipre) == -1) //only need a new prefix, because repeat IP's are fine
@@ -64,6 +87,22 @@ void oscEvent(OscMessage theOscMessage)
           oaddr.add(oclient.prefix);
           sendAll(oaddr);
         }
+<<<<<<< HEAD
+=======
+       for (int i = 0; i < masterMap.objects.size(); i++)
+       {
+         OscMessage ocoor = new OscMessage("/object");
+         Object3D oobj = masterMap.objects.get(i);
+         ocoor.add(oobj.p.x);
+         ocoor.add(oobj.p.y);
+         ocoor.add(oobj.p.z);
+         ocoor.add(oobj.r.x);
+         ocoor.add(oobj.r.y);
+         ocoor.add(oobj.r.z);
+         ocoor.add(oobj.type);
+         sendAll(ocoor);
+       }
+>>>>>>> stringprefix_textures_20140424
      } 
      else 
      {
@@ -94,7 +133,10 @@ private void disconnect(String iIP, int ip, String ipre)
   println("### currently there are "+clients.clients.size());
 }
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> stringprefix_textures_20140424
 void sendAll(OscMessage oosc)
 {
     for(int i = 0; i < clients.clients.size(); i++)

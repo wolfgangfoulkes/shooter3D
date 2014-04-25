@@ -33,6 +33,14 @@ class Clientlist
     return -1;
   }
   
+<<<<<<< HEAD
+=======
+  void clear()
+  {
+    clients.clear();
+  }
+  
+>>>>>>> stringprefix_textures_20140424
   void print()
   {
     for (int i = 0; i < clients.size(); i++)
