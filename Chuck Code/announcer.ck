@@ -1,9 +1,7 @@
 public class Announcer {
-    
-    
-    
+
     1235 => oscIn.port;
-    oscIn.event("/player/death, i") @=> OscEvent playerKilled;
+    oscIn.event("/kill, sfff") @=> OscEvent playerKilled;
     
     
     SndBuf announcer => Gain master => dac;

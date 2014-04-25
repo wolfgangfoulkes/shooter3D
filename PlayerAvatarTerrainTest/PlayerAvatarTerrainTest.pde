@@ -14,7 +14,9 @@ import shapes3d.animation.*;
 OscP5 pos_in;
 OscP5 oscP5;
 int lport = 12001;
+int cport = 14000;
 int bcport = 32000;
+NetAddress myLocation;
 NetAddress myBroadcastLocation; 
 String myprefix = "/tweez";
 boolean connected = false;
@@ -24,6 +26,18 @@ Map map;
 Camera cam;
 Roster roster;
 //Terrain terrain;
+
+String[] laserTex = new String[] {
+  "laser1.jpg", "laser2.jpg", "laser3.JPG", "laser4.jpg",
+};
+
+String[] terrainTex = new String[] {//textures for terrain
+  "floor1.jpg", "floor2.gif", "floor3.jpg", "floor4.jpg", "floor5.jpg", "floor6.jpg", "floor7.jpg","floor8.jpg","floor9.jpg"
+};
+
+String[] skyTex = new String[] {//could load fog as background
+  "sky1.jpg", "sky2.jpg", "sky3.jpg", "sky4.jpg", "sky5.jpg", "sky6.jpg", "sky7.jpg", "sky8.jpg", "sky9.jpg"
+};
 
 PVector acc = new PVector(0, 0, 0); //can we set Camera directly from OSC?
 PVector joystick = new PVector(0, 0, 0);
@@ -37,12 +51,15 @@ void setup()
   pos_in = new OscP5(this, 1234);
   pos_in.plug(this, "accelData", "/nunchuck/accel");
   pos_in.plug(this, "joystickData", "/nunchuck/joystick");
+  pos_in.plug(this, "respawnData", "/player/respawn");
   
   oscP5 = new OscP5(this,lport);
-  myBroadcastLocation = new NetAddress("169.254.234.174",bcport);
-  //connect(lport, myprefix);
   
- roster = new Roster();
+  myLocation = new NetAddress("127.0.0.1", cport);
+  myBroadcastLocation = new NetAddress("169.254.234.174",bcport);
+  
+  
+  roster = new Roster();
   map = new Map(1001, 1001);
   cam = new Camera(this);
   map.setCamera(cam.cam);
@@ -157,6 +174,18 @@ void oscEvent(OscMessage theOscMessage)
     return;
   }
   
+  if (messageaddr.equals("chuck/init"))
+  {
+    loop();
+    if (randomSpawnCamera(5000) == -1)
+    {
+      cam.living = false; 
+      sendKill(myprefix, cam.pos, myLocation);
+      sendKill(myprefix, cam.pos, myBroadcastLocation);
+      println("chaos reigns!");
+    }
+  }
+  
   if (messageaddr.equals("/object") && messagetag.equals("ffffffs"))
   {
     float ix = theOscMessage.get(0).floatValue();
@@ -203,6 +232,7 @@ void oscEvent(OscMessage theOscMessage)
       float iy = theOscMessage.get(2).floatValue();
       float iz = theOscMessage.get(3).floatValue();
       PVector ipv = new PVector(ix, iy, iz);
+      sendKill(is, ipv, myLocation);
       if (is.equals(myprefix)) 
       {
         cam.living = false;
@@ -274,14 +304,22 @@ void sendShot(PVector iaim)
   oscP5.send(ocoor, myBroadcastLocation);
 }
 
-void sendKill(String iaddr, PVector ipos)
+void sendKill(String iaddr, PVector ipos, NetAddress ilocation)
 {
   OscMessage oaddr = new OscMessage(myprefix + "/kill");
   oaddr.add(iaddr);
   oaddr.add(ipos.x);
   oaddr.add(ipos.y);
   oaddr.add(ipos.z);
-  oscP5.send(oaddr, myBroadcastLocation);
+  oscP5.send(oaddr, ilocation);
+  
+}
+
+void sendDeath(){
+  OscMessage deathTrigger = new OscMessage("/kill");
+  deathTrigger.add(1);
+  oscP5.send(deathTrigger, myLocation);
+  println("death message sent to chuck");
 }
 
 
@@ -294,7 +332,7 @@ void keyPressed()
     case 'R': roster.print(); break;
     case 'M': map.print(); break;
     case 'I': loop(); randomSpawnCamera(5000); break;
-    case 'v': cam.living = false; sendKill(myprefix, cam.pos); break; //cam.living = false; killCamera(); sendKill(myprefix); break;
+    case 'v': cam.living = false; sendKill(myprefix, cam.pos, myLocation); sendKill(myprefix, cam.pos, myBroadcastLocation); break; //cam.living = false; killCamera(); sendKill(myprefix); break;
     
     //temp testing variables
     case 'w': joystick.x = 2; break;
@@ -354,7 +392,8 @@ int shoot(PVector pos, PVector aim)
     {
       Avatar a =  (Avatar) map.objects.get(indx);
       println("killed player "+a.player.prefix+"");
-      sendKill(a.player.prefix, a.p);
+      sendKill(a.player.prefix, a.p, myLocation);
+      sendKill(a.player.prefix, a.p, myBroadcastLocation);
       map.remove(a); //remove when we recieve word from the hive //maybe if this is jumpy, fuck it later.
       a.player.avatar = null; //good place to implement a "Player isLiving"
       return indx;

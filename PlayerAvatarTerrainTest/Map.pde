@@ -3,6 +3,10 @@ class Map
   float xsize;
   float zsize;
   ArrayList<Object3D> objects;
+  
+  float terrainSize = 500;
+  int gridSlices = 25;
+  float horizonDraw = 200;
   Terrain terrain;
   //should add items to terrain whenever they're added to Map, etc.
   
@@ -14,8 +18,10 @@ class Map
     
     terrain = new Terrain(applet, 16, xsize, 500);
     terrain.usePerlinNoiseMap(-30, 30, 2.125f, 2.125f);
-    //terrain.drawMode(S3D.SOLID);
-    //terrain.fill(color(255, 0, 0));
+    terrain.setTexture(terrainTex[(int)random(0, terrainTex.length)], 16);
+    terrain.tag = "Ground"; //why?
+    terrain.tagNo = -1; //why?
+    terrain.drawMode(S3D.TEXTURE);
   }
   
   int add(Object3D iobject) //type-check to include "?" right now.

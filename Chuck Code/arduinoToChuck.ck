@@ -14,10 +14,10 @@ OscRecv oscIn;
 14000 => oscIn.port;
 //for when the player hits an object with the axe
 oscIn.listen();
-oscIn.event("/axe/impact, i") @=> OscEvent axeImpact;
+oscIn.event("/axe, i") @=> OscEvent axeImpact;
 //for when the player hits an object or another player with laser
-oscIn.event("/laser/explosion, i") @=> OscEvent laserImpact;
-oscIn.event("/player/death, i") @=> OscEvent playerKilled;
+oscIn.event("/shot, i") @=> OscEvent laserImpact;
+oscIn.event("/kill, sfff") @=> OscEvent playerKilled;
 //initalize SndBuf classes
 //Scream scream;
 0 => int firstTime;
@@ -71,7 +71,7 @@ fun void playerKillListen(){
         
         if (playerKilled.nextMsg() != 0){
             <<<"Death Message received">>>;
-            playerKilled.getInt() => int deathStatus;
+            1 => int deathStatus;
             <<<deathStatus>>>;
             //scream.dead();
             if(firstTime > 0){scream.killed(); 2.5::second => now;}
@@ -123,7 +123,7 @@ fun void sendZButtonData(){//the melee attack
     
 }
 fun void sendRespawnPing(){
-    xmit.startMsg("/player/respawn", "i");
+    xmit.startMsg("/init", "i");
     xmit.addInt(1);
     <<<"Respawn Ping sent to Processing">>>;
     
