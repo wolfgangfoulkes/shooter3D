@@ -17,7 +17,7 @@ class Camera
     move = new PVector(0, 0, 0);
     rot = new PVector(0, 0, 0);
     look = new PVector(0, 0, 1);
-    aim = PVector.add(pos, PVector.mult(look, 200));
+    aim = PVector.add(pos, PVector.mult(look, 500));
     aimheight = 0;
     living = false;
   }
@@ -41,8 +41,8 @@ class Camera
     look.x = cam.lookDir().x; //lookdir is a normalized vector, so between 0 and 1 to represent direction.
     look.y = 0;
     look.z = cam.lookDir().z;
-    aimheight += ih;
-    aim = PVector.add(pos, PVector.mult(look, 200));
+    aimheight = constrain(aimheight + ih, -180, 120);
+    aim = PVector.add(pos, PVector.mult(look, 500));
     aim.y += aimheight; //gotta limit this so it doesn't go off the map (limit more than that).
     //println(ch);
 
@@ -59,11 +59,6 @@ PVector lInfo(){
   void move(PVector ipos)
   {
     move = PVector.add(PVector.mult(look, ipos.x), new PVector(-(look.z * ipos.z), 0, look.x * ipos.z)); //flip signs to flip left/right
-    //cam.rotateViewTo(radians(rot.y + 90));
-    //println(cam.lookDir());
-    //move.add(PVector.mult(cam.lookDir(), ipos.z));
-    //cam.rotateViewTo(radians(rot.y));
-    //println(cam.lookDir());
   }
   
   void update()
@@ -74,22 +69,23 @@ PVector lInfo(){
   
   void adjustToTerrain(Terrain iterrain, float iheight)
   {
-    cam.adjustToTerrain(iterrain, Terrain.WRAP, iheight);
-    pos = cam.eye();
-    
-    
+    pos = adjustY(pos, iterrain, iheight);
+    cam.eye(pos);
   }
 
   void display()
   {
     cam.camera();
     
+    PVector ch = PVector.add(pos, PVector.mult(look, 1)); //could scale the sight further. does a sight further from the eye have more accuracy?
+    ch.y += aimheight * .002;
     pushMatrix();
-    translate(aim.x, aim.y, aim.z);
+    translate(ch.x, ch.y, ch.z);
     rotateY(radians(90 - rot.y)); //think it's this value because the camera looks to the positive x axis.
     stroke(255);
     fill(255);
-    rect(0, 0, 10, 10);
+    rectMode(CENTER);
+    rect(0, 0, .05, .05);
     popMatrix();
   }
   

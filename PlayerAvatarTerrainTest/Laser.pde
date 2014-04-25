@@ -1,4 +1,4 @@
-class Laser
+class Laser 
 {
   Tube laser;
   float lifespan;
@@ -16,13 +16,12 @@ class Laser
     laser.visible(false);
   }
   
-  void set(PVector istartPos, PVector iendPos, float irate, float idecc)
+  void set(PVector ipos, PVector iaim, float irate)
   {
     laser.visible(false);
-    laser.setWorldPos(istartPos, iendPos);
+    laser.setWorldPos(ipos, iaim);
     lifespan = 1;
     rate = irate;
-    decc = idecc;
   }
   
   void update()
@@ -34,14 +33,22 @@ class Laser
     else
     {
      lifespan = 0;
+     rate = 0;
     }
     
   }
   
+  /*
+  void adjustToTerrain(Terrain iterrain)
+  {
+    iterrain.adjustY(p);
+    this.update();
+  }
+  */
+  
   void display() //the actual visual here is kinda whatever.
   {
-    //fill((int) (360 * lifespan));
-    tint(255, 255 * lifespan);
+    fill((int) (360 * lifespan));
     if (lifespan > 0)
     {
       laser.visible(true);
@@ -50,7 +57,6 @@ class Laser
     else 
     {
       laser.visible(false);
-      laser.draw();
     }
   }
 }

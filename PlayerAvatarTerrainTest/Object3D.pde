@@ -4,8 +4,9 @@ class Object3D
 {
   PVector p;
   PVector r;
-  //PVector move;
+  PVector size = new PVector(0, 0, 0);
   float radius;
+  String type;
 
   
   Object3D (PVector ip, PVector ir)
@@ -13,6 +14,7 @@ class Object3D
     p = ip;
     r = ir;
     radius = 100;
+    
   }
   
   Object3D (float ix, float iy, float iz, float ixr, float iyr, float izr)
@@ -20,6 +22,7 @@ class Object3D
     p = new PVector(ix, iy, iz);
     r = new PVector(ixr, iyr, izr);
     radius = 100;
+    type = "object";
   }
   
   Object3D (float ix, float iy, float iz, float ixr, float iyr, float izr, float iradius)
@@ -27,6 +30,7 @@ class Object3D
     p = new PVector(ix, iy, iz);
     r = new PVector(ixr, iyr, izr);
     radius = iradius;
+    type = "object";
   }
   
   Object3D (PVector ip, PVector ir, float iradius)
@@ -34,6 +38,13 @@ class Object3D
     p = ip;
     r = ir;
     radius = iradius;
+    type = "object";
+  }
+  
+  void set(PVector ip, PVector ir)
+  {
+    p = ip;
+    r = ir;
   }
   
   void moveTo(PVector imove)
@@ -50,9 +61,9 @@ class Object3D
   {
   }
   
+  
   void update()
   {
-    //pos = move;
   }
   
   void display()
@@ -85,7 +96,7 @@ class Object3D
   
   String getType()
   {
-    return "object";
+    return type;
   }
   
   Shape3D getShape()

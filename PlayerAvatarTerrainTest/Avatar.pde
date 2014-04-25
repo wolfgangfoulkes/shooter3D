@@ -7,7 +7,8 @@ class Avatar extends O3DObelisk
   
   Avatar(Player iplayer, PVector ip, PVector ir)
   {
-    super(applet, ip, ir, 50);
+    super(applet, ip, ir, new PVector(20, 150, 50));
+    type = "avatar";
     player = iplayer;
     laser = new Laser(5.0, 5.0, 5.0, 5.0, p);
     //isLiving = true; //might want to keep it dead until it's initialized
@@ -20,26 +21,24 @@ class Avatar extends O3DObelisk
   
   void update()
   {
-    obelisk.moveTo(p);
-    obelisk.rotateToY(radians(r.y));
-    laser.update();
+  }
+  
+  void adjustToTerrain(Terrain iterrain)
+  {
+    super.adjustToTerrain(iterrain);
+    //laser.adjustToTerrain(iterrain);
   }
   
   void display()
   {
     obelisk.draw();
-    laser.update();
+    laser.update(); //right now, this's all that'd be in "update" for any object excepting the camera.
     laser.display();
   }
   
   void startLaser(PVector iaim)
   {
-    laser.set(p, iaim, .001, .001); //laser.adjustToTerrain?
-  }
-  
-  String getType()
-  {
-    return "avatar";
+    laser.set(p, iaim, .001); //laser.adjustToTerrain?
   }
   
   void print()

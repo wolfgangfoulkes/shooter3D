@@ -22,6 +22,10 @@ void setup()
   masterMap.add(new Object3D(new PVector(0, 0, 500), new PVector(0, 0, 0)));
   masterMap.add(new Object3D(new PVector(-500, 0, 0), new PVector(0, 0, 0)));
   masterMap.add(new Object3D(new PVector(0, 0, -500), new PVector(0, 0, 0)));
+  masterMap.add(new Object3D(new PVector(500, 0, 0), new PVector(0, 0, 0), "obelisk"));
+  masterMap.add(new Object3D(new PVector(0, 0, 500), new PVector(0, 0, 0), "cone"));
+  masterMap.add(new Object3D(new PVector(-500, 0, 0), new PVector(0, 0, 0), "obelisk"));
+  masterMap.add(new Object3D(new PVector(0, 0, -500), new PVector(0, 0, 0), "cone"));
   //masterMap.randomObjects(15);
   frameRate(25);
 }
@@ -84,6 +88,7 @@ void oscEvent(OscMessage theOscMessage)
          ocoor.add(oobj.r.x);
          ocoor.add(oobj.r.y);
          ocoor.add(oobj.r.z);
+         ocoor.add(oobj.type);
          sendAll(ocoor);
        }
      } 

@@ -27,13 +27,15 @@ class Map
   
   int add(Object3D iobject) //type-check to include "?" right now.
   {
-    //iobject.adjustToTerrain(terrain);
     int isIn = objects.indexOf(iobject);
-    int isInBounds = checkBounds(iobject.p);
+    PVector ip = adjustY(iobject.p, terrain, iobject.p.y);
+    int isInBounds = checkBounds(ip);
     if ( (isIn == -1) && (isInBounds == -1) )
     {
-
+      iobject.set(ip, iobject.r);
       objects.add(iobject);
+      println("p", iobject.p);
+      
       //?object.addToTerrain?
       //Shape3D ishape = iobject.getShape();
       //if (ishape != null) { terrain.addShape(ishape); }
@@ -95,8 +97,6 @@ class Map
   
   int checkBounds(PVector icoord) //this function may be the cause of many of our problems
   {
-    //if (Math.abs(icoord.x) > ( xsize / 2 ) || Math.abs(icoord.z) > ( zsize / 2 )) 
-    //{ println("map bounds!"); return 0; }
     for (int i = objects.size() - 1; i >= 0; i--)
     {
       Object3D oobject = objects.get(i);
@@ -112,8 +112,6 @@ class Map
   int checkBounds(float ix, float iy, float iz)
   {
     PVector icoord = new PVector(ix, iy, iz);
-    //if (Math.abs(icoord.x) >= ( xsize / 2 ) || Math.abs(icoord.z) >= ( zsize / 2 )) 
-    //{ println("map bounds!"); return 0; }
     for (int i = objects.size() - 1; i >= 0; i--)
     {
       Object3D oobject = objects.get(i);
@@ -153,8 +151,7 @@ class Map
     return -1;
   }
   
-  int getIndexByAngle(PVector ipos, PVector iaim) //this function needs to be rewritten. 
-  //solution might be multiplying the look by the distance between the two points, or normalizing that second angle.
+  int getIndexByAngle(PVector ipos, PVector iaim) 
   {
     for (int i = objects.size() - 1; i >= 0; i--)
     {

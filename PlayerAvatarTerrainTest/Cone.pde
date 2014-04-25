@@ -1,42 +1,42 @@
-class O3DObelisk extends Object3D 
+class O3DCone extends Object3D 
 //would be pretty easy to make a generic class with all the stuff the Shapes3D library has (radius, slices)
 //and then extend just with the specific object, and default values.
 
 {
-  Ellipsoid obelisk;
-  int nbrSl = 4;
+  Cone cone;
   int nbrSg = 20;
   String tag;
   int tagno;
   
-  O3DObelisk(PApplet pa, PVector ip, PVector ir, PVector isize)
+  O3DCone(PApplet pa, PVector ip, PVector ir, PVector isize)
   {
     super(ip, ir, isize.x);
-    type = "obelisk";
-    obelisk = new Ellipsoid(pa, nbrSl, nbrSg);
-    obelisk.setRadius(isize.x, isize.y, isize.z);
-    obelisk.moveTo(p);
-    obelisk.rotateToY(radians(r.y));
-    //obelisk.drawMode(S3D.TEXTURE);
+    type = "cone";
+    cone = new Cone(pa, nbrSg);
+    cone.setSize(isize.x, isize.z, isize.y);
+    cone.moveTo(p);
+    cone.rotateToY(radians(r.y));
+    //cone.drawMode(S3D.TEXTURE);
     
   }
   
-  O3DObelisk(PApplet pa, float ix, float iy, float iz, float irx, float iry, float irz, PVector isize)
+  O3DCone(PApplet pa, float ix, float iy, float iz, float irx, float iry, float irz, PVector isize)
   {
     super(ix, iy, iz, irx, iry, irz, isize.x);
-    type = "obelisk";
-    obelisk = new Ellipsoid(pa, nbrSl, nbrSg);
-    obelisk.setRadius(isize.x, isize.y, isize.z);
-    obelisk.moveTo(p);
-    obelisk.rotateToY(radians(r.y));
-    //obelisk.drawMode(S3D.TEXTURE); 
+    type = "cone";
+    cone = new Cone(pa, nbrSg);
+    cone.setSize(isize.x, isize.z, isize.y);
+    cone.moveTo(p);
+    cone.rotateToY(radians(r.y));
+    //cone.drawMode(S3D.TEXTURE);
+    
   }
   
   void set(PVector ip, PVector ir)
   {
     super.set(ip, ir);
-    obelisk.moveTo(p);
-    obelisk.rotateToY(radians(r.y));
+    cone.moveTo(p);
+    cone.rotateToY(radians(r.y));
   }
   
   /*
@@ -50,13 +50,13 @@ class O3DObelisk extends Object3D
   void startMoveTo(PVector ip, float time, float delay) //don't know if I can consolidate this with the object structure, don't know if this lags CPU.
   {
     p = ip;
-    obelisk.moveTo(ip, time, delay);
+    cone.moveTo(ip, time, delay);
   }
   
   void startRotTo(PVector ir, float time, float delay)
   {
     r = ir;
-    obelisk.rotateTo(ir, time, delay);
+    cone.rotateTo(ir, time, delay);
   }
   
   void update() //this'll cause more rather than fewer problems. movements will be small enough at a time, that there shouldn't be an issue.
@@ -65,12 +65,12 @@ class O3DObelisk extends Object3D
   
   void display()
   {
-    obelisk.draw();
+    cone.draw();
   }
   
   void setTex(String itex)
   {
-    obelisk.setTexture(itex);
+    cone.setTexture(itex);
   }
   
   void adjustToTerrain(Terrain iterrain)
@@ -81,7 +81,7 @@ class O3DObelisk extends Object3D
   
   Shape3D getShape ()
   {
-    return obelisk;
+    return cone;
   }
   
 }

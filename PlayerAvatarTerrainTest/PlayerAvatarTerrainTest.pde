@@ -21,7 +21,7 @@ int lport = 12000;
 int bcport = 32000;
 NetAddress myPersonalLocation;
 NetAddress myBroadcastLocation; 
-String myprefix = "/player1";
+String myprefix = "/tweez";
 boolean connected = false;
 
 PApplet applet = this;
@@ -61,11 +61,9 @@ void setup()
   pos_in = new OscP5(this, 1234);
   pos_in.plug(this, "accelData", "/nunchuck/accel");
   pos_in.plug(this, "joystickData", "/nunchuck/joystick");
-  pos_in.plug(this, "respawnData", "/player/respawn");
   
   oscP5 = new OscP5(this,lport);
-  myBroadcastLocation = new NetAddress("169.254.73.209",bcport);
-  myPersonalLocation = new NetAddress("127.0.0.1", 14000);
+  myBroadcastLocation = new NetAddress("169.254.234.174",bcport);
   //connect(lport, myprefix);
   
  roster = new Roster();
@@ -73,10 +71,12 @@ void setup()
   cam = new Camera(this);
   map.setCamera(cam.cam);
   //map.setTexture(terrainTex);
+  
 }
 
 void draw() 
 {
+  
   if ( (cam.living == false) || (connected == false) )
   {
     background(0);
@@ -92,18 +92,21 @@ void draw()
     cam.display();
     cam.look(acc.x, acc.y);
     cam.move(joystick);
-    renderGlobe();
-    if (map.checkBounds(PVector.add(cam.pos, cam.move)) == -1) 
+    PVector next = adjustY(PVector.add(cam.pos, cam.move), map.terrain, -30);
+    if (map.checkBounds(next) == -1)
+    //doesn't adjust for Terrain. after pos has been updated once, it doesn't matter, because terrain is just Y, but it might cause bugs.
     { 
       cam.update();
-      cam.adjustToTerrain(map.terrain, 30); //should be fine, because it only alters the eye, which is overwritten by pos. gottabe after update for that reason. if you wanted to update pos, or an object, use Terrain.adjustPosition.
+      cam.adjustToTerrain(map.terrain, -30); //should be fine, because it only alters the eye, which is overwritten by pos. gottabe after update for that reason. if you wanted to update pos, or an object, use Terrain.adjustPosition.
       sendPos(cam.pos.x, cam.pos.y, cam.pos.z, 0, cam.rot.y, 0);
     }
     else
     {
       println("boundary!", cam.pos);
+      cam.move(new PVector(0, 0, 0));
     }
   }
+  
   
 }
 
@@ -165,7 +168,6 @@ void oscEvent(OscMessage theOscMessage)
 {
   //println("###2 received an osc message with addrpattern "+theOscMessage.addrPattern()+" and typetag "+theOscMessage.typetag());
   //theOscMessage.print();
-  
   String messageIP = theOscMessage.netaddress().address();
   String messageaddr = theOscMessage.addrPattern();
   String messagetag = theOscMessage.typetag();
@@ -174,6 +176,7 @@ void oscEvent(OscMessage theOscMessage)
   //player initialization message. 
   if (messageaddr.equals("/players/add")) //remember this fucking string functions you fucking cunt don't fuck up and fucking == with two strings.
   {
+    connected = true; //ought to be another message that just sets this.
     String iprefix = theOscMessage.get(0).stringValue();
     if (roster.isMe(iprefix)) {return;}
     roster.add(iprefix); //function checks "isin"
@@ -198,7 +201,7 @@ void oscEvent(OscMessage theOscMessage)
     return;
   }
   
-  if (messageaddr.equals("/object") && messagetag.equals("ffffff"))
+  if (messageaddr.equals("/object") && messagetag.equals("ffffffs"))
   {
     float ix = theOscMessage.get(0).floatValue();
     float iy = theOscMessage.get(1).floatValue();
@@ -206,8 +209,12 @@ void oscEvent(OscMessage theOscMessage)
     float irx = theOscMessage.get(3).floatValue();
     float iry = theOscMessage.get(4).floatValue();
     float irz = theOscMessage.get(5).floatValue();
-    O3DObelisk iobject = new O3DObelisk(applet, ix, iy, iz, irx, iry, irz, 50.0);
-    map.add(iobject);
+    String itype = theOscMessage.get(6).stringValue();
+    
+    if (itype.equals("obelisk")) { O3DObelisk iobject = new O3DObelisk(applet, ix, iy, iz, irx, iry, irz, new PVector(10, 100, 30)); map.add(iobject); }
+    else if (itype.equals("cone")) { O3DCone iobject = new O3DCone(applet, ix, iy, iz, irx, iry, irz, new PVector(10, 100, 30)); map.add(iobject); }
+    else { println("recieved bad object type"); }
+    
   }
   
   if (isin != -1)
@@ -231,11 +238,15 @@ void oscEvent(OscMessage theOscMessage)
     }
     
     //a player has been killed
-    if (iaddr.equals("/kill") && messagetag.equals("s"))
+    if (iaddr.equals("/kill") && messagetag.equals("sfff"))
     {
       //println("###2 received an osc message with addrpattern "+theOscMessage.addrPattern()+" and typetag "+theOscMessage.typetag());
       //theOscMessage.print();
       String is = theOscMessage.get(0).stringValue();
+      float ix = theOscMessage.get(1).floatValue();
+      float iy = theOscMessage.get(2).floatValue();
+      float iz = theOscMessage.get(3).floatValue();
+      PVector ipv = new PVector(ix, iy, iz);
       if (is.equals(myprefix)) 
       {
         cam.living = false;
@@ -252,8 +263,7 @@ void oscEvent(OscMessage theOscMessage)
           if (map.remove(avatar) != -1)
           {
              println("player "+player+" has been killed");
-             avatar = null; //does this work? call map first ofcourse.
-            //roster.players.get(indx).avatar = null;
+             avatar = null;
           }
         }
       }
@@ -272,33 +282,17 @@ void oscEvent(OscMessage theOscMessage)
         PVector ip = new PVector(ix, iy, iz);
         PVector ir = new PVector(irx, iry, irz);
         
-        if (map.objects.indexOf(iplayer.avatar) == -1)
+        if (map.objects.indexOf(iplayer.avatar) == -1) //if player does not have an avatar in the map.
         {
           Avatar ia = new Avatar(iplayer, ip, ir);
-          iplayer.avatar = (map.add(ia) != -1) ? ia : null;
+          iplayer.avatar = (map.add(ia) != -1) ? ia : null; 
+          //if avatar is successfully added to the map, else set player's avatar pointer to null.
         }
         else
         {
            map.move(iplayer.avatar, ip, ir);
         }
-      
-        /*
-        Avatar ia = new Avatar(iplayer, ip, ir);
-        if (map.objects.contains(iplayer.avatar)) 
-        {
-          map.objects.remove(iplayer.avatar); //should use a map.move function instead that does checks.
-          iplayer.avatar = null; //redundant(?)
-        }
-        
-        if (map.add(ia) != -1)
-        {
-          iplayer.avatar = ia;
-        }
-        */
-    
-        
-    
-  
+
     }
 }
 }
@@ -324,10 +318,13 @@ void sendShot(PVector iaim)
   oscP5.send(ocoor, myBroadcastLocation);
 }
 
-void sendKill(String iaddr)
+void sendKill(String iaddr, PVector ipos)
 {
   OscMessage oaddr = new OscMessage(myprefix + "/kill");
   oaddr.add(iaddr);
+  oaddr.add(ipos.x);
+  oaddr.add(ipos.y);
+  oaddr.add(ipos.z);
   oscP5.send(oaddr, myBroadcastLocation);
 }
 
@@ -336,12 +333,12 @@ void keyPressed()
 {
   switch(key)
   {
-    case 'C': disconnect(lport, myprefix); connect(lport, myprefix); connected = true; break;
+    case 'C': disconnect(lport, myprefix); connect(lport, myprefix); break;
     case 'f': disconnect(lport, myprefix); connected = false; break;
     case 'R': roster.print(); break;
     case 'M': map.print(); break;
-    case 'I': loop(); randomSpawnCamera(5000); break; //initizalize
-    case 'v': cam.living = false; sendKill(myprefix); break; //cam.living = false; killCamera(); sendKill(myprefix); break;
+    case 'I': loop(); randomSpawnCamera(5000); break;
+    case 'v': cam.living = false; sendKill(myprefix, cam.pos); break; //cam.living = false; killCamera(); sendKill(myprefix); break;
     
     //temp testing variables
     case 'w': joystick.x = 2; break;
@@ -353,8 +350,8 @@ void keyPressed()
     case 'j': acc.x = -.5; break;
     case 'k': acc.x = 0; acc.y = 0; break;
     case 'l': acc.x = .5; break;
-    case 'u': acc.y = .5; break;
-    case 'm': acc.y = -.5; break;
+    case 'u': acc.y = 1; break;
+    case 'm': acc.y = -1; break;
     
     case 'z':
     {
@@ -364,32 +361,31 @@ void keyPressed()
   }
 }
 
-
-int randomSpawnCamera(int tries) //this null-returning function is more dangerous than just calling this thing wherever it's used.
+int randomSpawnCamera(int tries) 
 {
   for (int i = 0; i <= tries; i++)
   {
     PVector pvec = new PVector(random( -(map.xsize / 2), (map.xsize / 2) ), 0, random( -(map.zsize / 2), (map.zsize / 2) ));
+    pvec = adjustY(pvec, map.terrain, -30);
     PVector rvec = new PVector(0, 0, 0);
     if (map.checkBounds(pvec) == -1)
     {
-      cam.spawnCamera(pvec, rvec);
+      println("pvec", pvec);
+      cam.spawnCamera(pvec.get(), rvec);
       return 0;
     }
   }
-  
   return -1;
 }
 
 void killCamera()
 {
-  sendDeath();
   background(80, 0, 0);
   camera();
   textAlign(CENTER);
   textSize(50);
   fill(100, 100, 100);
-  text("Scream, Jailbait!", width/2, height/2);
+  text("Scream!", width/2, height/2);
 }
 
 int shoot(PVector pos, PVector aim)
@@ -402,7 +398,7 @@ int shoot(PVector pos, PVector aim)
     {
       Avatar a =  (Avatar) map.objects.get(indx);
       println("killed player "+a.player.prefix+"");
-      sendKill(a.player.prefix);
+      sendKill(a.player.prefix, a.p);
       map.remove(a); //remove when we recieve word from the hive //maybe if this is jumpy, fuck it later.
       a.player.avatar = null; //good place to implement a "Player isLiving"
       return indx;
@@ -411,4 +407,21 @@ int shoot(PVector pos, PVector aim)
   return -1;
 }
 
+PVector adjustY(PVector ipv, Terrain it)
+{
+  PVector opv = ipv.get();
+  it.adjustPosition(opv, Terrain.WRAP);
+  float oy = it.getHeight(opv.x, opv.z);
+  opv.y = oy;
+  return opv;
+}
+
+PVector adjustY(PVector ipv, Terrain it, float ihover)
+{
+  PVector opv = ipv.get();
+  it.adjustPosition(opv, Terrain.WRAP);
+  float oy = it.getHeight(opv.x, opv.z) + ihover; //keep in mind this is gonna want a negative value.
+  opv.y = oy;
+  return opv;
+}
 
