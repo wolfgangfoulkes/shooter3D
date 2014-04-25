@@ -10,16 +10,11 @@ import processing.opengl.*;
 import shapes3d.*;
 import shapes3d.utils.*;
 import shapes3d.animation.*;
-//for globe
-int sDetail = 50;  
-PImage texGlobe;//can be sent to other MAC's to allow for background sync
-//
-OscP5 chuckLine;
+
 OscP5 pos_in;
 OscP5 oscP5;
-int lport = 12000;
+int lport = 12001;
 int bcport = 32000;
-NetAddress myPersonalLocation;
 NetAddress myBroadcastLocation; 
 String myprefix = "/tweez";
 boolean connected = false;
@@ -29,34 +24,15 @@ Map map;
 Camera cam;
 Roster roster;
 //Terrain terrain;
-Sky sky;
 
 PVector acc = new PVector(0, 0, 0); //can we set Camera directly from OSC?
 PVector joystick = new PVector(0, 0, 0);
 
-String[] laserTex = new String[] {
-  "laser1.jpg", "laser2.jpg", "laser3.JPG", "laser4.jpg",
-};
-
-String[] terrainTex = new String[] {//textures for terrain
-  "floor1.jpg", "floor2.gif", "floor3.jpg", "floor4.jpg", "floor5.jpg", "floor6.jpg", "floor7.jpg","floor8.jpg","floor9.jpg"
-};
-
-String[] skyTex = new String[] {//could load fog as background
-  "sky1.jpg", "sky2.jpg", "sky3.jpg", "sky4.jpg", "sky5.jpg", "sky6.jpg", "sky7.jpg", "sky8.jpg", "sky9.jpg"
-};
-
 void setup() 
 {
-  texGlobe = loadImage(skyTex[(int)random(0, skyTex.length)]);    
-  sky.initializeSphere(sDetail);
   smooth();
   size(500,500, P3D);
   frameRate(24);
-  //OSC port for Chuck communication
-  chuckLine = new OscP5(this, 14001);
-  //chuckLine.plug(this, "respawnData", "/player/respawn");
-  
   
   pos_in = new OscP5(this, 1234);
   pos_in.plug(this, "accelData", "/nunchuck/accel");
@@ -125,19 +101,6 @@ public void accelData(int x, int y, int z)
     //println("accel called!", acc);
 
  }
-public void respawnData(int i){
-  println("Received Respawn Data :");
-  print(i);
-  //if (i == 1){
-    loop();
-    randomSpawnCamera(5000); 
-   disconnect(lport, myprefix); 
-   connect(lport, myprefix);
-   connected = true;
-   //cam.living = true; 
- // }
-}
-
 
 void connect(int ilport, String ipre) //should do all this crap automatically before players "spawn" because we ought to have bugs in this worked out before players are allowed to see anything
 {
@@ -155,13 +118,6 @@ void disconnect(int ilport, String ipre)
   m.add(ilport); 
   m.add(ipre);
   oscP5.send(m, myBroadcastLocation);
-}
-
-void sendDeath(){
-  OscMessage deathTrigger = new OscMessage("/player/death");
-  deathTrigger.add(1);
-  chuckLine.send(deathTrigger, myPersonalLocation);
-  println("death message sent to chuck");
 }
 
 void oscEvent(OscMessage theOscMessage) 

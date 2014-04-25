@@ -66,15 +66,12 @@ class Map
   
   int move(Object3D iobject, PVector ipos, PVector irot)
   {
-    int iindx = map.remove(iobject);
+    int iindx = this.remove(iobject);
     int isInBounds = checkBounds(ipos);
     if ( (iindx != -1) ) //janky as shit.
     {
-      iobject.p = ipos;
-      iobject.r = irot;
-      map.add(iobject);
-      //object.update()
-      //object.adjustToTerrain(terrain);
+      iobject.set(ipos, irot);
+      this.add(iobject); //adjusts to terrain.
       return iindx;
     }
     else 
@@ -89,8 +86,8 @@ class Map
     for (int i = objects.size() - 1; i >= 0; i--)
     {
       Object3D object = objects.get(i);
-      object.update();
-      object.adjustToTerrain(terrain);
+      //object.update() //these would apply given some force that needed time-based application, or given we decided to update only on changing position.
+      //object.adjustToTerrain()
       object.display();
     }
   }

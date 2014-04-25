@@ -18,10 +18,6 @@ void setup()
 {
   oscP5 = new OscP5(this, myListeningPort);
   masterMap = new Map(1001, 1001);
-  masterMap.add(new Object3D(new PVector(500, 0, 0), new PVector(0, 0, 0)));
-  masterMap.add(new Object3D(new PVector(0, 0, 500), new PVector(0, 0, 0)));
-  masterMap.add(new Object3D(new PVector(-500, 0, 0), new PVector(0, 0, 0)));
-  masterMap.add(new Object3D(new PVector(0, 0, -500), new PVector(0, 0, 0)));
   masterMap.add(new Object3D(new PVector(500, 0, 0), new PVector(0, 0, 0), "obelisk"));
   masterMap.add(new Object3D(new PVector(0, 0, 500), new PVector(0, 0, 0), "cone"));
   masterMap.add(new Object3D(new PVector(-500, 0, 0), new PVector(0, 0, 0), "obelisk"));

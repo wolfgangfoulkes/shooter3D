@@ -2,15 +2,11 @@ class Object3D
 //base class for storage in MAP. put dummies for functions that would need to be called
 //from the MAP or on several objects here.
 {
-  PVector p; //= new PVector(0, 0, 500); //defaults so janky data is visible
-  PVector r; //= new PVector(0, 0, 0);
-  float radius; //= 100;
-  //String tag;
-  //int tagno
   PVector p;
   PVector r;
   float radius;
   String type;
+
   
   Object3D (PVector ip, PVector ir)
   {
@@ -96,7 +92,7 @@ class Object3D
    {
    }
   
-  void startRotTo (PVector ir)
+  void destroy() 
   {
     //explosion animation goes here.
   }
