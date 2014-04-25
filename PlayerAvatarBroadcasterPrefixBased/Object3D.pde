@@ -72,6 +72,7 @@ class Object3D
   
   void display()
   {
+    //I leave this crap here, so we can tell when the base class has had display called.
     stroke(2);
     fill(100, 100, 100);
     pushMatrix();

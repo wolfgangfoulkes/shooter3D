@@ -1,9 +1,5 @@
 class Map
 {
-  
-  float terrainSize = 500;
-  int gridSlices = 25;
-  float horizonDraw = 200;
   float xsize;
   float zsize;
   ArrayList<Object3D> objects;
@@ -16,13 +12,10 @@ class Map
     zsize = izs;
     objects = new ArrayList<Object3D>(0);
     
-    terrain = new Terrain(applet, gridSlices, terrainSize, horizonDraw);
-    terrain.usePerlinNoiseMap(-50, 50, 2.125f, 2.125f);
-    terrain.setTexture(terrainTex[(int)random(0, terrainTex.length)], 16);
-    terrain.tag = "Ground";
-    terrain.tagNo = -1;
-    terrain.drawMode(S3D.TEXTURE);
-    
+    terrain = new Terrain(applet, 16, xsize, 500);
+    terrain.usePerlinNoiseMap(-30, 30, 2.125f, 2.125f);
+    //terrain.drawMode(S3D.SOLID);
+    //terrain.fill(color(255, 0, 0));
   }
   
   int add(Object3D iobject) //type-check to include "?" right now.
