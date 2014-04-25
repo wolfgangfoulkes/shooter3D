@@ -42,9 +42,10 @@ SerialIO.list() @=> string list[];
 for( int i; i< list.cap(); i++ )
 {
     chout <= i <= ": " <= list[i] <= IO.newline();
+    //5::second => now;
 }
 //opens serial ports
-serial.open(2, SerialIO.B9600, SerialIO.ASCII);
+serial.open(0, SerialIO.B9600, SerialIO.ASCII);
 
 1::second => now;//to make sure program does not initalize in the middle of a message
 spork ~ serialPoller();
@@ -54,15 +55,14 @@ spork ~ playerKillListen();
 //spork ~ sendButtonData();
 
 while (true) {
-    /*<<<"x_axis :", x_axis>>>;
+    <<<"x_axis :", x_axis>>>;
     <<<"y_axis :", y_axis>>>;
     <<<"x_acc :", x_acc>>>;
     <<<"y_acc :", y_acc>>>;
     <<<"z_acc :", z_acc>>>;
     <<<"-------------------------">>>;
-    */ 
-    5.1::second => now; 
-    // sendRespawnPing();
+    
+    .5::second => now; 
 }
 
 fun void playerKillListen(){

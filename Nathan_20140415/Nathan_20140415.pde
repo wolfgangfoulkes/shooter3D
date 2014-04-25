@@ -79,7 +79,7 @@ String[] laserTex = new String[] {
   "laser1.jpg", "laser2.jpg", "laser3.JPG", "laser4.jpg",
 };
 String[] terrainTex = new String[] {//textures for terrain
-  "floor1.jpg", "floor2.gif", "floor3.jpg", "floor4.jpg", "floor5.jpg", "floor6.jpg", "floor7.jpg","floor8.jpg","floor9.jpg"
+  "floor1.jpg", "floor2.gif", "floor3.jpg", "floor4.jpg", "floor5.jpg", "floor6.jpg", "floor7.jpg","floor8.jpg"
 };
 //variables from nunchuck
 float x_acc, y_acc, z_acc, z_button, c_button;

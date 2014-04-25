@@ -24,7 +24,7 @@ void loop(){
   joyY = 200 + player.readJoyY();//read pitch instead of Y in order to better control sprite
   
   acc_x = 500 + player.readRoll();;//add five hundred to avoid negative values
-  acc_y = 500 + player.readPitch();//read pitch on both 
+  acc_y = 500 + player.readAccelY();//read pitch on both 
   acc_z = 500 + player.readPitch();//reads pitch instead of Z
   z_button = player.zPressed();
   c_button = player.cPressed();
