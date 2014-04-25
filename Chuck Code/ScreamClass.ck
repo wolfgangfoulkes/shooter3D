@@ -10,8 +10,9 @@ public class Scream {
     //sets the windowing of the FFT
     Windowing.hann(WinSize) => fft.window;
     
-    0.008 => float threshold;
-    1500::ms => screamLisa.duration;
+    0 => int screamTime;
+    0.0095 => float threshold;
+    150000::ms => screamLisa.duration;
     0 => int gate;
     1 => screamLisa.rate;
     0.5 => master.gain;
@@ -20,8 +21,12 @@ public class Scream {
     
     fun void killed(){
         <<<"playing back player scream">>>;
+        //screamLisa.playPos(0);
         screamLisa.play(1);
-        2.5::second => now;
+        screamLisa.rampUp(0.1::second);
+        ((screamTime - 3)*0.1)::second => now;
+        screamLisa.rampDown(0.2::second);
+        0.2::second => now;
         screamLisa.play(0);
     }
     
@@ -36,8 +41,15 @@ public class Scream {
             //100::ms => now;
             
             if(blobRMS.fval(0) > threshold){
+                
                 screamLisa.record(1); 
-                2.5::second => now;
+                while(blobRMS.fval(0) > threshold/2){
+                 .1::second => now;   
+                 rms.upchuck() @=> UAnaBlob blobRMS;//0.04 is loud
+            //for testing
+            <<<blobRMS.fval(0)>>>;
+            screamTime++;
+                }
                 screamLisa.record(0);
                 gate++;
                 <<<"Player Respawning">>>;
