@@ -12,13 +12,14 @@ import shapes3d.utils.*;
 import shapes3d.animation.*;
 
 
-
+OscP5 chuckLine;
 OscP5 pos_in;
 OscP5 oscP5;
 int lport = 12000;
 int bcport = 32000;
+NetAddress myPersonalLocation;
 NetAddress myBroadcastLocation; 
-String myprefix = "/slurp";
+String myprefix = "/player1";
 boolean connected = false;
 
 PApplet applet = this;
@@ -43,13 +44,19 @@ void setup()
   smooth();
   size(500,500, P3D);
   frameRate(24);
+  //OSC port for Chuck communication
+  chuckLine = new OscP5(this, 14001);
+  //chuckLine.plug(this, "respawnData", "/player/respawn");
+  
   
   pos_in = new OscP5(this, 1234);
   pos_in.plug(this, "accelData", "/nunchuck/accel");
   pos_in.plug(this, "joystickData", "/nunchuck/joystick");
+  pos_in.plug(this, "respawnData", "/player/respawn");
   
   oscP5 = new OscP5(this,lport);
-  myBroadcastLocation = new NetAddress("169.254.47.210",bcport);
+  myBroadcastLocation = new NetAddress("169.254.73.209",bcport);
+  myPersonalLocation = new NetAddress("127.0.0.1", 14000);
   //connect(lport, myprefix);
   
  roster = new Roster();
@@ -106,6 +113,19 @@ public void accelData(int x, int y, int z)
     //println("accel called!", acc);
 
  }
+public void respawnData(int i){
+  println("Received Respawn Data :");
+  print(i);
+  //if (i == 1){
+    loop();
+    randomSpawnCamera(5000); 
+   disconnect(lport, myprefix); 
+   connect(lport, myprefix);
+   connected = true;
+   //cam.living = true; 
+ // }
+}
+
 
 void connect(int ilport, String ipre) //should do all this crap automatically before players "spawn" because we ought to have bugs in this worked out before players are allowed to see anything
 {
@@ -123,6 +143,13 @@ void disconnect(int ilport, String ipre)
   m.add(ilport); 
   m.add(ipre);
   oscP5.send(m, myBroadcastLocation);
+}
+
+void sendDeath(){
+  OscMessage deathTrigger = new OscMessage("/player/death");
+  deathTrigger.add(1);
+  chuckLine.send(deathTrigger, myPersonalLocation);
+  println("death message sent to chuck");
 }
 
 void oscEvent(OscMessage theOscMessage) 
@@ -304,7 +331,7 @@ void keyPressed()
     case 'f': disconnect(lport, myprefix); connected = false; break;
     case 'R': roster.print(); break;
     case 'M': map.print(); break;
-    case 'I': loop(); randomSpawnCamera(5000); break;
+    case 'I': loop(); randomSpawnCamera(5000); break; //initizalize
     case 'v': cam.living = false; sendKill(myprefix); break; //cam.living = false; killCamera(); sendKill(myprefix); break;
     
     //temp testing variables
@@ -347,6 +374,7 @@ int randomSpawnCamera(int tries) //this null-returning function is more dangerou
 
 void killCamera()
 {
+  sendDeath();
   background(80, 0, 0);
   camera();
   textAlign(CENTER);

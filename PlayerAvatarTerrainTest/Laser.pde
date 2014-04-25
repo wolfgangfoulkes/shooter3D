@@ -30,21 +30,18 @@ class Laser
     if (lifespan >= .001)
     {
       lifespan -= rate;
-      rate *= decc;
     }
     else
     {
      lifespan = 0;
-     rate = 0;
-     decc = 0;
-
     }
     
   }
   
   void display() //the actual visual here is kinda whatever.
   {
-    fill((int) (360 * lifespan));
+    //fill((int) (360 * lifespan));
+    tint(255, 255 * lifespan);
     if (lifespan > 0)
     {
       laser.visible(true);
@@ -53,6 +50,7 @@ class Laser
     else 
     {
       laser.visible(false);
+      laser.draw();
     }
   }
 }

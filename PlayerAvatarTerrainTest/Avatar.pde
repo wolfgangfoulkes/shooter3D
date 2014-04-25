@@ -28,6 +28,7 @@ class Avatar extends O3DObelisk
   void display()
   {
     obelisk.draw();
+    laser.update();
     laser.display();
   }
   
