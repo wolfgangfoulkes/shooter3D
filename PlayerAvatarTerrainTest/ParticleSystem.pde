@@ -1,9 +1,12 @@
 //A class which manages a colelction of Particles
 
 class ParticleSystem {
-  ArrayList<Particle> particleCollection = new ArrayList<Particle>();
+  ArrayList<Particle> particleCollection;
+  int size;
 
   ParticleSystem() {
+    particleCollection = new ArrayList<Particle>();
+    size = 0;
   }
 
   void update() {
@@ -17,6 +20,7 @@ class ParticleSystem {
         part.update();
       }
     }
+    size = particleCollection.size();
   }
 
   void draw() {
@@ -37,6 +41,6 @@ class ParticleSystem {
       particleCollection.add( new Particle(PVector.add(location, rand)));
       //println("Particle Created");
     }
+    size = particleCollection.size();
   }
 }
-

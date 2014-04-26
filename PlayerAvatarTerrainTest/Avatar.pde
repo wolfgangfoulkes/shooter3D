@@ -38,7 +38,7 @@ class Avatar extends O3DObelisk
   
   void startLaser(PVector iaim)
   {
-    laser.set(p, iaim, .001); //laser.adjustToTerrain?
+    laser.set(p, iaim, .95); //laser.adjustToTerrain?
   }
   
   void print()

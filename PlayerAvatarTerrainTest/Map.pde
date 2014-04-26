@@ -33,7 +33,7 @@ class Map
     {
       iobject.set(ip, iobject.r);
       objects.add(iobject);
-      println("p", iobject.p);
+      //println("p", iobject.p);
       
       //?object.addToTerrain?
       //Shape3D ishape = iobject.getShape();

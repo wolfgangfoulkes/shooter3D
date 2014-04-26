@@ -1,3 +1,5 @@
+//pde x
+
 import oscP5.*;
 import netP5.*;
 import papaya.*;
@@ -5,7 +7,7 @@ import papaya.*;
 import java.util.*; 
 
 import processing.video.*;
-import processing.opengl.*;
+//import processing.opengl.*;
 
 import shapes3d.*;
 import shapes3d.utils.*;
@@ -25,6 +27,7 @@ PApplet applet = this;
 Map map;
 Camera cam;
 Roster roster;
+ArrayList<ParticleSystem>explosions = new ArrayList<ParticleSystem>();
 //Terrain terrain;
 
 String[] laserTex = new String[] {
@@ -83,6 +86,7 @@ void draw()
   
     map.display();
     cam.display();
+    PSDisplay();
     cam.look(acc.x, acc.y);
     cam.move(joystick);
     PVector next = adjustY(PVector.add(cam.pos, cam.move), map.terrain, -30);
@@ -248,9 +252,13 @@ void oscEvent(OscMessage theOscMessage)
           Avatar avatar = player.avatar;
           if (map.remove(avatar) != -1)
           {
+            ParticleSystem ps = new ParticleSystem();
+            ps.addParticles(50, avatar.p);
+            explosions.add(ps);
              println("player "+player+" has been killed");
              avatar = null;
           }
+          
         }
       }
     }
@@ -315,12 +323,14 @@ void sendKill(String iaddr, PVector ipos, NetAddress ilocation)
   
 }
 
+/*
 void sendDeath(){
   OscMessage deathTrigger = new OscMessage("/kill");
   deathTrigger.add(1);
   oscP5.send(deathTrigger, myLocation);
   println("death message sent to chuck");
 }
+*/
 
 
 void keyPressed()
@@ -395,6 +405,9 @@ int shoot(PVector pos, PVector aim)
       sendKill(a.player.prefix, a.p, myLocation);
       sendKill(a.player.prefix, a.p, myBroadcastLocation);
       map.remove(a); //remove when we recieve word from the hive //maybe if this is jumpy, fuck it later.
+      ParticleSystem ps = new ParticleSystem();
+      ps.addParticles(50, a.p);
+      explosions.add(ps);
       a.player.avatar = null; //good place to implement a "Player isLiving"
       return indx;
     }
@@ -420,3 +433,19 @@ PVector adjustY(PVector ipv, Terrain it, float ihover)
   return opv;
 }
 
+void PSDisplay()
+{
+  for (int i = 0; i < explosions.size(); i++)
+  {
+    ParticleSystem explosion = explosions.get(i);
+    explosion.update();
+    if (explosion.size > 0)
+    {
+      explosion.draw();
+    }
+    else
+    {
+      explosions.remove(i);
+    }
+  }
+}

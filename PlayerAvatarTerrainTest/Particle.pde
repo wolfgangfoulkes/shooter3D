@@ -74,4 +74,3 @@ class Particle {
     //for 2d rendering
   }
 }
-
