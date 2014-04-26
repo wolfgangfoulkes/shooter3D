@@ -15,7 +15,7 @@ import shapes3d.animation.*;
 
 OscP5 pos_in;
 OscP5 oscP5;
-int lport = 12001;
+int lport = 12000;
 int cport = 14000;
 int bcport = 32000;
 NetAddress myLocation;
@@ -51,7 +51,7 @@ void setup()
   size(500,500, P3D);
   frameRate(24);
   
-  pos_in = new OscP5(this, 1234);
+  pos_in = new OscP5(this, 14001);
   pos_in.plug(this, "accelData", "/nunchuck/accel");
   pos_in.plug(this, "joystickData", "/nunchuck/joystick");
   pos_in.plug(this, "respawnData", "/player/respawn");
@@ -177,14 +177,14 @@ void oscEvent(OscMessage theOscMessage)
     return;
   }
   
-  if (messageaddr.equals("chuck/init"))
+  if (messageaddr.equals("/chuck/init"))
   {
     loop();
     if (randomSpawnCamera(5000) == -1)
     {
       cam.living = false; 
-      sendKill(myprefix, cam.pos, myLocation);
-      sendKill(myprefix, cam.pos, myBroadcastLocation);
+      sendKill(myprefix, myLocation);
+      sendKill(myprefix, myBroadcastLocation);
       println("chaos reigns!");
     }
   }
@@ -231,7 +231,7 @@ void oscEvent(OscMessage theOscMessage)
       //println("###2 received an osc message with addrpattern "+theOscMessage.addrPattern()+" and typetag "+theOscMessage.typetag());
       //theOscMessage.print();
       String is = theOscMessage.get(0).stringValue();
-      sendKill(is, ipv, myLocation);
+      sendKill(is, myLocation);
       if (is.equals(myprefix)) 
       {
         cam.living = false;
@@ -298,13 +298,13 @@ void sendPos(float ix, float iy, float iz, float irx, float iry, float irz) //+ 
   oscP5.send(ocoor, myBroadcastLocation);
 }
 
-void sendShot(PVector iaim)
+void sendShot(PVector iaim, NetAddress ilocation)
 {
   OscMessage ocoor = new OscMessage(myprefix + "/shot");
   ocoor.add(iaim.x);
   ocoor.add(iaim.y);
   ocoor.add(iaim.z);
-  oscP5.send(ocoor, myBroadcastLocation);
+  oscP5.send(ocoor, ilocation);
 }
 
 void sendKill(String iaddr, NetAddress ilocation)
@@ -334,7 +334,7 @@ void keyPressed()
     case 'R': roster.print(); break;
     case 'M': map.print(); break;
     case 'I': loop(); randomSpawnCamera(5000); break;
-    case 'v': cam.living = false; sendKill(myprefix, cam.pos, myLocation); sendKill(myprefix, cam.pos, myBroadcastLocation); break; //cam.living = false; killCamera(); (myprefix); break;
+    case 'v': cam.living = false; sendKill(myprefix, myLocation); sendKill(myprefix, myBroadcastLocation); break; //cam.living = false; killCamera(); (myprefix); break;
     
     //temp testing variables
     case 'w': joystick.x = 2; break;
@@ -374,7 +374,7 @@ int randomSpawnCamera(int tries)
   return -1;
 }
 
-void Camera()
+void killCamera()
 {
   background(80, 0, 0);
   camera();
@@ -387,15 +387,15 @@ void Camera()
 int shoot(PVector pos, PVector aim)
 {
   int indx = map.getIndexByAngle(pos, aim);
-  sendShot(aim);
+  sendShot(aim, myLocation);
+  sendShot(aim, myBroadcastLocation);
   if (indx != -1)
   { 
     if (map.objects.get(indx).getType().equals("avatar"))
     {
       Avatar a =  (Avatar) map.objects.get(indx);
       println("killed player "+a.player.prefix+"");
-      //sendKill(a.player.prefix, a.p, myLocation);
-      sendKill(a.player.prefix, a.p, myBroadcastLocation);
+      sendKill(a.player.prefix, myBroadcastLocation);
       map.remove(a); //remove when we recieve word from the hive //maybe if this is jumpy, fuck it later.
       ParticleSystem ps = new ParticleSystem();
       ps.addParticles(50, a.p);
