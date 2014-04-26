@@ -1,6 +1,7 @@
 // serial handling
 SerialIO serial;
 string line;//the data comming in
+"/tweez" => string myPrefix;
 
 second/samp => float samplerate;
 //sets the windowing of the FFT
@@ -8,16 +9,16 @@ second/samp => float samplerate;
 //osc info to send messages for player respawn
 //set up OSC to send info
 OscSend xmit;
-xmit.setHost("localhost",1234);
+xmit.setHost("localhost",14001);
 //set up OSC to look for messages
 OscRecv oscIn;
 14000 => oscIn.port;
 //for when the player hits an object with the axe
 oscIn.listen();
-oscIn.event("/axe, i") @=> OscEvent axeImpact;
+oscIn.event(myPrefix + "/axe, i") @=> OscEvent axeImpact;
 //for when the player hits an object or another player with laser
-oscIn.event("/shot, i") @=> OscEvent laserImpact;
-oscIn.event("/kill, sfff") @=> OscEvent playerKilled;
+oscIn.event(myPrefix + "/shot, i") @=> OscEvent laserImpact;
+oscIn.event(myPrefix + "/kill, s") @=> OscEvent playerKilled;
 //initalize SndBuf classes
 //Scream scream;
 0 => int firstTime;
@@ -65,21 +66,26 @@ while (true) {
     .5::second => now; 
 }
 
-fun void playerKillListen(){
+fun void playerKillListen() {
     while(true){
-        playerKilled => now;   
+        playerKilled => now;
         
-        if (playerKilled.nextMsg() != 0){
-            <<<"Death Message received">>>;
-            1 => int deathStatus;
-            <<<deathStatus>>>;
-            //scream.dead();
-            if(firstTime > 0){scream.killed(); 2.5::second => now;}
-            else{
-            scream.dead();   
-            firstTime++;
+        if (playerKilled.nextMsg() != 0) {
+            
+            playerKilled.getString() => string playerPre;
+            <<<playerPre + " killed!">>>;
+            announcer.read(Math.random2(0, 5));
+            if (playerPre == myPrefix)
+            {
+                1 => int deathStatus;
+                if(firstTime > 0){scream.killed(); 2.5::second => now;}
+                else
+                {
+                    scream.dead();   
+                    firstTime++;
+                }
+                //sendRespawnPing();
             }
-            sendRespawnPing();
         }
     }   
 }
@@ -123,10 +129,9 @@ fun void sendZButtonData(){//the melee attack
     
 }
 fun void sendRespawnPing(){
-    xmit.startMsg("/init", "i");
+    xmit.startMsg("/chuck/init", "i");
     xmit.addInt(1);
     <<<"Respawn Ping sent to Processing">>>;
-    
     
 }
 

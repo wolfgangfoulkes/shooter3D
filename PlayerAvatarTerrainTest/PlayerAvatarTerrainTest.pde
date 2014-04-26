@@ -59,8 +59,7 @@ void setup()
   oscP5 = new OscP5(this,lport);
   
   myLocation = new NetAddress("127.0.0.1", cport);
-  myBroadcastLocation = new NetAddress("169.254.234.174",bcport);
-  
+  myBroadcastLocation = new NetAddress("169.254.154.176",bcport);
   
   roster = new Roster();
   map = new Map(1001, 1001);
@@ -213,8 +212,8 @@ void oscEvent(OscMessage theOscMessage)
     
     if (iaddr.equals("/shot") && messagetag.equals("fff"))
     {
-      //println("###2 received an osc message with addrpattern "+theOscMessage.addrPattern()+" and typetag "+theOscMessage.typetag());
-      //theOscMessage.print();
+      //println("###2 received an osc message with addrpattern "+the.addrPattern()+" and typetag "+theOscMessage.typetag());
+      //the.print();
         float ix = theOscMessage.get(0).floatValue();
         float iy = theOscMessage.get(1).floatValue();
         float iz = theOscMessage.get(2).floatValue();
@@ -227,15 +226,11 @@ void oscEvent(OscMessage theOscMessage)
     }
     
     //a player has been killed
-    if (iaddr.equals("/kill") && messagetag.equals("sfff"))
+    if (iaddr.equals("/kill") && messagetag.equals("s"))
     {
       //println("###2 received an osc message with addrpattern "+theOscMessage.addrPattern()+" and typetag "+theOscMessage.typetag());
       //theOscMessage.print();
       String is = theOscMessage.get(0).stringValue();
-      float ix = theOscMessage.get(1).floatValue();
-      float iy = theOscMessage.get(2).floatValue();
-      float iz = theOscMessage.get(3).floatValue();
-      PVector ipv = new PVector(ix, iy, iz);
       sendKill(is, ipv, myLocation);
       if (is.equals(myprefix)) 
       {
@@ -312,13 +307,10 @@ void sendShot(PVector iaim)
   oscP5.send(ocoor, myBroadcastLocation);
 }
 
-void sendKill(String iaddr, PVector ipos, NetAddress ilocation)
+void sendKill(String iaddr, NetAddress ilocation)
 {
   OscMessage oaddr = new OscMessage(myprefix + "/kill");
   oaddr.add(iaddr);
-  oaddr.add(ipos.x);
-  oaddr.add(ipos.y);
-  oaddr.add(ipos.z);
   oscP5.send(oaddr, ilocation);
   
 }
@@ -342,7 +334,7 @@ void keyPressed()
     case 'R': roster.print(); break;
     case 'M': map.print(); break;
     case 'I': loop(); randomSpawnCamera(5000); break;
-    case 'v': cam.living = false; sendKill(myprefix, cam.pos, myLocation); sendKill(myprefix, cam.pos, myBroadcastLocation); break; //cam.living = false; killCamera(); sendKill(myprefix); break;
+    case 'v': cam.living = false; sendKill(myprefix, cam.pos, myLocation); sendKill(myprefix, cam.pos, myBroadcastLocation); break; //cam.living = false; killCamera(); (myprefix); break;
     
     //temp testing variables
     case 'w': joystick.x = 2; break;
@@ -382,7 +374,7 @@ int randomSpawnCamera(int tries)
   return -1;
 }
 
-void killCamera()
+void Camera()
 {
   background(80, 0, 0);
   camera();
@@ -402,7 +394,7 @@ int shoot(PVector pos, PVector aim)
     {
       Avatar a =  (Avatar) map.objects.get(indx);
       println("killed player "+a.player.prefix+"");
-      sendKill(a.player.prefix, a.p, myLocation);
+      //sendKill(a.player.prefix, a.p, myLocation);
       sendKill(a.player.prefix, a.p, myBroadcastLocation);
       map.remove(a); //remove when we recieve word from the hive //maybe if this is jumpy, fuck it later.
       ParticleSystem ps = new ParticleSystem();

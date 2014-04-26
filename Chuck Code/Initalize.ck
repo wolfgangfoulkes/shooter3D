@@ -3,7 +3,7 @@
 me.dir() + "/LaserClass.ck" => string laserPath;
 me.dir() + "/walking.ck" => string walkingPath;
 me.dir() + "/Axe.ck" => string axePath;
-me.dir() + "/arduinoToChuck.ck" => string serialOscPath;
+me.dir() + "/oscRouter.ck" => string serialOscPath;
 me.dir() + "/ScreamClass.ck" => string screamPath;
 
 
