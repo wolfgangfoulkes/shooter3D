@@ -83,22 +83,15 @@ This is what i have for the TD that i turned in for the assignment.
 Wolfgang -
 -find laptop
 -find arduino
--multiplayer(3)
 -respawning - communication(3)
 - destruction mechanisms(3)
--randomly generate objects(3)
--boundary(3)
--destroy characters(3)
 -laser system working(3)
-- create player objects(1)
 - crosshair(3-4)
 -flashlight object things(3)
 -Music/sound design (4)
 -Trouble Shooting(4)
 -Aesthetics(4)
 -look into lighting libraries
-
-BIG FUCKING DOG
 
 Nathan-  
 -find laptop

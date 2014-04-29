@@ -9,27 +9,35 @@ class O3DObelisk extends Object3D
   String tag;
   int tagno;
   
-  O3DObelisk(PApplet pa, PVector ip, PVector ir, PVector isize)
+  O3DObelisk(PVector ip, PVector ir, PVector isize)
   {
-    super(ip, ir, isize.x);
+    super(ip, ir, isize);
     type = "obelisk";
-    obelisk = new Ellipsoid(pa, nbrSl, nbrSg);
+    //nbrSl = (int) random(2, 6);
+    //nbrSg = (int) random(10, 20);
+    obelisk = new Ellipsoid(applet, nbrSl, nbrSg);
     obelisk.setRadius(isize.x, isize.y, isize.z);
     obelisk.moveTo(p);
     obelisk.rotateToY(radians(r.y));
-    //obelisk.drawMode(S3D.TEXTURE);
+    obelisk.drawMode(S3D.TEXTURE);
+    obelisk.setTexture(terrainTexCur, nbrSl, nbrSg);
+    obelisk.fill(color(255, 255, 255, 123));
     
   }
   
-  O3DObelisk(PApplet pa, float ix, float iy, float iz, float irx, float iry, float irz, PVector isize)
+  O3DObelisk(float ix, float iy, float iz, float irx, float iry, float irz, PVector isize)
   {
-    super(ix, iy, iz, irx, iry, irz, isize.x);
+    super(ix, iy, iz, irx, iry, irz, isize);
     type = "obelisk";
-    obelisk = new Ellipsoid(pa, nbrSl, nbrSg);
+    //nbrSl = (int) random(2, 6);
+    //nbrSg = (int) random(10, 20);
+    obelisk = new Ellipsoid(applet, nbrSl, nbrSg);
     obelisk.setRadius(isize.x, isize.y, isize.z);
     obelisk.moveTo(p);
     obelisk.rotateToY(radians(r.y));
-    //obelisk.drawMode(S3D.TEXTURE); 
+    obelisk.drawMode(S3D.TEXTURE);
+    obelisk.setTexture(terrainTexCur, nbrSl, nbrSg);
+    obelisk.fill(color(255, 255, 255, 123)); 
   }
   
   void set(PVector ip, PVector ir)

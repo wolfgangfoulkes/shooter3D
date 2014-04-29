@@ -8,11 +8,11 @@ class O3DCone extends Object3D
   String tag;
   int tagno;
   
-  O3DCone(PApplet pa, PVector ip, PVector ir, PVector isize)
+  O3DCone(PVector ip, PVector ir, PVector isize)
   {
-    super(ip, ir, isize.x);
+    super(ip, ir, isize);
     type = "cone";
-    cone = new Cone(pa, nbrSg);
+    cone = new Cone(applet, nbrSg);
     cone.setSize(isize.x, isize.z, isize.y);
     cone.moveTo(p);
     cone.rotateToY(radians(r.y));
@@ -20,11 +20,11 @@ class O3DCone extends Object3D
     
   }
   
-  O3DCone(PApplet pa, float ix, float iy, float iz, float irx, float iry, float irz, PVector isize)
+  O3DCone(float ix, float iy, float iz, float irx, float iry, float irz, PVector isize)
   {
-    super(ix, iy, iz, irx, iry, irz, isize.x);
+    super(ix, iy, iz, irx, iry, irz, isize);
     type = "cone";
-    cone = new Cone(pa, nbrSg);
+    cone = new Cone(applet, nbrSg);
     cone.setSize(isize.x, isize.z, isize.y);
     cone.moveTo(p);
     cone.rotateToY(radians(r.y));
