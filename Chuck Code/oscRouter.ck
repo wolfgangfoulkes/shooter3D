@@ -26,6 +26,7 @@ Axe axe;
 Walking walking;
 Laser laser;
 Scream scream;
+Announcer announcer;
 
 //string and int values for data from nunchuck
 1 => int runState;

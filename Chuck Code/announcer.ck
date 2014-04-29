@@ -13,9 +13,9 @@ public class Announcer {
     me.dir() + "/audio/newPlayer5.wav" => newPlayer[4];
     me.dir() + "/audio/newPlayer6.wav" => newPlayer[5];
     
-    fun int read (int player)
+    fun int read ()
     {
-        newPlayer[player] => announcer.read;
+        newPlayer[Math.random2(0,newPlayer.cap() -1] => announcer.read;
         0 => announcer.pos;
         1.0 => announcer.rate;
     }

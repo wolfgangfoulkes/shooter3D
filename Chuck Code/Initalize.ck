@@ -5,8 +5,9 @@ me.dir() + "/walking.ck" => string walkingPath;
 me.dir() + "/Axe.ck" => string axePath;
 me.dir() + "/oscRouter.ck" => string serialOscPath;
 me.dir() + "/ScreamClass.ck" => string screamPath;
+me.dir() + "/announcer.ck" => String announcerPath;
 
-
+Machine.add(announcerPath) => int announcer;
 Machine.add(screamPath) => int scream;
 Machine.add(axePath) => int axe;
 Machine.add(walkingPath) => int walk;
@@ -15,6 +16,7 @@ Machine.add(serialOscPath) => int serialOsc;
 
 
 1::week => now;
+Machine.remove(announcer);
 Machine.remove(walk);
 Machine.remove(serialOsc);
 Machine.remove(laser);
