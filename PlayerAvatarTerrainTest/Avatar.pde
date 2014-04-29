@@ -7,7 +7,7 @@ class Avatar extends O3DObelisk
   
   Avatar(Player iplayer, PVector ip, PVector ir)
   {
-    super(applet, ip, ir, new PVector(20, 150, 50));
+    super(ip, ir, new PVector(random(10, 30), random(80, 100), random(10, 30)));
     type = "avatar";
     player = iplayer;
     laser = new Laser(5.0, 5.0, 5.0, 5.0, p);
@@ -36,9 +36,14 @@ class Avatar extends O3DObelisk
     laser.display();
   }
   
+  void startLaser(PVector ipos, PVector iaim)
+  {
+    laser.set(ipos, iaim, .9);//laser.adjustToTerrain?
+  }
+  
   void startLaser(PVector iaim)
   {
-    laser.set(p, iaim, .95); //laser.adjustToTerrain?
+    laser.set(p, iaim, .9); //laser.adjustToTerrain?
   }
   
   void print()

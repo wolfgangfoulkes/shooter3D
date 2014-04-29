@@ -25,19 +25,21 @@ class Object3D
     type = "object";
   }
   
-  Object3D (float ix, float iy, float iz, float ixr, float iyr, float izr, float iradius)
+  Object3D (float ix, float iy, float iz, float ixr, float iyr, float izr, PVector isize)
   {
     p = new PVector(ix, iy, iz);
     r = new PVector(ixr, iyr, izr);
-    radius = iradius;
+    size = isize;
+    radius = max(size.x, size.z);
     type = "object";
   }
   
-  Object3D (PVector ip, PVector ir, float iradius)
+  Object3D (PVector ip, PVector ir, PVector isize)
   {
     p = ip;
     r = ir;
-    radius = iradius;
+    size = isize;
+    radius = max(size.x, size.z);
     type = "object";
   }
   

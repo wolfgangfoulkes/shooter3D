@@ -17,10 +17,8 @@ class Map
     objects = new ArrayList<Object3D>(0);
     
     terrain = new Terrain(applet, 16, xsize, 500);
-    terrain.usePerlinNoiseMap(-30, 30, 2.125f, 2.125f);
-    terrain.setTexture(terrainTex[(int)random(0, terrainTex.length)], 16);
-    terrain.tag = "Ground"; //why?
-    terrain.tagNo = -1; //why?
+    terrain.usePerlinNoiseMap(-100, 100, 2.125f, 2.125f);
+    terrain.setTexture(terrainTexCur, 16);
     terrain.drawMode(S3D.TEXTURE);
   }
   
@@ -33,11 +31,7 @@ class Map
     {
       iobject.set(ip, iobject.r);
       objects.add(iobject);
-      //println("p", iobject.p);
       
-      //?object.addToTerrain?
-      //Shape3D ishape = iobject.getShape();
-      //if (ishape != null) { terrain.addShape(ishape); }
       return 0;
     }
     
@@ -47,10 +41,8 @@ class Map
   int remove(Object3D iobject)
   {
     int indexof = objects.indexOf(iobject);
-    //Shape3D ishape = iobject.getShape(); //throws an exception. perhaps put it in the if block?
     if (indexof != -1)
     {
-      //if (ishape != null) { terrain.removeShape(ishape); }
       objects.remove(iobject);
       return indexof;
     }
@@ -96,8 +88,10 @@ class Map
     for (int i = objects.size() - 1; i >= 0; i--)
     {
       Object3D oobject = objects.get(i);
-      if (PVector.dist(icoord, oobject.p) <= oobject.radius)
-      {        
+      PVector ic = new PVector(icoord.x, 0, icoord.z);
+      PVector oc = new PVector(oobject.p.x, 0, oobject.p.z);
+      if (PVector.dist(ic, oc) <= oobject.radius)
+      {
         //println("object:", oobject.p);
         return i; 
       }
@@ -111,7 +105,9 @@ class Map
     for (int i = objects.size() - 1; i >= 0; i--)
     {
       Object3D oobject = objects.get(i);
-      if (PVector.dist(icoord, oobject.p) <= oobject.radius)
+      PVector ic = new PVector(icoord.x, 0, icoord.z);
+      PVector oc = new PVector(oobject.p.x, 0, oobject.p.z);
+      if (PVector.dist(ic, oc) <= oobject.radius)
       {
         return i;
       }
@@ -153,8 +149,10 @@ class Map
     {
       PVector vec1 = PVector.sub(iaim, ipos);
       PVector vec2 = PVector.sub(objects.get(i).p, ipos);
+      //vec1.y = 0;
+      //vec2.y = 0;
       float vecangle = degrees(PVector.angleBetween(vec1, vec2));
-      if (vecangle <= 5)
+      if (vecangle <= 8)
       {
         return i;
       }
@@ -166,20 +164,14 @@ class Map
   {
     for (int i = 0; i < many; i++)
     {
-      Object3D robject = new Object3D(random(-(xsize/2), xsize/2), 0, random(-(zsize/2), zsize/2), 0, 0, 0);
-      add(robject);
+      O3DObelisk robject = new O3DObelisk(random(-(xsize/2), xsize/2), 0, random(-(zsize/2), zsize/2), 0, 0, 0, new PVector(50, 100, 50));
+      this.add(robject);
     }
   }
   
   void setCamera(TerrainCam icam)
   {
     terrain.cam = icam;
-  }
-  
-  void setTexture(String ifiles[]) //this could be a global function.
-  {
-    terrain.drawMode(S3D.TEXTURE);
-    terrain.setTexture(ifiles[(int) random(0, ifiles.length)], 16);
   }
   
   void print()

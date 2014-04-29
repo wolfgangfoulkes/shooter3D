@@ -12,10 +12,6 @@ class Particle {
   float agePer;    // float used to modulate the radius over time in relationship to lifespan
 
   PImage bloodTex;
-  String[] blood = new String[]{
-  "blood1.jpg", "blood2.png", "blood3.png"  
-  };
-  
 
   Particle(PVector l) {
     loc = l;
@@ -31,7 +27,6 @@ class Particle {
   // before drawing
   void update() {
     if (age < 1){
-     bloodTex = loadImage(blood[(int)random(0,blood.length)]);
     }
     age++;                                            // every frame we update the particles age
     agePer = 1.0 - (age / (float)lifeSpan);            // update and modulate radius over time
@@ -53,7 +48,6 @@ class Particle {
     fill(255, 0, 0);
     translate(loc.x, loc.y, loc.z);
     beginShape();
-    //texture(bloodTex);
     vertex(random(0, 50), random(0, 50), random(0, 50), random(0, 50) );
     vertex(random(0, 50), random(0, 50), random(0, 50), random(0, 50) );
     vertex(random(0, 50), random(0, 50), random(0, 50), random(0, 50) );

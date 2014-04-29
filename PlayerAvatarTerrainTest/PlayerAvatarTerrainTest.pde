@@ -21,7 +21,7 @@ int bcport = 32000;
 NetAddress myLocation;
 NetAddress myBroadcastLocation; 
 String myprefix = "/tweez";
-boolean connected = false;
+boolean connected = true;
 
 PApplet applet = this;
 Map map;
@@ -42,6 +42,10 @@ String[] skyTex = new String[] {//could load fog as background
   "sky1.jpg", "sky2.jpg", "sky3.jpg", "sky4.jpg", "sky5.jpg", "sky6.jpg", "sky7.jpg", "sky8.jpg", "sky9.jpg"
 };
 
+PImage laserTexCur;
+PImage terrainTexCur;
+PImage skyTexCur;
+
 PVector acc = new PVector(0, 0, 0); //can we set Camera directly from OSC?
 PVector joystick = new PVector(0, 0, 0);
 
@@ -54,12 +58,13 @@ void setup()
   pos_in = new OscP5(this, 14001);
   pos_in.plug(this, "accelData", "/nunchuck/accel");
   pos_in.plug(this, "joystickData", "/nunchuck/joystick");
-  pos_in.plug(this, "respawnData", "/player/respawn");
   
   oscP5 = new OscP5(this,lport);
   
   myLocation = new NetAddress("127.0.0.1", cport);
   myBroadcastLocation = new NetAddress("169.254.154.176",bcport);
+  
+  initTextures();
   
   roster = new Roster();
   map = new Map(1001, 1001);
@@ -88,7 +93,7 @@ void draw()
     PSDisplay();
     cam.look(acc.x, acc.y);
     cam.move(joystick);
-    PVector next = adjustY(PVector.add(cam.pos, cam.move), map.terrain, -30);
+    PVector next = adjustY(PVector.add(cam.pos, cam.move), map.terrain, 0);
     if (map.checkBounds(next) == -1)
     //doesn't adjust for Terrain. after pos has been updated once, it doesn't matter, because terrain is just Y, but it might cause bugs.
     { 
@@ -199,8 +204,8 @@ void oscEvent(OscMessage theOscMessage)
     float irz = theOscMessage.get(5).floatValue();
     String itype = theOscMessage.get(6).stringValue();
     
-    if (itype.equals("obelisk")) { O3DObelisk iobject = new O3DObelisk(applet, ix, iy, iz, irx, iry, irz, new PVector(10, 100, 30)); map.add(iobject); }
-    else if (itype.equals("cone")) { O3DCone iobject = new O3DCone(applet, ix, iy, iz, irx, iry, irz, new PVector(10, 100, 30)); map.add(iobject); }
+    if (itype.equals("obelisk")) { O3DObelisk iobject = new O3DObelisk(ix, iy, iz, irx, iry, irz, new PVector(random(10, 30), random(80, 120), random(10, 30))); map.add(iobject); }
+    else if (itype.equals("cone")) { O3DCone iobject = new O3DCone(ix, iy, iz, irx, iry, irz, new PVector(10, 100, 30)); map.add(iobject); }
     else { println("recieved bad object type"); }
     
   }
@@ -210,18 +215,21 @@ void oscEvent(OscMessage theOscMessage)
     Player iplayer = roster.players.get(isin);
     String iaddr = roster.removePrefix(messageaddr);
     
-    if (iaddr.equals("/shot") && messagetag.equals("fff"))
+    if (iaddr.equals("/shot") && messagetag.equals("ffffff"))
     {
       //println("###2 received an osc message with addrpattern "+the.addrPattern()+" and typetag "+theOscMessage.typetag());
       //the.print();
-        float ix = theOscMessage.get(0).floatValue();
-        float iy = theOscMessage.get(1).floatValue();
-        float iz = theOscMessage.get(2).floatValue();
+        float ipx = theOscMessage.get(0).floatValue();
+        float ipy = theOscMessage.get(1).floatValue();
+        float ipz = theOscMessage.get(2).floatValue();
+        float ix = theOscMessage.get(3).floatValue();
+        float iy = theOscMessage.get(4).floatValue();
+        float iz = theOscMessage.get(5).floatValue();
         
         Avatar a = iplayer.avatar;
         if (a != null) 
         {
-          a.startLaser(new PVector(ix, iy, iz));
+          a.startLaser(new PVector(ipx, ipy, ipz), new PVector(ix, iy, iz));
         }
     }
     
@@ -268,7 +276,7 @@ void oscEvent(OscMessage theOscMessage)
         float iry = theOscMessage.get(4).floatValue();
         float irz = theOscMessage.get(5).floatValue();
         
-        PVector ip = new PVector(ix, iy, iz);
+        PVector ip = new PVector(ix, 0, iz); //ignore lookheight
         PVector ir = new PVector(irx, iry, irz);
         
         if (map.objects.indexOf(iplayer.avatar) == -1) //if player does not have an avatar in the map.
@@ -298,9 +306,12 @@ void sendPos(float ix, float iy, float iz, float irx, float iry, float irz) //+ 
   oscP5.send(ocoor, myBroadcastLocation);
 }
 
-void sendShot(PVector iaim, NetAddress ilocation)
+void sendShot(PVector ipos, PVector iaim, NetAddress ilocation)
 {
   OscMessage ocoor = new OscMessage(myprefix + "/shot");
+  ocoor.add(ipos.x);
+  ocoor.add(ipos.y);
+  ocoor.add(ipos.z);
   ocoor.add(iaim.x);
   ocoor.add(iaim.y);
   ocoor.add(iaim.z);
@@ -333,7 +344,7 @@ void keyPressed()
     case 'f': disconnect(lport, myprefix); connected = false; break;
     case 'R': roster.print(); break;
     case 'M': map.print(); break;
-    case 'I': loop(); randomSpawnCamera(5000); break;
+    case 'I': loop(); initTextures(); randomSpawnCamera(5000); break;
     case 'v': cam.living = false; sendKill(myprefix, myLocation); sendKill(myprefix, myBroadcastLocation); break; //cam.living = false; killCamera(); (myprefix); break;
     
     //temp testing variables
@@ -387,8 +398,8 @@ void killCamera()
 int shoot(PVector pos, PVector aim)
 {
   int indx = map.getIndexByAngle(pos, aim);
-  sendShot(aim, myLocation);
-  sendShot(aim, myBroadcastLocation);
+  sendShot(pos, aim, myLocation);
+  sendShot(pos, aim, myBroadcastLocation);
   if (indx != -1)
   { 
     if (map.objects.get(indx).getType().equals("avatar"))
@@ -423,6 +434,13 @@ PVector adjustY(PVector ipv, Terrain it, float ihover)
   float oy = it.getHeight(opv.x, opv.z) + ihover; //keep in mind this is gonna want a negative value.
   opv.y = oy;
   return opv;
+}
+
+void initTextures()
+{
+  laserTexCur = loadImage( laserTex[ (int) random(0, laserTex.length) ] );
+  skyTexCur = loadImage( laserTex[ (int) random(0, laserTex.length) ] );
+  terrainTexCur = loadImage( laserTex[ (int) random(0, laserTex.length) ] );
 }
 
 void PSDisplay()
