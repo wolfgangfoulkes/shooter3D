@@ -10,7 +10,7 @@ class Camera
  PVector aim;
  float aimheight;
 
-  Camera (PApplet iapp)CI
+  Camera (PApplet iapp)
   {
     cam = new TerrainCam(iapp);
     pos = new PVector(0, 0, 0);

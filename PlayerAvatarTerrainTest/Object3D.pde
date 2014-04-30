@@ -30,7 +30,7 @@ class Object3D
     p = new PVector(ix, iy, iz);
     r = new PVector(ixr, iyr, izr);
     size = isize;
-    radius = max(size.x, size.z);
+    radius = max(size.x, size.z) / 2;
     type = "object";
   }
   
@@ -39,7 +39,7 @@ class Object3D
     p = ip;
     r = ir;
     size = isize;
-    radius = max(size.x, size.z);
+    radius = max(size.x, size.z) / 2;
     type = "object";
   }
   

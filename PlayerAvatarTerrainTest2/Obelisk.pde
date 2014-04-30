@@ -13,8 +13,10 @@ class O3DObelisk extends Object3D
   {
     super(ip, ir, isize);
     type = "obelisk";
+    //nbrSl = (int) random(2, 6);
+    //nbrSg = (int) random(10, 20);
     obelisk = new Ellipsoid(applet, nbrSl, nbrSg);
-    obelisk.setRadius(isize.x, isize.y, isize.z);
+    obelisk.setRadius(isize.x / 2, isize.y / 2, isize.z / 2);
     obelisk.moveTo(p);
     obelisk.rotateToY(radians(r.y));
     obelisk.drawMode(S3D.TEXTURE);
@@ -27,8 +29,10 @@ class O3DObelisk extends Object3D
   {
     super(ix, iy, iz, irx, iry, irz, isize);
     type = "obelisk";
+    //nbrSl = (int) random(2, 6);
+    //nbrSg = (int) random(10, 20);
     obelisk = new Ellipsoid(applet, nbrSl, nbrSg);
-    obelisk.setRadius(isize.x, isize.y, isize.z);
+    obelisk.setRadius(isize.x / 2, isize.y / 2, isize.z / 2);
     obelisk.moveTo(p);
     obelisk.rotateToY(radians(r.y));
     obelisk.drawMode(S3D.TEXTURE);

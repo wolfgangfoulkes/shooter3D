@@ -17,7 +17,7 @@ class Map
     objects = new ArrayList<Object3D>(0);
     
     terrain = new Terrain(applet, 16, xsize, 500);
-    terrain.usePerlinNoiseMap(-100, 100, 2.125f, 2.125f);
+    terrain.usePerlinNoiseMap(-70, 70, 2.125f, 2.125f);
     terrain.setTexture(terrainTexCur, 16);
     terrain.drawMode(S3D.TEXTURE);
   }
@@ -152,7 +152,7 @@ class Map
       //vec1.y = 0;
       //vec2.y = 0;
       float vecangle = degrees(PVector.angleBetween(vec1, vec2));
-      if (vecangle <= 8)
+      if (vecangle <= 9)
       {
         return i;
       }

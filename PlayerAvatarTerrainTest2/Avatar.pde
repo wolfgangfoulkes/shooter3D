@@ -7,7 +7,7 @@ class Avatar extends O3DObelisk
   
   Avatar(Player iplayer, PVector ip, PVector ir)
   {
-    super(ip, ir, new PVector(20, 150, 50));
+    super(ip, ir, new PVector(random(10, 30), random(80, 100), random(10, 30)));
     type = "avatar";
     player = iplayer;
     laser = new Laser(5.0, 5.0, 5.0, 5.0, p);

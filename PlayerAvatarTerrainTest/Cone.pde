@@ -13,7 +13,7 @@ class O3DCone extends Object3D
     super(ip, ir, isize);
     type = "cone";
     cone = new Cone(applet, nbrSg);
-    cone.setSize(isize.x, isize.z, isize.y);
+    cone.setSize(isize.x / 2, isize.z / 2, isize.y);
     cone.moveTo(p);
     cone.rotateToY(radians(r.y));
     //cone.drawMode(S3D.TEXTURE);
@@ -25,7 +25,7 @@ class O3DCone extends Object3D
     super(ix, iy, iz, irx, iry, irz, isize);
     type = "cone";
     cone = new Cone(applet, nbrSg);
-    cone.setSize(isize.x, isize.z, isize.y);
+    cone.setSize(isize.x / 2, isize.z / 2, isize.y);
     cone.moveTo(p);
     cone.rotateToY(radians(r.y));
     //cone.drawMode(S3D.TEXTURE);

@@ -17,7 +17,7 @@ class Map
     objects = new ArrayList<Object3D>(0);
     
     terrain = new Terrain(applet, 16, xsize, 500);
-    terrain.usePerlinNoiseMap(-30, 30, 2.125f, 2.125f);
+    terrain.usePerlinNoiseMap(-100, 100, 2.125f, 2.125f);
     terrain.setTexture(terrainTexCur, 16);
     terrain.drawMode(S3D.TEXTURE);
   }
