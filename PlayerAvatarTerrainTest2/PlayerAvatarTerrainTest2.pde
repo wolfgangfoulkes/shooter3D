@@ -20,7 +20,7 @@ int cport = 14000;
 int bcport = 32000;
 NetAddress myLocation;
 NetAddress myBroadcastLocation; 
-String myprefix = "/tweez";
+String myprefix = "/twerk";
 boolean connected = true;
 
 PApplet applet = this;
@@ -62,7 +62,7 @@ void setup()
   oscP5 = new OscP5(this,lport);
   
   myLocation = new NetAddress("127.0.0.1", cport);
-  myBroadcastLocation = new NetAddress("169.254.154.176",bcport);
+  myBroadcastLocation = new NetAddress("169.254.136.177",bcport);
   
   initTextures();
   
@@ -204,8 +204,8 @@ void oscEvent(OscMessage theOscMessage)
     float irz = theOscMessage.get(5).floatValue();
     String itype = theOscMessage.get(6).stringValue();
     
-    if (itype.equals("obelisk")) { O3DObelisk iobject = new O3DObelisk(ix, iy, iz, irx, iry, irz, new PVector(random(10, 30), random(80, 120), random(10, 30))); map.add(iobject); }
-    else if (itype.equals("cone")) { O3DCone iobject = new O3DCone(ix, iy, iz, irx, iry, irz, new PVector(10, 100, 30)); map.add(iobject); }
+    if (itype.equals("obelisk")) { O3DObelisk iobject = new O3DObelisk(ix, iy, iz, irx, iry, irz, new PVector(random(20, 60), random(160, 250), random(20, 60))); map.add(iobject); }
+    else if (itype.equals("cone")) { O3DCone iobject = new O3DCone(ix, iy, iz, irx, iry, irz, new PVector(20, 200, 70)); map.add(iobject); }
     else { println("recieved bad object type"); }
     
   }
@@ -344,7 +344,7 @@ void keyPressed()
     case 'f': disconnect(lport, myprefix); connected = false; break;
     case 'R': roster.print(); break;
     case 'M': map.print(); break;
-    case 'I': loop(); initTextures(); randomSpawnCamera(5000); break;
+    case 'I': loop(); randomSpawnCamera(5000); break;
     case 'v': cam.living = false; sendKill(myprefix, myLocation); sendKill(myprefix, myBroadcastLocation); break; //cam.living = false; killCamera(); (myprefix); break;
     
     //temp testing variables

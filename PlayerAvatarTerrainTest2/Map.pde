@@ -7,6 +7,7 @@ class Map
   float terrainSize = 500;
   int gridSlices = 25;
   float horizonDraw = 200;
+  float noiseAmp = 70;
   Terrain terrain;
   //should add items to terrain whenever they're added to Map, etc.
   
@@ -16,9 +17,9 @@ class Map
     zsize = izs;
     objects = new ArrayList<Object3D>(0);
     
-    terrain = new Terrain(applet, 16, xsize, 500);
-    terrain.usePerlinNoiseMap(-100, 100, 2.125f, 2.125f);
-    terrain.setTexture(terrainTexCur, 16);
+    terrain = new Terrain(applet, gridSlices, xsize, horizonDraw);
+    terrain.usePerlinNoiseMap(-noiseAmp, noiseAmp, 2.125f, 2.125f);
+    terrain.setTexture(terrainTexCur, gridSlices);
     terrain.drawMode(S3D.TEXTURE);
   }
   
@@ -77,8 +78,6 @@ class Map
     for (int i = objects.size() - 1; i >= 0; i--)
     {
       Object3D object = objects.get(i);
-      //object.update() //these would apply given some force that needed time-based application, or given we decided to update only on changing position.
-      //object.adjustToTerrain()
       object.display();
     }
   }
@@ -92,7 +91,6 @@ class Map
       PVector oc = new PVector(oobject.p.x, 0, oobject.p.z);
       if (PVector.dist(ic, oc) <= oobject.radius)
       {
-        //println("object:", oobject.p);
         return i; 
       }
     }  
@@ -152,7 +150,7 @@ class Map
       //vec1.y = 0;
       //vec2.y = 0;
       float vecangle = degrees(PVector.angleBetween(vec1, vec2));
-      if (vecangle <= 8)
+      if (vecangle <= 9)
       {
         return i;
       }

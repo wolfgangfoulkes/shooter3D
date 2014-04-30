@@ -39,26 +39,6 @@ class O3DCone extends Object3D
     cone.rotateToY(radians(r.y));
   }
   
-  /*
-  void moveTo(PVector ip, PVector ir)
-  {
-    move = ip;
-    r = ir;
-  }
-  */
-  
-  void startMoveTo(PVector ip, float time, float delay) //don't know if I can consolidate this with the object structure, don't know if this lags CPU.
-  {
-    p = ip;
-    cone.moveTo(ip, time, delay);
-  }
-  
-  void startRotTo(PVector ir, float time, float delay)
-  {
-    r = ir;
-    cone.rotateTo(ir, time, delay);
-  }
-  
   void update() //this'll cause more rather than fewer problems. movements will be small enough at a time, that there shouldn't be an issue.
   {
   }
@@ -68,7 +48,7 @@ class O3DCone extends Object3D
     cone.draw();
   }
   
-  void setTex(String itex)
+  void setTex(PImage itex)
   {
     cone.setTexture(itex);
   }
@@ -76,7 +56,8 @@ class O3DCone extends Object3D
   void adjustToTerrain(Terrain iterrain)
   {
     p = adjustY(p, iterrain);
-    this.update();
+    cone.moveTo(p);
+    cone.rotateToY(radians(r.y));
   }
   
   Shape3D getShape ()

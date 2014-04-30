@@ -10,7 +10,7 @@ class Avatar extends O3DObelisk
     super(ip, ir, new PVector(random(10, 30), random(80, 100), random(10, 30)));
     type = "avatar";
     player = iplayer;
-    laser = new Laser(5.0, 5.0, 5.0, 5.0, p);
+    laser = new Laser(2.0, 2.0, 2.0, 2.0, p); //set it to apex, later.
     //isLiving = true; //might want to keep it dead until it's initialized
     println("new Avatar!", p, r, player.prefix);
   }

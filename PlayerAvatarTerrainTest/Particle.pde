@@ -47,7 +47,7 @@ class Particle {
     pushMatrix();
     fill(255, 0, 0);
     translate(loc.x, loc.y, loc.z);
-    beginShape();
+    beginShape(); //make these PShapes.
     vertex(random(0, 50), random(0, 50), random(0, 50), random(0, 50) );
     vertex(random(0, 50), random(0, 50), random(0, 50), random(0, 50) );
     vertex(random(0, 50), random(0, 50), random(0, 50), random(0, 50) );

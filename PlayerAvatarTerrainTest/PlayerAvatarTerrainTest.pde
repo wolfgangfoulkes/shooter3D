@@ -16,12 +16,13 @@ import shapes3d.animation.*;
 OscP5 pos_in;
 OscP5 oscP5;
 int lport = 12000;
-int cport = 14000;
+int coutport = 14000;
+int cinport = 14001;
 int bcport = 32000;
 NetAddress myLocation;
 NetAddress myBroadcastLocation; 
 String myprefix = "/twerk";
-boolean connected = true;
+boolean connected = false;
 
 PApplet applet = this;
 Map map;
@@ -55,14 +56,14 @@ void setup()
   size(500,500, P3D);
   frameRate(24);
   
-  pos_in = new OscP5(this, 14001);
+  pos_in = new OscP5(this, cinport);
   pos_in.plug(this, "accelData", "/nunchuck/accel");
   pos_in.plug(this, "joystickData", "/nunchuck/joystick");
   
   oscP5 = new OscP5(this,lport);
   
-  myLocation = new NetAddress("127.0.0.1", cport);
-  myBroadcastLocation = new NetAddress("169.254.136.177",bcport);
+  myLocation = new NetAddress("127.0.0.1", coutport);
+  myBroadcastLocation = new NetAddress("169.254.136.177", bcport);
   
   initTextures();
   
@@ -95,7 +96,6 @@ void draw()
     cam.move(joystick);
     PVector next = adjustY(PVector.add(cam.pos, cam.move), map.terrain, 0);
     if (map.checkBounds(next) == -1)
-    //doesn't adjust for Terrain. after pos has been updated once, it doesn't matter, because terrain is just Y, but it might cause bugs.
     { 
       cam.update();
       cam.adjustToTerrain(map.terrain, -30); //should be fine, because it only alters the eye, which is overwritten by pos. gottabe after update for that reason. if you wanted to update pos, or an object, use Terrain.adjustPosition.
@@ -326,16 +326,6 @@ void sendKill(String iaddr, NetAddress ilocation)
   
 }
 
-/*
-void sendDeath(){
-  OscMessage deathTrigger = new OscMessage("/kill");
-  deathTrigger.add(1);
-  oscP5.send(deathTrigger, myLocation);
-  println("death message sent to chuck");
-}
-*/
-
-
 void keyPressed()
 {
   switch(key)
@@ -354,9 +344,9 @@ void keyPressed()
     case 'd': joystick.z = 2; break;
     case 's': joystick.x = 0; joystick.z = 0; break;
     
-    case 'j': acc.x = -.5; break;
+    case 'j': acc.x = -1; break;
     case 'k': acc.x = 0; acc.y = 0; break;
-    case 'l': acc.x = .5; break;
+    case 'l': acc.x = 1; break;
     case 'u': acc.y = 1; break;
     case 'm': acc.y = -1; break;
     
