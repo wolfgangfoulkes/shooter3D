@@ -33,7 +33,6 @@ class Laser
   {
     if (lifespan >= .02)
     {
-      lasershader2.set("time", (float) millis() * .001);
       lifespan *= rate;
       println(lifespan);
     }
@@ -47,7 +46,6 @@ class Laser
   
   void display() //the actual visual here is kinda whatever.
   {
-    lasershader2.set("resolution", (float) width, (float) height);
     int itint = floor(255 * lifespan);
     //pos = PVector.lerp(pos, aim, 1 - lifespan); //start -> end
     PVector lpos = PVector.lerp(pos, aim, 1 - lifespan); 

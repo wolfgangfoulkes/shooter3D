@@ -19,7 +19,7 @@ int bcport = 32000;
 NetAddress myLocation;
 NetAddress myBroadcastLocation; 
 String myprefix = "/tweez";
-boolean connected = true;
+boolean connected = false;
 
 PApplet applet = this;
 Map map;
@@ -48,7 +48,7 @@ PImage skyTexCur;
 //PShader noise;
 //PShader noise2;
 //PShader lasershader;
-PShader lasershader2;
+//PShader lasershader2;
 
 
 PVector acc = new PVector(0, 0, 0); //can we set Camera directly from OSC?
@@ -81,7 +81,7 @@ void setup()
   //noise = loadShader("noisefrag.glsl");
   //noise2 = loadShader("noisefrag2.glsl");
   //lasershader = loadShader("potentiallaserfrag.glsl");
-  lasershader2 = loadShader("potentiallaserfrag2.glsl");
+  //lasershader2 = loadShader("potentiallaserfrag2.glsl");
   
 }
 

@@ -144,7 +144,7 @@ class Map
   {
     for (int i = 0; i < many; i++)
     {
-      Object3D robject = new Object3D(random(-(xsize/2), xsize/2), 0, random(-(zsize/2), zsize/2), random(0, 360), 0, random(0, 360));
+      Object3D robject = new Object3D(random(-(xsize/2), xsize/2), 0, random(-(zsize/2), zsize/2), 0, 0, 0);
       robject.type = (random(0, 1) > .5) ? "spire" : "spire";
       add(robject);
     }

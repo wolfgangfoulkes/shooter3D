@@ -67,7 +67,6 @@ class Spire extends Object3D
     //rotateY(radians(r.y)); //don't quote me on this.
     scale(size.x, size.y, size.z);
     translate(-.5, 0, .5); //center axis. 
-    
     shape(spire);
     popMatrix();
   }
