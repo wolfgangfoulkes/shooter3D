@@ -16,7 +16,9 @@ class O3DCone extends Object3D
     cone.setSize(isize.x / 2, isize.z / 2, isize.y);
     cone.moveTo(p);
     cone.rotateToY(radians(r.y));
-    //cone.drawMode(S3D.TEXTURE);
+    cone.drawMode(S3D.TEXTURE);
+    cone.setTexture(terrainTexCur);
+    
     
   }
   
@@ -28,8 +30,8 @@ class O3DCone extends Object3D
     cone.setSize(isize.x / 2, isize.z / 2, isize.y);
     cone.moveTo(p);
     cone.rotateToY(radians(r.y));
-    //cone.drawMode(S3D.TEXTURE);
-    
+    cone.drawMode(S3D.TEXTURE);
+    cone.setTexture(terrainTexCur);
   }
   
   void set(PVector ip, PVector ir)

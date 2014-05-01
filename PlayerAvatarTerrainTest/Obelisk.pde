@@ -18,9 +18,7 @@ class O3DObelisk extends Object3D
     obelisk.moveTo(p);
     obelisk.rotateToY(radians(r.y));
     obelisk.drawMode(S3D.TEXTURE);
-    obelisk.setTexture(terrainTexCur, nbrSl, nbrSg);
-    obelisk.fill(color(255, 255, 255, 123));
-    
+    obelisk.setTexture(terrainTexCur);
   }
   
   O3DObelisk(float ix, float iy, float iz, float irx, float iry, float irz, PVector isize)
@@ -34,8 +32,7 @@ class O3DObelisk extends Object3D
     obelisk.moveTo(p);
     obelisk.rotateToY(radians(r.y));
     obelisk.drawMode(S3D.TEXTURE);
-    obelisk.setTexture(terrainTexCur, nbrSl, nbrSg);
-    obelisk.fill(color(255, 255, 255, 123)); 
+    obelisk.setTexture(terrainTexCur);
   }
   
   void set(PVector ip, PVector ir)
@@ -63,7 +60,7 @@ class O3DObelisk extends Object3D
     obelisk.draw();
   }
   
-  void setTex(String itex)
+  void setTex(PImage itex)
   {
     obelisk.setTexture(itex);
   }

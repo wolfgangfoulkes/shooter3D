@@ -6,7 +6,7 @@ class Map
   
   float terrainSize = 500;
   int gridSlices = 25;
-  float horizonDraw = 200;
+  float horizonDraw = 500;
   float noiseAmp = 70;
   Terrain terrain;
   //should add items to terrain whenever they're added to Map, etc.

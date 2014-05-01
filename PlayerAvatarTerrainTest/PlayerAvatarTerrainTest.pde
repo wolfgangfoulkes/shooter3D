@@ -3,12 +3,9 @@
 import oscP5.*;
 import netP5.*;
 import papaya.*;
-
 import java.util.*; 
-
 import processing.video.*;
 //import processing.opengl.*;
-
 import shapes3d.*;
 import shapes3d.utils.*;
 import shapes3d.animation.*;
@@ -22,7 +19,7 @@ int bcport = 32000;
 NetAddress myLocation;
 NetAddress myBroadcastLocation; 
 String myprefix = "/twerk";
-boolean connected = false;
+boolean connected = true;
 
 PApplet applet = this;
 Map map;
@@ -47,6 +44,9 @@ PImage laserTexCur;
 PImage terrainTexCur;
 PImage skyTexCur;
 
+PShader lines;
+PShader noise;
+
 PVector acc = new PVector(0, 0, 0); //can we set Camera directly from OSC?
 PVector joystick = new PVector(0, 0, 0);
 
@@ -63,7 +63,7 @@ void setup()
   oscP5 = new OscP5(this,lport);
   
   myLocation = new NetAddress("127.0.0.1", coutport);
-  myBroadcastLocation = new NetAddress("169.254.136.177", bcport);
+  myBroadcastLocation = new NetAddress("169.254.154.176", bcport);
   
   initTextures();
   
@@ -73,6 +73,8 @@ void setup()
   map.setCamera(cam.cam);
   //map.setTexture(terrainTex);
   
+  lines = loadShader("linesfrag.glsl");
+  noise = loadShader("noisefrag.glsl");
 }
 
 void draw() 
@@ -87,9 +89,16 @@ void draw()
   else
   {
     background(0);
-    lights();
-  
+    lights(); //unneccessary, this just calls the default.
+    //lines.set("time", (float) millis() * .001);
+    //lines.set("bin", 10.0);
+    //shader(lines);
+    noise.set("time", cam.pos.y * .001);
+    noise.set("resolution", 500.0, 500.0); //these values reproduce the site's effect
+    shader(noise);
     map.display();
+    resetShader();
+    
     cam.display();
     PSDisplay();
     cam.look(acc.x, acc.y);
@@ -205,7 +214,7 @@ void oscEvent(OscMessage theOscMessage)
     String itype = theOscMessage.get(6).stringValue();
     
     if (itype.equals("obelisk")) { O3DObelisk iobject = new O3DObelisk(ix, iy, iz, irx, iry, irz, new PVector(random(20, 60), random(160, 250), random(20, 60))); map.add(iobject); }
-    else if (itype.equals("cone")) { O3DCone iobject = new O3DCone(ix, iy, iz, irx, iry, irz, new PVector(20, 200, 70)); map.add(iobject); }
+    else if (itype.equals("cone")) { O3DCone iobject = new O3DCone(ix, 100, iz, irx, iry, irz, new PVector(20, 200, 70)); map.add(iobject); }
     else { println("recieved bad object type"); }
     
   }
