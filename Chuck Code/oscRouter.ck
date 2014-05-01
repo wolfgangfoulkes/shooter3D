@@ -74,7 +74,7 @@ fun void playerKillListen() {
             
             playerKilled.getString() => string playerPre;
             <<<playerPre + " killed!">>>;
-            announcer.read(Math.random2(0, 5));
+            //announcer.read(Math.random2(0, 5));
             if (playerPre == myPrefix)
             {
                 1 => int deathStatus;
