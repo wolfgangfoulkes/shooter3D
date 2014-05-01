@@ -40,10 +40,12 @@ public class Scream {
             <<<blobRMS.fval(0)>>>;
             //100::ms => now;
             
-            if(blobRMS.fval(0) > threshold){
+            if(blobRMS.fval(0) > threshold)
+            {
                 
                 screamLisa.record(1); 
-                while(blobRMS.fval(0) > threshold/2){
+                while(blobRMS.fval(0) > threshold/2)
+                {
                  .1::second => now;   
                  rms.upchuck() @=> UAnaBlob blobRMS;//0.04 is loud
             //for testing
@@ -53,7 +55,7 @@ public class Scream {
                 screamLisa.record(0);
                 gate++;
                 <<<"Player Respawning">>>;
-                //sendRespawnPing();
+                sendRespawnPing();
             }
             else{
                 //tells processing to prompt player to scream

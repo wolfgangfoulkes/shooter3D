@@ -46,7 +46,7 @@ for( int i; i< list.cap(); i++ )
     //5::second => now;
 }
 //opens serial ports
-serial.open(0, SerialIO.B9600, SerialIO.ASCII);
+serial.open(2, SerialIO.B9600, SerialIO.ASCII);
 
 1::second => now;//to make sure program does not initalize in the middle of a message
 spork ~ serialPoller();
@@ -78,10 +78,14 @@ fun void playerKillListen() {
             if (playerPre == myPrefix)
             {
                 1 => int deathStatus;
-                if(firstTime > 0){scream.killed(); 2.5::second => now;}
+                if (firstTime > 0) 
+                {
+                    spork ~ scream.killed(); 
+                    2.5::second => now;
+                }
                 else
                 {
-                    scream.dead();   
+                    spork ~ scream.dead();
                     firstTime++;
                 }
                 //sendRespawnPing();
