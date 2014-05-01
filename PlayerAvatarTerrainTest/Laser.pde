@@ -14,8 +14,6 @@ class Laser
     rate = 0;
     laser = new Tube(applet, 10, 30);
     laser.visible(false);
-    laser.drawMode(S3D.TEXTURE);
-    laser.setTexture(laserTexCur);
     laser.setSize(rTopX, rTopZ, rBotX, rBotZ);
     laser.setWorldPos(pos, aim);
     
@@ -35,6 +33,7 @@ class Laser
   {
     if (lifespan >= .02)
     {
+      lasershader2.set("time", (float) millis() * .001);
       lifespan *= rate;
       println(lifespan);
     }
@@ -48,15 +47,21 @@ class Laser
   
   void display() //the actual visual here is kinda whatever.
   {
+    lasershader2.set("resolution", (float) width, (float) height);
     int itint = floor(255 * lifespan);
     //pos = PVector.lerp(pos, aim, 1 - lifespan); //start -> end
     PVector lpos = PVector.lerp(pos, aim, 1 - lifespan); 
     laser.setWorldPos(pos, lpos); //end -> end
-    laser.fill(color(255, 255, 255, itint));
+    laser.drawMode(S3D.TEXTURE);
+    laser.setTexture(laserTexCur);
     if (lifespan > 0)
     {
+      pushStyle();
       laser.visible(true);
+      tint(255, 255, 255, itint);
       laser.draw();
+      popStyle();
+      
     }
     else 
     {

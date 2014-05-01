@@ -36,12 +36,12 @@ class Camera
 
   void look(float iy, float ih) 
   {
-    rot.y -= iy; //already in degrees.
+    rot.y += iy; //already in degrees.
     cam.rotateViewTo(radians(-rot.y));
     look.x = cam.lookDir().x; //lookdir is a normalized vector, so between 0 and 1 to represent direction.
     look.y = 0;
     look.z = cam.lookDir().z;
-    aimheight = constrain(aimheight + ih, -180, 120);
+    aimheight = constrain(aimheight + ih, -200, 150); //remember these are real values.
     aim = PVector.add(pos, PVector.mult(look, 500));
     aim.y += aimheight; //gotta limit this so it doesn't go off the map (limit more than that).
     //println(aim);
@@ -79,7 +79,7 @@ PVector lInfo(){
     cam.camera();
     
     PVector ch = PVector.add(pos, PVector.mult(look, 1)); //could scale the sight further. does a sight further from the eye have more accuracy?
-    ch.y += aimheight * .002;
+    ch.y += (aimheight * .002); //gotta do it here, because we don't wanna affect the real aimheight
     pushMatrix();
     translate(ch.x, ch.y, ch.z);
     rotateY(radians(90 + rot.y)); //think it's this value because the camera looks to the positive x axis.

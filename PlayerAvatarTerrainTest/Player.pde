@@ -12,17 +12,17 @@ class Player
     //println("new Player! prefix "+prefix+"");
   }
   
-  void initAvatar(PVector ip, PVector ir)
+  void initAvatar(PVector ip, PVector ir, PVector isize)
   {
-    avatar = new Avatar(this, ip, ir);
+    avatar = new Avatar(this, ip, ir, isize);
     //isAlive = true;
   }
   
-  void setAvatar(PVector ip, PVector ir) //should be merged with above
+  void setAvatar(PVector ip, PVector ir, PVector isize) //should be merged with above
   {
     if (avatar == null) 
     { 
-      initAvatar(ip, ir); //then add into map?
+      initAvatar(ip, ir, isize); //then add into map?
     }
     else 
     {

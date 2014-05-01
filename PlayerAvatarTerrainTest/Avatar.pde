@@ -1,16 +1,16 @@
-class Avatar extends O3DObelisk
+class Avatar extends Spire
 {
   Player player;
   //boolean isLiving;
   Laser laser;
   
   
-  Avatar(Player iplayer, PVector ip, PVector ir)
+  Avatar(Player iplayer, PVector ip, PVector ir, PVector isize)
   {
-    super(ip, ir, new PVector(random(10, 30), random(80, 100), random(10, 30)));
+    super(ip, ir, isize);
     type = "avatar";
     player = iplayer;
-    laser = new Laser(2.0, 2.0, 2.0, 2.0, p); //set it to apex, later.
+    laser = new Laser(1.0, 1.0, 1.0, 1.0, modelapex); //set it to apex, later.
     //isLiving = true; //might want to keep it dead until it's initialized
     println("new Avatar!", p, r, player.prefix);
   }
@@ -31,19 +31,19 @@ class Avatar extends O3DObelisk
   
   void display()
   {
-    obelisk.draw();
+    super.display();
     laser.update(); //right now, this's all that'd be in "update" for any object excepting the camera.
     laser.display();
   }
   
   void startLaser(PVector ipos, PVector iaim)
   {
-    laser.set(ipos, iaim, .9);//laser.adjustToTerrain?
+    laser.set(ipos, iaim, .88);//laser.adjustToTerrain?
   }
   
   void startLaser(PVector iaim)
   {
-    laser.set(p, iaim, .9); //laser.adjustToTerrain?
+    laser.set(p, iaim, .88); //laser.adjustToTerrain?
   }
   
   void print()

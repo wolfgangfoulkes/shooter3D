@@ -18,7 +18,7 @@ int cinport = 14001;
 int bcport = 32000;
 NetAddress myLocation;
 NetAddress myBroadcastLocation; 
-String myprefix = "/twerk";
+String myprefix = "/tweez";
 boolean connected = true;
 
 PApplet applet = this;
@@ -44,8 +44,12 @@ PImage laserTexCur;
 PImage terrainTexCur;
 PImage skyTexCur;
 
-PShader lines;
-PShader noise;
+//PShader lines;
+//PShader noise;
+//PShader noise2;
+//PShader lasershader;
+PShader lasershader2;
+
 
 PVector acc = new PVector(0, 0, 0); //can we set Camera directly from OSC?
 PVector joystick = new PVector(0, 0, 0);
@@ -73,8 +77,12 @@ void setup()
   map.setCamera(cam.cam);
   //map.setTexture(terrainTex);
   
-  lines = loadShader("linesfrag.glsl");
-  noise = loadShader("noisefrag.glsl");
+  //lines = loadShader("linesfrag.glsl");
+  //noise = loadShader("noisefrag.glsl");
+  //noise2 = loadShader("noisefrag2.glsl");
+  //lasershader = loadShader("potentiallaserfrag.glsl");
+  lasershader2 = loadShader("potentiallaserfrag2.glsl");
+  
 }
 
 void draw() 
@@ -85,6 +93,7 @@ void draw()
     background(0);
     killCamera();
     noLoop(); 
+    
   }
   else
   {
@@ -92,12 +101,15 @@ void draw()
     lights(); //unneccessary, this just calls the default.
     //lines.set("time", (float) millis() * .001);
     //lines.set("bin", 10.0);
-    //shader(lines);
-    noise.set("time", cam.pos.y * .001);
-    noise.set("resolution", 500.0, 500.0); //these values reproduce the site's effect
-    shader(noise);
+    //noise.set("time", (millis() * .001));
+    //noise.set("time", (cam.pos.y * -.001));
+    //noise.set("resolution", (float) width, (float) height); //these values reproduce the site's effect
+    //shader(gridcolors);
     map.display();
-    resetShader();
+    //resetShader();
+    
+    //println("pos", cam.pos);
+    //println("eye", cam.cam.eye());
     
     cam.display();
     PSDisplay();
@@ -108,7 +120,7 @@ void draw()
     { 
       cam.update();
       cam.adjustToTerrain(map.terrain, -30); //should be fine, because it only alters the eye, which is overwritten by pos. gottabe after update for that reason. if you wanted to update pos, or an object, use Terrain.adjustPosition.
-      sendPos(cam.pos.x, cam.pos.y, cam.pos.z, 0, cam.rot.y, 0);
+      sendPos(cam.pos.x, cam.pos.y + 30, cam.pos.z, 0, cam.rot.y, 0);
     }
     else
     {
@@ -122,18 +134,32 @@ void draw()
 
 public void joystickData(int x, int z) 
 {
-    joystick.x = map(constrain(x, -10, 10), -10, 10, -1, 1); //need to be -1 - 1 //you had a small typo here that was probably causing all kinda havok
-    joystick.z = map(constrain(z, -10, 10), -10, 10, -1, 1);
+  if (joystick != null)
+  {
+    joystick.z = (z == 127) ? 0 : z;
+    joystick.x = (x == 95) ? 0 : x;
+    joystick.z = map(constrain(x, 0, 256), 0, 256, -1, 1); //resting 127
+    joystick.x = map(constrain(z, -32, 220), -32, 220, -1, 1); //resting 95
     //println("joystick called!", joystick);
+    joystick.x *= 1.5;
+    joystick.y *= 1.5;
+  }
 }
 
 public void accelData(int x, int y, int z) 
 { 
-    acc.x = map(constrain(x, -10, 10), -10, 10, -1, 1); //needs to be -1 - 1
-    acc.y = map(constrain(y, -10, 10), -10, 10, -1, 1); 
-    acc.z = map(constrain(z, -10, 10), -10, 10, -1, 1);
-    //println("accel called!", acc);
-
+    if (acc != null);
+    {
+      acc.x = ((x < -30) && (x >= 30)) ? 0 : x;
+      acc.y = ((y < 120) && (y >= 40)) ? 0 : y;
+    
+      acc.x = map(constrain(x, -70, 70), -70, 70, -1, 1); //resting 0
+      acc.y = map(constrain(y, 30, 127), 30, 127, -1, 1); //resting 95
+      acc.z = map(constrain(y, 30, 150), 30, 150, -1, 1); //we don't use this
+      //println("accel called!", acc);
+      acc.x *= -2.0;
+      acc.y *= -6.0; //this should be a "set" value for height, rather than an "increment"
+    }
  }
 
 void connect(int ilport, String ipre) //should do all this crap automatically before players "spawn" because we ought to have bugs in this worked out before players are allowed to see anything
@@ -215,6 +241,12 @@ void oscEvent(OscMessage theOscMessage)
     
     if (itype.equals("obelisk")) { O3DObelisk iobject = new O3DObelisk(ix, iy, iz, irx, iry, irz, new PVector(random(20, 60), random(160, 250), random(20, 60))); map.add(iobject); }
     else if (itype.equals("cone")) { O3DCone iobject = new O3DCone(ix, 100, iz, irx, iry, irz, new PVector(20, 200, 70)); map.add(iobject); }
+    else if (itype.equals("spire")) 
+    { 
+      PVector isize = new PVector(random(50, 90), random(150, 250), random(50, 90)); 
+      Spire iobject = new Spire(new PVector(ix, iy + (isize.y/3), iz), new PVector(irx, iry, irz), isize); 
+      map.add(iobject); 
+    }
     else { println("recieved bad object type"); }
     
   }
@@ -238,7 +270,7 @@ void oscEvent(OscMessage theOscMessage)
         Avatar a = iplayer.avatar;
         if (a != null) 
         {
-          a.startLaser(new PVector(ipx, ipy, ipz), new PVector(ix, iy, iz));
+          a.startLaser(a.modelapex, new PVector(ix, iy, iz));
         }
     }
     
@@ -285,18 +317,19 @@ void oscEvent(OscMessage theOscMessage)
         float iry = theOscMessage.get(4).floatValue();
         float irz = theOscMessage.get(5).floatValue();
         
-        PVector ip = new PVector(ix, 0, iz); //ignore lookheight
-        PVector ir = new PVector(irx, iry, irz);
+        PVector ip = new PVector(ix, iy, iz); //ignore lookheight
+        PVector ir = new PVector(irx, iry, irz); //don't rotate avatar
         
         if (map.objects.indexOf(iplayer.avatar) == -1) //if player does not have an avatar in the map.
         {
-          Avatar ia = new Avatar(iplayer, ip, ir);
+          PVector isize = new PVector(random(50, 90), random(150, 250), random(50, 90));  
+          Avatar ia = new Avatar(iplayer, new PVector(ip.x, isize.y/3, ip.z), new PVector(0, 0, 0), isize);
           iplayer.avatar = (map.add(ia) != -1) ? ia : null; 
           //if avatar is successfully added to the map, else set player's avatar pointer to null.
         }
         else
         {
-           map.move(iplayer.avatar, ip, ir);
+           map.move(iplayer.avatar, new PVector(ip.x, iplayer.avatar.size.y/3, ip.z), new PVector(0, 0, 0));
         }
 
     }

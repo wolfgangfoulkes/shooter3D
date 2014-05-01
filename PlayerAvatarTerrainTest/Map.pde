@@ -32,6 +32,7 @@ class Map
     {
       iobject.set(ip, iobject.r);
       objects.add(iobject);
+      println(iobject.p, iobject.r, iobject.radius);
       
       return 0;
     }
@@ -75,11 +76,13 @@ class Map
   void display()
   {
     terrain.draw();
+    
     for (int i = objects.size() - 1; i >= 0; i--)
     {
       Object3D object = objects.get(i);
       object.display();
     }
+    
   }
   
   int checkBounds(PVector icoord) //this function may be the cause of many of our problems
