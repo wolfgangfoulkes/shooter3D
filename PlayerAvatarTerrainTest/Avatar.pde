@@ -1,4 +1,4 @@
-class Avatar extends O3DCone
+class Avatar extends Spire
 {
   Player player;
   //boolean isLiving;
@@ -10,7 +10,7 @@ class Avatar extends O3DCone
     super(ip, ir, isize);
     type = "avatar";
     player = iplayer;
-    laser = new Laser(1.0, 1.0, 1.0, 1.0, apex); //set it to apex, later.
+    laser = new Laser(1.0, 1.0, 1.0, 1.0, modelapex); //set it to apex, later.
     //isLiving = true; //might want to keep it dead until it's initialized
     println("new Avatar!", p, r, player.prefix);
   }

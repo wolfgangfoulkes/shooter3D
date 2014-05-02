@@ -4,9 +4,10 @@ class O3DCone extends Object3D
 
 {
   Cone cone;
-  PVector apex;
   int nbrSg = 20;
-
+  String tag;
+  int tagno;
+  
   O3DCone(PVector ip, PVector ir, PVector isize)
   {
     super(ip, ir, isize);
@@ -17,7 +18,6 @@ class O3DCone extends Object3D
     cone.rotateToY(radians(r.y));
     cone.drawMode(S3D.TEXTURE);
     cone.setTexture(terrainTexCur);
-    apex = new PVector(p.x, p.y + isize.y, p.z);
     
     
   }
@@ -32,7 +32,6 @@ class O3DCone extends Object3D
     cone.rotateToY(radians(r.y));
     cone.drawMode(S3D.TEXTURE);
     cone.setTexture(terrainTexCur);
-    apex = new PVector(p.x, p.y + isize.y, p.z);
   }
   
   void set(PVector ip, PVector ir)
@@ -40,7 +39,6 @@ class O3DCone extends Object3D
     super.set(ip, ir);
     cone.moveTo(p);
     cone.rotateToY(radians(r.y));
-    apex = new PVector(p.x, p.y + size.y, p.z);
   }
   
   void update() //this'll cause more rather than fewer problems. movements will be small enough at a time, that there shouldn't be an issue.
@@ -62,7 +60,6 @@ class O3DCone extends Object3D
     p = adjustY(p, iterrain);
     cone.moveTo(p);
     cone.rotateToY(radians(r.y));
-    apex = new PVector(p.x, p.y + size.y, p.z);
   }
   
   Shape3D getShape ()

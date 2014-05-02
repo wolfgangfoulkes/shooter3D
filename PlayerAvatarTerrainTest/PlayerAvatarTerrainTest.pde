@@ -270,7 +270,7 @@ void oscEvent(OscMessage theOscMessage)
         Avatar a = iplayer.avatar;
         if (a != null) 
         {
-          a.startLaser(a.apex, new PVector(ix, iy, iz));
+          a.startLaser(a.modelapex, new PVector(ix, iy, iz));
         }
     }
     
@@ -323,13 +323,13 @@ void oscEvent(OscMessage theOscMessage)
         if (map.objects.indexOf(iplayer.avatar) == -1) //if player does not have an avatar in the map.
         {
           PVector isize = new PVector(random(50, 90), random(150, 250), random(50, 90));  
-          Avatar ia = new Avatar(iplayer, new PVector(ip.x, isize.y/3, ip.z), new PVector(0, 0, 0), isize); //the depth causes hella problems
+          Avatar ia = new Avatar(iplayer, new PVector(ip.x, isize.y/3, ip.z), new PVector(0, 0, 0), isize);
           iplayer.avatar = (map.add(ia) != -1) ? ia : null; 
           //if avatar is successfully added to the map, else set player's avatar pointer to null.
         }
         else
         {
-           map.move(iplayer.avatar, new PVector(ip.x, iplayer.avatar.size.y/3, ip.z), new PVector(0, 0, 0)); //the depth causes hella problems
+           map.move(iplayer.avatar, new PVector(ip.x, iplayer.avatar.size.y/3, ip.z), new PVector(0, 0, 0));
         }
 
     }
