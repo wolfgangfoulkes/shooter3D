@@ -21,12 +21,19 @@ NetAddress myBroadcastLocation;
 String myprefix = "/tweez";
 boolean connected = false;
 
-PApplet applet = this;
+PApplet APPLET = this;
 Map map;
 Camera cam;
 Roster roster;
 ArrayList<ParticleSystem>explosions = new ArrayList<ParticleSystem>();
-//Terrain terrain;
+
+Terrain terrain;
+int X_SIZE = 1001;
+int Z_SIZE = 1001;
+
+int TERRAIN_SLICES = 25;
+float TERRAIN_HORIZON = 500;
+float TERRAIN_AMP = 70;
 
 String[] laserTex = new String[] {
   "laser1.jpg", "laser2.jpg", "laser3.JPG", "laser4.jpg",
@@ -54,6 +61,8 @@ PImage skyTexCur;
 PVector acc = new PVector(0, 0, 0); //can we set Camera directly from OSC?
 PVector joystick = new PVector(0, 0, 0);
 
+
+
 void setup() 
 {
   smooth();
@@ -67,15 +76,18 @@ void setup()
   oscP5 = new OscP5(this,lport);
   
   myLocation = new NetAddress("127.0.0.1", coutport);
-  myBroadcastLocation = new NetAddress("169.254.154.176", bcport);
+  myBroadcastLocation = new NetAddress("169.254.174.206", bcport);
   
   initTextures();
   
   roster = new Roster();
   map = new Map(1001, 1001);
   cam = new Camera(this);
-  map.setCamera(cam.cam);
-  //map.setTexture(terrainTex);
+  terrain = new Terrain(APPLET, TERRAIN_SLICES, X_SIZE, TERRAIN_HORIZON);
+  terrain.usePerlinNoiseMap(-TERRAIN_AMP, TERRAIN_AMP, 2.125f, 2.125f);
+  terrain.drawMode(Terrain.TEXTURE);
+  terrain.setTexture(terrainTexCur, TERRAIN_SLICES);
+  terrain.cam = cam.cam;
   
   //lines = loadShader("linesfrag.glsl");
   //noise = loadShader("noisefrag.glsl");
@@ -106,6 +118,7 @@ void draw()
     //noise.set("resolution", (float) width, (float) height); //these values reproduce the site's effect
     //shader(gridcolors);
     map.display();
+    terrain.draw();
     //resetShader();
     
     //println("pos", cam.pos);
@@ -115,12 +128,12 @@ void draw()
     PSDisplay();
     cam.look(acc.x, acc.y);
     cam.move(joystick);
-    PVector next = adjustY(PVector.add(cam.pos, cam.move), map.terrain, 0);
+    PVector next = adjustY(PVector.add(cam.pos, cam.move), terrain, 0);
     if (map.checkBounds(next) == -1)
     { 
       cam.update();
-      cam.adjustToTerrain(map.terrain, -30); //should be fine, because it only alters the eye, which is overwritten by pos. gottabe after update for that reason. if you wanted to update pos, or an object, use Terrain.adjustPosition.
-      sendPos(cam.pos.x, cam.pos.y + 30, cam.pos.z, 0, cam.rot.y, 0);
+      cam.adjustToTerrain(terrain, -30); //should be fine, because it only alters the eye, which is overwritten by pos. gottabe after update for that reason. if you wanted to update pos, or an object, use Terrain.adjustPosition.
+      sendPos(cam.pos.x, 0, cam.pos.z, 0, cam.rot.y, 0);
     }
     else
     {
@@ -239,12 +252,23 @@ void oscEvent(OscMessage theOscMessage)
     float irz = theOscMessage.get(5).floatValue();
     String itype = theOscMessage.get(6).stringValue();
     
-    if (itype.equals("obelisk")) { O3DObelisk iobject = new O3DObelisk(ix, iy, iz, irx, iry, irz, new PVector(random(20, 60), random(160, 250), random(20, 60))); map.add(iobject); }
-    else if (itype.equals("cone")) { O3DCone iobject = new O3DCone(ix, 100, iz, irx, iry, irz, new PVector(20, 200, 70)); map.add(iobject); }
+    if (itype.equals("obelisk")) 
+    { 
+      PVector ivec = adjustY(new PVector(ix, iy, iz), terrain, iy);
+      O3DObelisk iobject = new O3DObelisk(ivec, new PVector(irx, iry, irz), new PVector(random(20, 60), random(160, 250), random(20, 60)));  
+      map.add(iobject); 
+    }
+    else if (itype.equals("cone")) 
+    { 
+      PVector ivec = adjustY(new PVector(ix, iy, iz), terrain, iy);
+      O3DCone iobject = new O3DCone(ivec, new PVector(irx, iry, irz), new PVector(20, 200, 70)); 
+      map.add(iobject); 
+    }
     else if (itype.equals("spire")) 
     { 
+      PVector ivec = adjustY(new PVector(ix, iy, iz), terrain, iy);
       PVector isize = new PVector(random(50, 90), random(150, 250), random(50, 90)); 
-      Spire iobject = new Spire(new PVector(ix, iy + (isize.y/3), iz), new PVector(irx, iry, irz), isize); 
+      Spire iobject = new Spire(ivec, new PVector(irx, iry, irz), isize); 
       map.add(iobject); 
     }
     else { println("recieved bad object type"); }
@@ -270,7 +294,7 @@ void oscEvent(OscMessage theOscMessage)
         Avatar a = iplayer.avatar;
         if (a != null) 
         {
-          a.startLaser(a.modelapex, new PVector(ix, iy, iz));
+          a.startLaser(new PVector(ix, iy, iz));
         }
     }
     
@@ -299,8 +323,8 @@ void oscEvent(OscMessage theOscMessage)
             ParticleSystem ps = new ParticleSystem();
             ps.addParticles(50, avatar.p);
             explosions.add(ps);
-             println("player "+player+" has been killed");
-             avatar = null;
+            println("player "+player+" has been killed");
+            avatar = null;
           }
           
         }
@@ -322,14 +346,20 @@ void oscEvent(OscMessage theOscMessage)
         
         if (map.objects.indexOf(iplayer.avatar) == -1) //if player does not have an avatar in the map.
         {
+          int HEIGHT_OFFSET = 50;
+          PVector ivec = adjustY(new PVector(ix, iy, iz), terrain, HEIGHT_OFFSET);
           PVector isize = new PVector(random(50, 90), random(150, 250), random(50, 90));  
-          Avatar ia = new Avatar(iplayer, new PVector(ip.x, isize.y/3, ip.z), new PVector(0, 0, 0), isize);
+          Avatar ia = new Avatar(iplayer, ivec, new PVector(0, 0, 0), isize);
           iplayer.avatar = (map.add(ia) != -1) ? ia : null; 
           //if avatar is successfully added to the map, else set player's avatar pointer to null.
+          //println("model:", iplayer.avatar.getModelApex());
         }
         else
         {
-           map.move(iplayer.avatar, new PVector(ip.x, iplayer.avatar.size.y/3, ip.z), new PVector(0, 0, 0));
+          int HEIGHT_OFFSET = 50;
+          PVector ivec = adjustY(new PVector(ix, iy, iz), terrain, HEIGHT_OFFSET);
+           map.move(iplayer.avatar, ivec, new PVector(0, 0, 0));
+           //println("model:", iplayer.avatar.getModelApex());
         }
 
     }
@@ -391,6 +421,7 @@ void keyPressed()
     case 'l': acc.x = 1; break;
     case 'u': acc.y = 1; break;
     case 'm': acc.y = -1; break;
+
     
     case 'z':
     {
@@ -405,7 +436,7 @@ int randomSpawnCamera(int tries)
   for (int i = 0; i <= tries; i++)
   {
     PVector pvec = new PVector(random( -(map.xsize / 2), (map.xsize / 2) ), 0, random( -(map.zsize / 2), (map.zsize / 2) ));
-    pvec = adjustY(pvec, map.terrain, -30);
+    pvec = adjustY(pvec, terrain, 0);
     PVector rvec = new PVector(0, 0, 0);
     if (map.checkBounds(pvec) == -1)
     {

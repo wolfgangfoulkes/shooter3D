@@ -9,10 +9,10 @@ class Laser
   Laser(float rTopX, float rTopZ, float rBotX, float rBotZ, PVector ipos)
   {
     pos = ipos;
-    aim = PVector.add(ipos, new PVector(0, 0, 1)); //radius must be >=0.
+    aim = PVector.add(ipos, new PVector(0, 0, -1)); //radius must be >=0.
     lifespan = 0;
     rate = 0;
-    laser = new Tube(applet, 10, 30);
+    laser = new Tube(APPLET, 10, 30);
     laser.visible(false);
     laser.setSize(rTopX, rTopZ, rBotX, rBotZ);
     laser.setWorldPos(pos, aim);
@@ -51,7 +51,7 @@ class Laser
     PVector lpos = PVector.lerp(pos, aim, 1 - lifespan); 
     laser.setWorldPos(pos, lpos); //end -> end
     laser.drawMode(S3D.TEXTURE);
-    laser.setTexture(laserTexCur);
+    //laser.setTexture(laserTexCur);
     if (lifespan > 0)
     {
       pushStyle();
