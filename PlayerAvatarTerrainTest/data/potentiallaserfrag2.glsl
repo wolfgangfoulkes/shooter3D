@@ -9,6 +9,7 @@ varying vec4 vertTexCoord;
 
 uniform float time;
 uniform vec2 resolution;
+uniform float alpha;
 
 void main( void )
 {
@@ -20,6 +21,6 @@ void main( void )
 	
 	color *= cos( time / 300.0 ) * 0.5;
 
-	gl_FragColor = texture2D(texture, vertTexCoord.st) * vec4( vec3( color + color * 9.0, color * 0.5, tan( color + time / 9.0 ) * 0.75 ), 7.0 );
+	gl_FragColor = texture2D(texture, vertTexCoord.st) * vec4( vec3( color + color * 9.0, color * 0.5, tan( color + time / 9.0 ) * 0.75 ), alpha );
 
 }

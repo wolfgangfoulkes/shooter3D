@@ -7,7 +7,7 @@ uniform sampler2D textureSampler;
 
 uniform float time;
 uniform vec2 resolution;
-uniform vec2 mouse;
+uniform float alphs
 
 varying vec4 vertColor;
 varying vec4 vertTexCoord;
@@ -28,5 +28,5 @@ void main(void) {
     float w = r1 * r2 * 0.8;
     vec3 col = texture2D(textureSampler, 0.5 - 0.495 * uv).xyz;
     
-    gl_FragColor = vec4(col / (0.1 + w), 1.0);
+    gl_FragColor = vec4(col / (0.1 + w), alpha);
 }

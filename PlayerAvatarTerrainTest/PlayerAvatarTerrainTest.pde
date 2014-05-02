@@ -19,7 +19,7 @@ int bcport = 32000;
 NetAddress myLocation;
 NetAddress myBroadcastLocation; 
 String myprefix = "/tweez";
-boolean connected = false;
+boolean connected = true;
 
 PApplet APPLET = this;
 Map map;
@@ -53,15 +53,14 @@ PImage skyTexCur;
 
 //PShader lines;
 //PShader noise;
-//PShader noise2;
-//PShader lasershader;
-//PShader lasershader2;
+PShader noise2;
+PShader lasershader;
 
 
 PVector acc = new PVector(0, 0, 0); //can we set Camera directly from OSC?
 PVector joystick = new PVector(0, 0, 0);
 
-
+Spire v;
 
 void setup() 
 {
@@ -79,21 +78,19 @@ void setup()
   myBroadcastLocation = new NetAddress("169.254.174.206", bcport);
   
   initTextures();
-  
   roster = new Roster();
   map = new Map(1001, 1001);
   cam = new Camera(this);
   terrain = new Terrain(APPLET, TERRAIN_SLICES, X_SIZE, TERRAIN_HORIZON);
   terrain.usePerlinNoiseMap(-TERRAIN_AMP, TERRAIN_AMP, 2.125f, 2.125f);
-  terrain.drawMode(Terrain.TEXTURE);
   terrain.setTexture(terrainTexCur, TERRAIN_SLICES);
-  terrain.cam = cam.cam;
+  terrain.drawMode(S3D.TEXTURE);
+  //terrain.cam = cam.cam;
   
   //lines = loadShader("linesfrag.glsl");
   //noise = loadShader("noisefrag.glsl");
-  //noise2 = loadShader("noisefrag2.glsl");
-  //lasershader = loadShader("potentiallaserfrag.glsl");
-  //lasershader2 = loadShader("potentiallaserfrag2.glsl");
+  noise2 = loadShader("noisefrag2.glsl");
+  lasershader = loadShader("potentiallaserfrag2.glsl");
   
 }
 
@@ -114,12 +111,12 @@ void draw()
     //lines.set("time", (float) millis() * .001);
     //lines.set("bin", 10.0);
     //noise.set("time", (millis() * .001));
-    //noise.set("time", (cam.pos.y * -.001));
-    //noise.set("resolution", (float) width, (float) height); //these values reproduce the site's effect
-    //shader(gridcolors);
+    noise2.set("time", (millis() * .001));
+    noise2.set("resolution", (float) width, (float) height); //these values reproduce the site's effect
+    shader(noise2);
     map.display();
     terrain.draw();
-    //resetShader();
+    resetShader();
     
     //println("pos", cam.pos);
     //println("eye", cam.cam.eye());
@@ -504,6 +501,7 @@ void initTextures()
   laserTexCur = loadImage( laserTex[ (int) random(0, laserTex.length) ] );
   skyTexCur = loadImage( laserTex[ (int) random(0, laserTex.length) ] );
   terrainTexCur = loadImage( laserTex[ (int) random(0, laserTex.length) ] );
+  println("Texture for laser:", laserTexCur, "Texture for sky:", skyTexCur, "texture for terrain:", terrainTexCur);
 }
 
 void PSDisplay()

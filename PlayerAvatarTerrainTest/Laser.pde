@@ -51,7 +51,11 @@ class Laser
     PVector lpos = PVector.lerp(pos, aim, 1 - lifespan); 
     laser.setWorldPos(pos, lpos); //end -> end
     laser.drawMode(S3D.TEXTURE);
-    //laser.setTexture(laserTexCur);
+    laser.setTexture(laserTexCur);
+    lasershader.set("time", millis() * .001);
+    lasershader.set("resolution", (float) width, (float) height);
+    lasershader.set("alpha", lifespan);
+    shader(lasershader);
     if (lifespan > 0)
     {
       pushStyle();
@@ -66,5 +70,6 @@ class Laser
       laser.visible(false);
       //laser.draw():
     }
+    resetShader();
   }
 }
