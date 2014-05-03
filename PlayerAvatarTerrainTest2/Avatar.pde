@@ -1,4 +1,4 @@
-class Avatar extends Spire
+class Avatar extends O3DCone
 {
   Player player;
   //boolean isLiving;
@@ -10,7 +10,7 @@ class Avatar extends Spire
     super(ip, ir, isize);
     type = "avatar";
     player = iplayer;
-    laser = new Laser(1.0, 1.0, 1.0, 1.0, getApex()); //set it to apex, later.
+    laser = new Laser(1.0, 1.0, 1.0, 1.0, new PVector(p.x, p.y-isize.y, p.z)); //set it to apex, later.
     //isLiving = true; //might want to keep it dead until it's initialized
     println("new Avatar!", p, r, player.prefix);
   }
@@ -22,18 +22,17 @@ class Avatar extends Spire
   void update()
   {
   }
-  
-  void adjustToTerrain(Terrain iterrain)
-  {
-    super.adjustToTerrain(iterrain);
-    //laser.adjustToTerrain(iterrain);
-  }
-  
+
   void display()
   {
-    super.display();
+    resetShader();
+    lasershader.set("time", millis() * .001);
+    lasershader.set("resolution", (float) width, (float) height);
+    lasershader.set("alpha", laser.lifespan);
+    shader(lasershader);
     laser.update(); //right now, this's all that'd be in "update" for any object excepting the camera.
     laser.display();
+    resetShader();
   }
   
   void startLaser(PVector ipos, PVector iaim)
@@ -43,7 +42,7 @@ class Avatar extends Spire
   
   void startLaser(PVector iaim)
   {
-    laser.set(p, iaim, .88); //laser.adjustToTerrain?
+    laser.set(new PVector(p.x, p.y-size.y, p.z), iaim, .88); //laser.adjustToTerrain?
   }
   
   void print()

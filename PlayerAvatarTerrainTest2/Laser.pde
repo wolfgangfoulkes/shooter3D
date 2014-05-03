@@ -9,7 +9,7 @@ class Laser
   Laser(float rTopX, float rTopZ, float rBotX, float rBotZ, PVector ipos)
   {
     pos = ipos;
-    aim = PVector.add(ipos, new PVector(0, 0, 1)); //radius must be >=0.
+    aim = PVector.add(ipos, new PVector(0, 0, -1)); //radius must be >=0.
     lifespan = 0;
     rate = 0;
     laser = new Tube(APPLET, 10, 30);
@@ -64,7 +64,8 @@ class Laser
     else 
     {
       laser.visible(false);
-      //laser.draw():
+      laser.draw();
     }
+
   }
 }

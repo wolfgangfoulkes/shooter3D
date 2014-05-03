@@ -86,7 +86,7 @@ PVector lInfo(){
     stroke(255);
     fill(255);
     rectMode(CENTER);
-    rect(0, 0, .02, .02);
+    rect(0, 0, .05, .05);
     popMatrix();
   }
   

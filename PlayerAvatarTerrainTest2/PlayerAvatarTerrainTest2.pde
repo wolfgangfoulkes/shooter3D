@@ -19,7 +19,7 @@ int bcport = 32000;
 NetAddress myLocation;
 NetAddress myBroadcastLocation; 
 String myprefix = "/tweez";
-boolean connected = false;
+boolean connected = true;
 
 PApplet APPLET = this;
 Map map;
@@ -53,15 +53,14 @@ PImage skyTexCur;
 
 //PShader lines;
 //PShader noise;
-//PShader noise2;
-//PShader lasershader;
-//PShader lasershader2;
+PShader noise2;
+PShader lasershader;
 
 
 PVector acc = new PVector(0, 0, 0); //can we set Camera directly from OSC?
 PVector joystick = new PVector(0, 0, 0);
 
-
+Spire v;
 
 void setup() 
 {
@@ -76,23 +75,22 @@ void setup()
   oscP5 = new OscP5(this,lport);
   
   myLocation = new NetAddress("127.0.0.1", coutport);
-  myBroadcastLocation = new NetAddress("169.254.174.206", bcport);
+  myBroadcastLocation = new NetAddress("169.254.154.176", bcport);
   
   initTextures();
-  
   roster = new Roster();
   map = new Map(1001, 1001);
   cam = new Camera(this);
   terrain = new Terrain(APPLET, TERRAIN_SLICES, X_SIZE, TERRAIN_HORIZON);
   terrain.usePerlinNoiseMap(-TERRAIN_AMP, TERRAIN_AMP, 2.125f, 2.125f);
   terrain.setTexture(terrainTexCur, TERRAIN_SLICES);
-  terrain.cam = cam.cam;
+  terrain.drawMode(S3D.TEXTURE);
+  //terrain.cam = cam.cam;
   
   //lines = loadShader("linesfrag.glsl");
   //noise = loadShader("noisefrag.glsl");
-  //noise2 = loadShader("noisefrag2.glsl");
-  //lasershader = loadShader("potentiallaserfrag.glsl");
-  //lasershader2 = loadShader("potentiallaserfrag2.glsl");
+  noise2 = loadShader("noisefrag2.glsl");
+  lasershader = loadShader("potentiallaserfrag2.glsl");
   
 }
 
@@ -113,12 +111,13 @@ void draw()
     //lines.set("time", (float) millis() * .001);
     //lines.set("bin", 10.0);
     //noise.set("time", (millis() * .001));
-    //noise.set("time", (cam.pos.y * -.001));
-    //noise.set("resolution", (float) width, (float) height); //these values reproduce the site's effect
-    //shader(gridcolors);
+    noise2.set("time", (millis() * .001));
+    noise2.set("resolution", (float) width, (float) height); //these values reproduce the site's effect
+    noise2.set("alpha", 0.8); 
+    shader(noise2);
     terrain.draw();
     map.display();
-    //resetShader();
+    resetShader();
     
     //println("pos", cam.pos);
     //println("eye", cam.cam.eye());
@@ -132,6 +131,7 @@ void draw()
     { 
       cam.update();
       cam.adjustToTerrain(terrain, -30); //should be fine, because it only alters the eye, which is overwritten by pos. gottabe after update for that reason. if you wanted to update pos, or an object, use Terrain.adjustPosition.
+      println(cam.pos);
       sendPos(cam.pos.x, 0, cam.pos.z, 0, cam.rot.y, 0);
     }
     else
@@ -293,7 +293,7 @@ void oscEvent(OscMessage theOscMessage)
         Avatar a = iplayer.avatar;
         if (a != null) 
         {
-          a.startLaser(a.getApex(), new PVector(ix, iy, iz));
+          a.startLaser(new PVector(ix, iy, iz));
         }
     }
     
@@ -345,22 +345,20 @@ void oscEvent(OscMessage theOscMessage)
         
         if (map.objects.indexOf(iplayer.avatar) == -1) //if player does not have an avatar in the map.
         {
-          PVector ivec = adjustY(new PVector(ix, iy, iz), terrain, iy);
+          int HEIGHT_OFFSET = 50;
+          PVector ivec = adjustY(new PVector(ix, iy, iz), terrain, HEIGHT_OFFSET);
           PVector isize = new PVector(random(50, 90), random(150, 250), random(50, 90));  
           Avatar ia = new Avatar(iplayer, ivec, new PVector(0, 0, 0), isize);
           iplayer.avatar = (map.add(ia) != -1) ? ia : null; 
           //if avatar is successfully added to the map, else set player's avatar pointer to null.
-          println("pos, size:", iplayer.avatar.p, iplayer.avatar.size);
-          println("math:", iplayer.avatar.getApex());
-          println("model:", iplayer.avatar.getModelApex());
+          //println("model:", iplayer.avatar.getModelApex());
         }
         else
         {
-          PVector ivec = adjustY(new PVector(ix, iy, iz), terrain, iy);
+          int HEIGHT_OFFSET = 50;
+          PVector ivec = adjustY(new PVector(ix, iy, iz), terrain, HEIGHT_OFFSET);
            map.move(iplayer.avatar, ivec, new PVector(0, 0, 0));
-           println("pos, size:", iplayer.avatar.p, iplayer.avatar.size);
-           println("math:", iplayer.avatar.getApex());
-           println("model:", iplayer.avatar.getModelApex());
+           //println("model:", iplayer.avatar.getModelApex());
         }
 
     }
@@ -505,6 +503,7 @@ void initTextures()
   laserTexCur = loadImage( laserTex[ (int) random(0, laserTex.length) ] );
   skyTexCur = loadImage( laserTex[ (int) random(0, laserTex.length) ] );
   terrainTexCur = loadImage( laserTex[ (int) random(0, laserTex.length) ] );
+  println("Texture for laser:", laserTexCur, "Texture for sky:", skyTexCur, "texture for terrain:", terrainTexCur);
 }
 
 void PSDisplay()

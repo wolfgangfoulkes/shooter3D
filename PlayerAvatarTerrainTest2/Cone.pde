@@ -4,7 +4,7 @@ class O3DCone extends Object3D
 
 {
   Cone cone;
-  int nbrSg = 20;
+  int nbrSg;
   String tag;
   int tagno;
   
@@ -12,6 +12,7 @@ class O3DCone extends Object3D
   {
     super(ip, ir, isize);
     type = "cone";
+    nbrSg = (int) random(3, 5);
     cone = new Cone(APPLET, nbrSg);
     cone.setSize(isize.x / 2, isize.z / 2, isize.y);
     cone.moveTo(p);
@@ -55,12 +56,6 @@ class O3DCone extends Object3D
     cone.setTexture(itex);
   }
   
-  void adjustToTerrain(Terrain iterrain)
-  {
-    p = adjustY(p, iterrain);
-    cone.moveTo(p);
-    cone.rotateToY(radians(r.y));
-  }
   
   Shape3D getShape ()
   {

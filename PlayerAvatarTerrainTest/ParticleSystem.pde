@@ -37,7 +37,7 @@ class ParticleSystem {
   void addParticles(int amt, PVector location) {
     //loop and create our particles with a bit of randomness...
     for (int i=0; i<amt; i++) {
-      PVector rand = new PVector(random(30), random(30),random(30));
+      PVector rand = new PVector(random(-10, 10), random(-10, 10),random(-10, 10));
       particleCollection.add( new Particle(PVector.add(location, rand)));
       //println("Particle Created");
     }

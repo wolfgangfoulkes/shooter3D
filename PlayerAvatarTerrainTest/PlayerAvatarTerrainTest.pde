@@ -40,7 +40,7 @@ String[] laserTex = new String[] {
 };
 
 String[] terrainTex = new String[] {//textures for terrain
-  "floor1.jpg", "floor2.gif", "floor3.jpg", "floor4.jpg", "floor5.jpg", "floor6.jpg", "floor7.jpg","floor8.jpg","floor9.jpg"
+  "floor1.jpg", "sky2.gif", "build3.jpg", "sky3.jpg", "floor5.jpg", "floor6.jpg", "floor7.jpg","floor8.jpg","floor9.jpg"
 };
 
 String[] skyTex = new String[] {//could load fog as background
@@ -55,7 +55,11 @@ PImage skyTexCur;
 //PShader noise;
 PShader noise2;
 PShader lasershader;
-
+PShader pixel;
+PShader deform;
+PShader laserfire;
+PShader alias;
+PShader crosshair;
 
 PVector acc = new PVector(0, 0, 0); //can we set Camera directly from OSC?
 PVector joystick = new PVector(0, 0, 0);
@@ -75,7 +79,7 @@ void setup()
   oscP5 = new OscP5(this,lport);
   
   myLocation = new NetAddress("127.0.0.1", coutport);
-  myBroadcastLocation = new NetAddress("169.254.174.206", bcport);
+  myBroadcastLocation = new NetAddress("169.254.154.176", bcport);
   
   initTextures();
   roster = new Roster();
@@ -83,14 +87,19 @@ void setup()
   cam = new Camera(this);
   terrain = new Terrain(APPLET, TERRAIN_SLICES, X_SIZE, TERRAIN_HORIZON);
   terrain.usePerlinNoiseMap(-TERRAIN_AMP, TERRAIN_AMP, 2.125f, 2.125f);
+  terrain.fill(255);
   terrain.setTexture(terrainTexCur, TERRAIN_SLICES);
   terrain.drawMode(S3D.TEXTURE);
-  //terrain.cam = cam.cam;
+  terrain.cam = cam.cam;
   
   //lines = loadShader("linesfrag.glsl");
   //noise = loadShader("noisefrag.glsl");
-  noise2 = loadShader("noisefrag2.glsl");
-  lasershader = loadShader("potentiallaserfrag2.glsl");
+  noise2 = loadShader("noisefrag.glsl");
+  lasershader = loadShader("potentiallaserfrag.glsl");
+  pixel = loadShader("pixelfrag.glsl");
+  deform = loadShader("deformfrag.glsl");
+  alias = loadShader("aliasingfrag.glsl");
+  crosshair = loadShader("crosshairfrag.glsl");
   
 }
 
@@ -113,9 +122,13 @@ void draw()
     //noise.set("time", (millis() * .001));
     noise2.set("time", (millis() * .001));
     noise2.set("resolution", (float) width, (float) height); //these values reproduce the site's effect
+    noise2.set("alpha", .95); 
+    //pixel.set("pixels", 50.0, 50.0);
+    //alias.set("time", millis() * .001);
+   // alias.set("alpha", 1.0);
     shader(noise2);
-    map.display();
     terrain.draw();
+    map.display();
     resetShader();
     
     //println("pos", cam.pos);
@@ -130,6 +143,7 @@ void draw()
     { 
       cam.update();
       cam.adjustToTerrain(terrain, -30); //should be fine, because it only alters the eye, which is overwritten by pos. gottabe after update for that reason. if you wanted to update pos, or an object, use Terrain.adjustPosition.
+      println(cam.pos);
       sendPos(cam.pos.x, 0, cam.pos.z, 0, cam.rot.y, 0);
     }
     else
@@ -258,13 +272,13 @@ void oscEvent(OscMessage theOscMessage)
     else if (itype.equals("cone")) 
     { 
       PVector ivec = adjustY(new PVector(ix, iy, iz), terrain, iy);
-      O3DCone iobject = new O3DCone(ivec, new PVector(irx, iry, irz), new PVector(20, 200, 70)); 
+      O3DCone iobject = new O3DCone(ivec, new PVector(irx, iry, irz), new PVector(random(20, 90), random(90, 180), random(20, 90))); 
       map.add(iobject); 
     }
     else if (itype.equals("spire")) 
     { 
       PVector ivec = adjustY(new PVector(ix, iy, iz), terrain, iy);
-      PVector isize = new PVector(random(50, 90), random(150, 250), random(50, 90)); 
+      PVector isize = new PVector(random(40, 90), random(150, 250), random(40, 90)); 
       Spire iobject = new Spire(ivec, new PVector(irx, iry, irz), isize); 
       map.add(iobject); 
     }
@@ -345,7 +359,7 @@ void oscEvent(OscMessage theOscMessage)
         {
           int HEIGHT_OFFSET = 50;
           PVector ivec = adjustY(new PVector(ix, iy, iz), terrain, HEIGHT_OFFSET);
-          PVector isize = new PVector(random(50, 90), random(150, 250), random(50, 90));  
+          PVector isize = new PVector(random(20, 90), random(90, 180), random(20, 90));  
           Avatar ia = new Avatar(iplayer, ivec, new PVector(0, 0, 0), isize);
           iplayer.avatar = (map.add(ia) != -1) ? ia : null; 
           //if avatar is successfully added to the map, else set player's avatar pointer to null.
@@ -469,7 +483,7 @@ int shoot(PVector pos, PVector aim)
       sendKill(a.player.prefix, myBroadcastLocation);
       map.remove(a); //remove when we recieve word from the hive //maybe if this is jumpy, fuck it later.
       ParticleSystem ps = new ParticleSystem();
-      ps.addParticles(50, a.p);
+      ps.addParticles(100, adjustY(a.p, terrain, -30));
       explosions.add(ps);
       a.player.avatar = null; //good place to implement a "Player isLiving"
       return indx;

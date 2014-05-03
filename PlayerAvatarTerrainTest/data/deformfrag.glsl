@@ -7,7 +7,7 @@ uniform sampler2D textureSampler;
 
 uniform float time;
 uniform vec2 resolution;
-uniform float alphs
+uniform float alpha;
 
 varying vec4 vertColor;
 varying vec4 vertTexCoord;

@@ -40,7 +40,7 @@ class Spire extends Object3D
     spire.setTexture(terrainTexCur);
     spire.setTint(color(255, 255, 255, 200));
     spire.setStroke(0);
-    spire.scale(size.x, size.y, size.z);
+
     println("vertex: ", spire.getVertex(0), spire.getVertex(1), spire.getVertex(2));
   }
   

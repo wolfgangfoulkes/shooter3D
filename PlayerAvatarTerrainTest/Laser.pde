@@ -5,6 +5,7 @@ class Laser
   PVector aim;
   float lifespan;
   float rate;
+  int elapsed;
   
   Laser(float rTopX, float rTopZ, float rBotX, float rBotZ, PVector ipos)
   {
@@ -12,6 +13,7 @@ class Laser
     aim = PVector.add(ipos, new PVector(0, 0, -1)); //radius must be >=0.
     lifespan = 0;
     rate = 0;
+    elapsed = 0;
     laser = new Tube(APPLET, 10, 30);
     laser.visible(false);
     laser.setSize(rTopX, rTopZ, rBotX, rBotZ);
@@ -27,11 +29,13 @@ class Laser
     laser.setWorldPos(pos, aim);
     lifespan = 1;
     rate = irate;
+    elapsed = 0;
   }
   
   void update()
   {
-    if (lifespan >= .02)
+    elapsed++;
+    if (lifespan >= .03)
     {
       lifespan *= rate;
       println(lifespan);
@@ -52,15 +56,11 @@ class Laser
     laser.setWorldPos(pos, lpos); //end -> end
     laser.drawMode(S3D.TEXTURE);
     laser.setTexture(laserTexCur);
-    lasershader.set("time", millis() * .001);
-    lasershader.set("resolution", (float) width, (float) height);
-    lasershader.set("alpha", lifespan);
-    shader(lasershader);
     if (lifespan > 0)
     {
       pushStyle();
       laser.visible(true);
-      tint(255, 255, 255, itint);
+      //tint(255, 255, 255, itint);
       laser.draw();
       popStyle();
       
@@ -68,8 +68,8 @@ class Laser
     else 
     {
       laser.visible(false);
-      //laser.draw():
+      laser.draw();
     }
-    resetShader();
+
   }
 }

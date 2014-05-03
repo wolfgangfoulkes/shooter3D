@@ -63,8 +63,10 @@ class Map
   {
     for (int i = objects.size() - 1; i >= 0; i--)
     {
+      shader(noise2);
       Object3D object = objects.get(i);
       object.display();
+      resetShader();
     }
     
   }
@@ -134,8 +136,8 @@ class Map
     {
       PVector vec1 = PVector.sub(iaim, ipos);
       PVector vec2 = PVector.sub(objects.get(i).p, ipos);
-      //vec1.y = 0;
-      //vec2.y = 0;
+      vec1.y = 0;
+      vec2.y = 0;
       //could individually check the xz angles (using vector2s) and the xyz angle and xz would be less forgiving.
       float vecangle = degrees(PVector.angleBetween(vec1, vec2));
       if (vecangle <= 9)

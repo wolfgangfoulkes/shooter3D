@@ -13,6 +13,7 @@ uniform vec2 resolution;
 
 uniform float mod;
 uniform float size;
+uniform float alpha;
 
 void main( void ) {
 
@@ -25,11 +26,11 @@ void main( void ) {
 	//alter the value we mod by to change size of black bars
 	//alter the value we compare it against to change size of white bars 
 	{
-		gl_FragColor = texture2D(texture, vertTexCoord.st) * vec4(1.0, 1.0, 1.0, 1.0);
+		gl_FragColor = texture2D(texture, vertTexCoord.st) * vec4(1.0, 1.0, 1.0, alpha);
 	}	
 	else
 	{
-		gl_FragColor = texture2D(texture, vertTexCoord.st) * vec4(0, 0, 0, 0.0);
+		gl_FragColor = texture2D(texture, vertTexCoord.st) * vec4(0, 0, 0, alpha);
 	}
 
 }

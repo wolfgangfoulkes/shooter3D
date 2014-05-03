@@ -63,8 +63,10 @@ class Map
   {
     for (int i = objects.size() - 1; i >= 0; i--)
     {
+      shader(noise2);
       Object3D object = objects.get(i);
       object.display();
+      resetShader();
     }
     
   }

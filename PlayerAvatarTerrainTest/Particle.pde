@@ -18,7 +18,7 @@ class Particle {
     vel = new PVector(random(-10, 10), random(-10, 10), random(-10, 10));  // random speed of travel (play with these)
     decay = new PVector(0.9, 0.9, 0.9);                  // how quickly the particles slow down (play with this)
     age = 0;                                          // initial age is 0
-    lifeSpan = (int)random(20, 50);                  // randomize lifeSpan so each particles dies at slightly different times
+    lifeSpan = (int)random(10, 20);                  // randomize lifeSpan so each particles dies at slightly different times
     isDead = false;                                   // particle starts alive
     rad = 10.0;
   }
@@ -32,7 +32,7 @@ class Particle {
     agePer = 1.0 - (age / (float)lifeSpan);            // update and modulate radius over time
     rad = 10.0 * agePer;                              // actually update the radius
     loc.add(vel);
-    //vel.mult(decay);
+    vel.dot(decay);
 
     if (age > lifeSpan) {
       isDead = true;
@@ -42,29 +42,17 @@ class Particle {
   //will be called to actually draw the particle to the screen
   void draw() {
     
+    resetShader();
     noStroke();
-    //lights();
+    lights();
     pushMatrix();
-    fill(255, 0, 0);
+    pushStyle();
     translate(loc.x, loc.y, loc.z);
-    beginShape(); //make these PShapes.
-    vertex(random(0, 50), random(0, 50), random(0, 50), random(0, 50) );
-    vertex(random(0, 50), random(0, 50), random(0, 50), random(0, 50) );
-    vertex(random(0, 50), random(0, 50), random(0, 50), random(0, 50) );
-    vertex(random(0, 50), random(0, 50), random(0, 50), random(0, 50) );
-    vertex(random(0, 50), random(0, 50), random(0, 50), random(0, 50) );
-    
-    endShape();
-    //sphere((int)random(1,3));
-
+    rotateY(radians(random(0, 360)));
+    fill(255, 0, 0, random(100, 200) * agePer);
+    triangle(0, 0, random(-10, 10), random(-10, 10), random(-10, 10), random(-10, 10));
     popMatrix();
+    popStyle();
     //fill(NONE);
-    //
-
-
-    // ellipseMode(CENTER);
-    //fill(255, 255, 255, 100);
-    // ellipse(loc.x, loc.y,  rad, rad);
-    //for 2d rendering
   }
 }

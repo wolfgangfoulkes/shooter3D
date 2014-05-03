@@ -83,11 +83,16 @@ PVector lInfo(){
     pushMatrix();
     translate(ch.x, ch.y, ch.z);
     rotateY(radians(90 + rot.y)); //think it's this value because the camera looks to the positive x axis.
+    
     stroke(255);
     fill(255);
     rectMode(CENTER);
     rect(0, 0, .05, .05);
+    
     popMatrix();
+    
+    
+    
   }
   
 }
