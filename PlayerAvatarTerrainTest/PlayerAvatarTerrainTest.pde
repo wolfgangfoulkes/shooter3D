@@ -1,5 +1,3 @@
-//pde x
-
 import oscP5.*;
 import netP5.*;
 import papaya.*;
@@ -160,13 +158,14 @@ public void joystickData(int x, int z)
 {
   if (joystick != null)
   {
-    joystick.z = (z == 127) ? 0 : z;
-    joystick.x = (x == 95) ? 0 : x;
-    joystick.z = map(constrain(x, 0, 256), 0, 256, -1, 1); //resting 127
-    joystick.x = map(constrain(z, -32, 220), -32, 220, -1, 1); //resting 95
+    if ((z > 110) && (z <= 135)) { joystick.x = 0; }
+    else { joystick.x = map(constrain(z, 0, 256), 0, 256, -1, 1); }
+    if ((x > 110) && (x <= 135)) { joystick.z = 0;} 
+    else { joystick.z = map(constrain(x, -32, 220), -32, 220, -1, 1); }
+    
     //println("joystick called!", joystick);
-    joystick.x *= 1.5;
-    joystick.y *= 1.5;
+    joystick.x *= 1.0;
+    joystick.y *= 1.0;
   }
 }
 
@@ -174,15 +173,14 @@ public void accelData(int x, int y, int z)
 { 
     if (acc != null);
     {
-      acc.x = ((x < -30) && (x >= 30)) ? 0 : x;
-      acc.y = ((y < 120) && (y >= 40)) ? 0 : y;
+      if ((x > -30) && (x <= 30)) { acc.x = 0; } 
+      else { acc.x = map(constrain(x, -70, 70), -70, 70, -1, 1); }
+      if ((y > 40) && (y <= 120)) { acc.y = 0; }
+      else { acc.y = map(constrain(y, 30, 127), 30, 127, -1, 1); }
+      acc.z = acc.y;
     
-      acc.x = map(constrain(x, -70, 70), -70, 70, -1, 1); //resting 0
-      acc.y = map(constrain(y, 30, 127), 30, 127, -1, 1); //resting 95
-      acc.z = map(constrain(y, 30, 150), 30, 150, -1, 1); //we don't use this
-      //println("accel called!", acc);
-      acc.x *= -2.0;
-      acc.y *= -6.0; //this should be a "set" value for height, rather than an "increment"
+      acc.x *= -1.0;
+      acc.y *= -1.0; //this should be a "set" value for height, rather than an "increment"
     }
  }
 
