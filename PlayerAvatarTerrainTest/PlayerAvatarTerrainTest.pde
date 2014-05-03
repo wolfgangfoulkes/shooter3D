@@ -8,6 +8,8 @@ import shapes3d.*;
 import shapes3d.utils.*;
 import shapes3d.animation.*;
 
+int adebug = 0;
+
 OscP5 pos_in;
 OscP5 oscP5;
 int lport = 12000;
@@ -17,13 +19,13 @@ int bcport = 32000;
 NetAddress myLocation;
 NetAddress myBroadcastLocation; 
 String myprefix = "/tweez";
-boolean connected = true;
+boolean connected = false;
 
 PApplet APPLET = this;
 Map map;
 Camera cam;
 Roster roster;
-ArrayList<ParticleSystem>explosions = new ArrayList<ParticleSystem>();
+//ArrayList<ParticleSystem>explosions = new ArrayList<ParticleSystem>();
 
 Terrain terrain;
 int X_SIZE = 1001;
@@ -58,16 +60,16 @@ PShader deform;
 PShader laserfire;
 PShader alias;
 PShader crosshair;
+PShader playerdeath;
 
 PVector acc = new PVector(0, 0, 0); //can we set Camera directly from OSC?
 PVector joystick = new PVector(0, 0, 0);
 
-Spire v;
 
 void setup() 
 {
   smooth();
-  size(500,500, P3D);
+  size(1000,1000, P3D);
   frameRate(24);
   
   pos_in = new OscP5(this, cinport);
@@ -77,7 +79,7 @@ void setup()
   oscP5 = new OscP5(this,lport);
   
   myLocation = new NetAddress("127.0.0.1", coutport);
-  myBroadcastLocation = new NetAddress("169.254.154.176", bcport);
+  myBroadcastLocation = new NetAddress("169.254.174.206", bcport);
   
   initTextures();
   roster = new Roster();
@@ -98,6 +100,7 @@ void setup()
   deform = loadShader("deformfrag.glsl");
   alias = loadShader("aliasingfrag.glsl");
   crosshair = loadShader("crosshairfrag.glsl");
+  playerdeath = loadShader("noisedissolvefrag.glsl");
   
 }
 
@@ -133,7 +136,6 @@ void draw()
     //println("eye", cam.cam.eye());
     
     cam.display();
-    PSDisplay();
     cam.look(acc.x, acc.y);
     cam.move(joystick);
     PVector next = adjustY(PVector.add(cam.pos, cam.move), terrain, 0);
@@ -141,7 +143,7 @@ void draw()
     { 
       cam.update();
       cam.adjustToTerrain(terrain, -30); //should be fine, because it only alters the eye, which is overwritten by pos. gottabe after update for that reason. if you wanted to update pos, or an object, use Terrain.adjustPosition.
-      println(cam.pos);
+      //println(cam.pos);
       sendPos(cam.pos.x, 0, cam.pos.z, 0, cam.rot.y, 0);
     }
     else
@@ -164,14 +166,14 @@ public void joystickData(int x, int z)
     else { joystick.z = map(constrain(x, -32, 220), -32, 220, -1, 1); }
     
     //println("joystick called!", joystick);
-    joystick.x *= 1.0;
-    joystick.y *= 1.0;
+    joystick.x *= 1.5;
+    joystick.z *= 1.5;
   }
 }
 
 public void accelData(int x, int y, int z) 
 { 
-    if (acc != null);
+    if (acc != null && adebug == 1)
     {
       if ((x > -30) && (x <= 30)) { acc.x = 0; } 
       else { acc.x = map(constrain(x, -70, 70), -70, 70, -1, 1); }
@@ -329,9 +331,6 @@ void oscEvent(OscMessage theOscMessage)
           Avatar avatar = player.avatar;
           if (map.remove(avatar) != -1)
           {
-            ParticleSystem ps = new ParticleSystem();
-            ps.addParticles(50, avatar.p);
-            explosions.add(ps);
             println("player "+player+" has been killed");
             avatar = null;
           }
@@ -353,8 +352,10 @@ void oscEvent(OscMessage theOscMessage)
         PVector ip = new PVector(ix, iy, iz); //ignore lookheight
         PVector ir = new PVector(irx, iry, irz); //don't rotate avatar
         
+        println("before indexOF!");
         if (map.objects.indexOf(iplayer.avatar) == -1) //if player does not have an avatar in the map.
         {
+          println("after indexOF! true!");
           int HEIGHT_OFFSET = 50;
           PVector ivec = adjustY(new PVector(ix, iy, iz), terrain, HEIGHT_OFFSET);
           PVector isize = new PVector(random(20, 90), random(90, 180), random(20, 90));  
@@ -365,9 +366,10 @@ void oscEvent(OscMessage theOscMessage)
         }
         else
         {
+          println("after indexOF! false!");
           int HEIGHT_OFFSET = 50;
           PVector ivec = adjustY(new PVector(ix, iy, iz), terrain, HEIGHT_OFFSET);
-           map.move(iplayer.avatar, ivec, new PVector(0, 0, 0));
+          map.move(iplayer.avatar, ivec, new PVector(0, 0, 0));
            //println("model:", iplayer.avatar.getModelApex());
         }
 
@@ -415,7 +417,7 @@ void keyPressed()
     case 'f': disconnect(lport, myprefix); connected = false; break;
     case 'R': roster.print(); break;
     case 'M': map.print(); break;
-    case 'I': loop(); randomSpawnCamera(5000); break;
+    case 'I': loop(); cam.spawnCamera(new PVector(-100, 0, 0), new PVector(0, 0, 0)); break; //randomSpawnCamera(5000); break;
     case 'v': cam.living = false; sendKill(myprefix, myLocation); sendKill(myprefix, myBroadcastLocation); break; //cam.living = false; killCamera(); (myprefix); break;
     
     //temp testing variables
@@ -430,8 +432,20 @@ void keyPressed()
     case 'l': acc.x = 1; break;
     case 'u': acc.y = 1; break;
     case 'm': acc.y = -1; break;
-
+    case 'D': adebug = 0; break;
+    case 'A': adebug = 1; break;
     
+    case 'X': 
+    for (int i = 0; i < roster.players.size(); i++)
+    {
+      Avatar a = roster.players.get(i).avatar;
+      if (a != null)
+      {
+        a.isLiving = 0;
+        a.lifespan = 1;
+      }
+    }
+    break;
     case 'z':
     {
       if (shoot(cam.pos, cam.aim) == -1) { println( "in' blanks" ); }
@@ -479,10 +493,7 @@ int shoot(PVector pos, PVector aim)
       Avatar a =  (Avatar) map.objects.get(indx);
       println("killed player "+a.player.prefix+"");
       sendKill(a.player.prefix, myBroadcastLocation);
-      map.remove(a); //remove when we recieve word from the hive //maybe if this is jumpy, fuck it later.
-      ParticleSystem ps = new ParticleSystem();
-      ps.addParticles(100, adjustY(a.p, terrain, -30));
-      explosions.add(ps);
+      map.remove(a); 
       a.player.avatar = null; //good place to implement a "Player isLiving"
       return indx;
     }
@@ -514,21 +525,4 @@ void initTextures()
   skyTexCur = loadImage( laserTex[ (int) random(0, laserTex.length) ] );
   terrainTexCur = loadImage( laserTex[ (int) random(0, laserTex.length) ] );
   println("Texture for laser:", laserTexCur, "Texture for sky:", skyTexCur, "texture for terrain:", terrainTexCur);
-}
-
-void PSDisplay()
-{
-  for (int i = 0; i < explosions.size(); i++)
-  {
-    ParticleSystem explosion = explosions.get(i);
-    explosion.update();
-    if (explosion.size > 0)
-    {
-      explosion.draw();
-    }
-    else
-    {
-      explosions.remove(i);
-    }
-  }
 }

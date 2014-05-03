@@ -35,7 +35,7 @@ class Laser
   void update()
   {
     elapsed++;
-    if (lifespan >= .03)
+    if (lifespan >= .08)
     {
       lifespan *= rate;
       println(lifespan);
@@ -50,7 +50,7 @@ class Laser
   
   void display() //the actual visual here is kinda whatever.
   {
-    int itint = floor(255 * lifespan);
+    //int itint = floor(255 * lifespan);
     //pos = PVector.lerp(pos, aim, 1 - lifespan); //start -> end
     PVector lpos = PVector.lerp(pos, aim, 1 - lifespan); 
     laser.setWorldPos(pos, lpos); //end -> end

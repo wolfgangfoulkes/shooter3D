@@ -29,6 +29,7 @@ class Avatar extends O3DCone
     super.display();
     resetShader();
     lasershader.set("time", millis()); //elapsed could be set to the initial elapsed value, then mod by that number to get count from 0
+    lasershader.set("time", (millis() % 10000) * .001); //elapsed could be set to the initial elapsed value, then mod by that number to get count from 0
     lasershader.set("resolution", (float) width, (float) height);
     lasershader.set("alpha", laser.lifespan);
     shader(lasershader);
