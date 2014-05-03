@@ -71,10 +71,6 @@ class Object3D
   void display()
   {
   }
-  
-  void adjustToTerrain(Terrain t)
-   {
-   } 
  
    void setTex()
    {

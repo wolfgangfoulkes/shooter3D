@@ -15,7 +15,7 @@ class Spire extends Object3D
 //making the apex(0, 0, 0) will help the radius problems, because it'll be the center of translation. or, to fix it, use the values/2 to center it at center. later.
 {
   PShape spire;
-  PVector apex, a, b, c, modelapex, modela, modelb, modelc;
+  PVector apex, a, b, c;
   
   Spire(PVector ip, PVector ir, PVector isize)
   {
@@ -43,18 +43,6 @@ class Spire extends Object3D
     spire.vertex(apex.x, apex.y, apex.z, .5, 1);
     spire.endShape(CLOSE);
     
-    pushMatrix();
-    translate(p.x, p.y, p.z); //keep in mind you're adjusting around (0, 0)
-    rotateY(radians(r.y)); //don't quote me on this.
-    scale(size.x, size.y, size.z);
-    translate(-.5, 0, .5); //center axis. 
-    modelapex = new PVector(modelX(apex.x, apex.y, apex.z), modelY(apex.x, apex.y, apex.z), modelZ(apex.x, apex.y, apex.z));
-    modela = new PVector(modelX(a.x, a.y, a.z), modelY(a.x, a.y, a.z), modelZ(a.x, a.y, a.z));
-    modelb = new PVector(modelX(b.x, b.y, b.z), modelY(b.x, b.y, b.z), modelZ(b.x, b.y, b.z));
-    modelc = new PVector(modelX(c.x, c.y, c.z), modelY(c.x, c.y, c.z), modelZ(c.x, c.y, c.z));
-    popMatrix();
-    
-    
     spire.setTexture(terrainTexCur);
     spire.setTint(color(255, 255, 255, 200));
     spire.setStroke(0);
@@ -66,7 +54,7 @@ class Spire extends Object3D
     translate(p.x, p.y, p.z); //keep in mind you're adjusting around (0, 0)
     //rotateY(radians(r.y)); //don't quote me on this.
     scale(size.x, size.y, size.z);
-    translate(-.5, 0, .5); //center axis. 
+    translate(-.5, 0, .5); //center axis.
     shape(spire);
     popMatrix();
   }
@@ -74,22 +62,6 @@ class Spire extends Object3D
   void set(PVector ip, PVector ir)
   {
     super.set(ip, ir);
-    
-    pushMatrix();
-    translate(p.x, p.y, p.z); //keep in mind you're adjusting around (0, 0)
-    //rotateY(radians(r.y)); //don't quote me on this.
-    scale(size.x, size.y, size.z);
-    translate(-.5, 0, .5); //center axis. 
-    modelapex = new PVector(modelX(apex.x, apex.y, apex.z), modelY(apex.x, apex.y, apex.z), modelZ(apex.x, apex.y, apex.z));
-    modela = new PVector(modelX(a.x, a.y, a.z), modelY(a.x, a.y, a.z), modelZ(a.x, a.y, a.z));
-    modelb = new PVector(modelX(b.x, b.y, b.z), modelY(b.x, b.y, b.z), modelZ(b.x, b.y, b.z));
-    modelc = new PVector(modelX(c.x, c.y, c.z), modelY(c.x, c.y, c.z), modelZ(c.x, c.y, c.z));
-    popMatrix();
-  }
-  
-  void adjustToTerrain(Terrain iterrain)
-  {
-    adjustY(p, iterrain);
   }
   
   void setTex(PImage texture, int tint)
@@ -102,4 +74,11 @@ class Spire extends Object3D
   {
     return null;
   }
+  
+  
+  PVector getApex()
+  {
+    return new PVector((apex.x * size.x) + p.x, (apex.y * size.y) + p.y, (apex.z * size.z) + p.z);
+  } 
+  
 }

@@ -4,33 +4,19 @@ class Map
   float zsize;
   ArrayList<Object3D> objects;
   
-  float terrainSize = 500;
-  int gridSlices = 25;
-  float horizonDraw = 500;
-  float noiseAmp = 70;
-  Terrain terrain;
-  //should add items to terrain whenever they're added to Map, etc.
-  
   Map(float ixs, float izs)
   {
     xsize = ixs;
     zsize = izs;
     objects = new ArrayList<Object3D>(0);
-    
-    terrain = new Terrain(applet, gridSlices, xsize, horizonDraw);
-    terrain.usePerlinNoiseMap(-noiseAmp, noiseAmp, 2.125f, 2.125f);
-    terrain.setTexture(terrainTexCur, gridSlices);
-    terrain.drawMode(S3D.TEXTURE);
   }
   
   int add(Object3D iobject) //type-check to include "?" right now.
   {
     int isIn = objects.indexOf(iobject);
-    PVector ip = adjustY(iobject.p, terrain, iobject.p.y);
-    int isInBounds = checkBounds(ip);
+    int isInBounds = checkBounds(iobject.p);
     if ( (isIn == -1) && (isInBounds == -1) )
     {
-      iobject.set(ip, iobject.r);
       objects.add(iobject);
       println(iobject.p, iobject.r, iobject.radius);
       
@@ -75,8 +61,6 @@ class Map
   
   void display()
   {
-    terrain.draw();
-    
     for (int i = objects.size() - 1; i >= 0; i--)
     {
       Object3D object = objects.get(i);
@@ -160,20 +144,6 @@ class Map
       }
     }
     return -1;
-  }
-  
-  void randomObjects(int many)
-  {
-    for (int i = 0; i < many; i++)
-    {
-      O3DObelisk robject = new O3DObelisk(random(-(xsize/2), xsize/2), 0, random(-(zsize/2), zsize/2), 0, 0, 0, new PVector(50, 100, 50));
-      this.add(robject);
-    }
-  }
-  
-  void setCamera(TerrainCam icam)
-  {
-    terrain.cam = icam;
   }
   
   void print()

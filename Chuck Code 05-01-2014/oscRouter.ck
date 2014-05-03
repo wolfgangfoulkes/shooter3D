@@ -87,11 +87,11 @@ fun void playerKillListen() {
             
             playerKilled.getString() => string playerPre;
             <<<playerPre + " killed!">>>;
-            //announcer.newP();
+            
             if (playerPre == myPrefix)
             {
                 1 => int deathStatus;
-                if(firstTime > 0) 
+                if(firstTime < 1) 
                 {
                     scream.killed(); 
                     2.5::second => now;

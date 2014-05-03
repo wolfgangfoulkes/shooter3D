@@ -11,7 +11,7 @@ public class Scream {
     Windowing.hann(WinSize) => fft.window;
     //OSC stuff
     0 => int screamTime;
-    0.0095 => float threshold;
+    0.0085 => float threshold;
     150000::ms => screamLisa.duration;
     0 => int gate;
     1 => screamLisa.rate;
@@ -31,9 +31,9 @@ public class Scream {
     }
     
     fun void dead(){
-        0 => gate;
+       // 0 => gate;
         <<<"Player Death Data Sent">>>;
-        while(gate < 1){
+       while(gate > 1){
             //gets info from my FFT analysis and sends them to blobs
             rms.upchuck() @=> UAnaBlob blobRMS;//0.04 is loud
             //for testing
