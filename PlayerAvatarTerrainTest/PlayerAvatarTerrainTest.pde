@@ -39,6 +39,20 @@ String[] terrainTex = new String[] {//textures for terrain
 String[] skyTex = new String[] {//could load fog as background
   "sky1.jpg", "sky2.jpg", "sky3.jpg", "sky4.jpg", "sky5.jpg", "sky6.jpg", "sky7.jpg", "sky8.jpg", "sky9.jpg"
 };
+String[] fireTex = new String[] {
+  "fire1.jpg"
+};
+String[] glassTex = new String[] {
+  
+};
+String[] waterTex = new String[] {
+  
+};
+String earthTex = new String[] {
+  
+};
+
+
 
 PImage laserTexCur;
 PImage terrainTexCur;
@@ -67,7 +81,7 @@ void setup()
   oscP5 = new OscP5(this,lport);
   
   myLocation = new NetAddress("127.0.0.1", coutport);
-  myBroadcastLocation = new NetAddress("169.254.154.176", bcport);
+  myBroadcastLocation = new NetAddress("169.254.92.149", bcport);
   
   initTextures();
   
@@ -84,7 +98,13 @@ void setup()
   //lasershader2 = loadShader("potentiallaserfrag2.glsl");
   
 }
-
+void newPlayer(){
+  OscMessage np = new OscMessage(myprefix + "/newPlayer");
+  np.add(1); 
+ 
+  oscP5.send(np, myLocation); 
+  println("New Player");
+}
 void draw() 
 {
   
@@ -391,6 +411,7 @@ void keyPressed()
     case 'l': acc.x = 1; break;
     case 'u': acc.y = 1; break;
     case 'm': acc.y = -1; break;
+    case 'p': newPlayer(); break;
     
     case 'z':
     {
