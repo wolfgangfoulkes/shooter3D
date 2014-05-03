@@ -50,7 +50,7 @@ class Map
     if ( (iindx != -1) ) //janky as shit.
     {
       iobject.set(ipos, irot);
-      this.add(iobject); //adjusts to terrain.
+      this.add(iobject); 
       return iindx;
     }
     else 
@@ -63,10 +63,22 @@ class Map
   {
     for (int i = objects.size() - 1; i >= 0; i--)
     {
-      shader(noise2);
       Object3D object = objects.get(i);
-      object.display();
-      resetShader();
+      if (object.isLiving == 1)
+      {
+        shader(noise2);
+        object.display();
+        resetShader();
+      }
+      else if (object.isLiving == 0)
+      {
+        object.destroy();
+        object.display();
+      }
+      else
+      {
+        println("player at index "+i+" is fully dead");
+      }
     }
     
   }

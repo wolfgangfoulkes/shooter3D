@@ -3,7 +3,8 @@ class Avatar extends O3DCone
   Player player;
   //boolean isLiving;
   Laser laser;
-  
+  int isLiving;
+  float lifespan;
   
   Avatar(Player iplayer, PVector ip, PVector ir, PVector isize)
   {
@@ -13,10 +14,27 @@ class Avatar extends O3DCone
     laser = new Laser(1.0, 1.0, 1.0, 1.0, new PVector(p.x, p.y-isize.y, p.z)); //set it to apex, later.
     //isLiving = true; //might want to keep it dead until it's initialized
     println("new Avatar!", p, r, player.prefix);
+    isLiving = 1;
+    lifespan = 0;
   }
   
   void destroy() //overrides base class
   {
+    if (lifespan > .01) 
+    { 
+      lifespan *= .9;
+      playerdeath.set("resolution", width, height);
+      playerdeath.set("time", millis() * .001);
+      playerdeath.set("opacity", lifespan);
+    }
+    else
+    {
+      lifespan = 0;
+      isLiving = -1;
+    }
+    shader(playerdeath);
+    super.display();
+    resetShader();
   }
   
   void update()
@@ -25,10 +43,8 @@ class Avatar extends O3DCone
 
   void display()
   {
-    
     super.display();
     resetShader();
-    lasershader.set("time", millis()); //elapsed could be set to the initial elapsed value, then mod by that number to get count from 0
     lasershader.set("time", (millis() % 10000) * .001); //elapsed could be set to the initial elapsed value, then mod by that number to get count from 0
     lasershader.set("resolution", (float) width, (float) height);
     lasershader.set("alpha", laser.lifespan);

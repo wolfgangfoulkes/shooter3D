@@ -7,6 +7,7 @@ class Object3D
   PVector size = new PVector(0, 0, 0);
   float radius;
   String type;
+  int isLiving = 1;
 
   
   Object3D (PVector ip, PVector ir)
