@@ -19,7 +19,7 @@ int bcport = 32000;
 NetAddress myLocation;
 NetAddress myBroadcastLocation; 
 String myprefix = "/tweez";
-boolean connected = false;
+boolean connected = true;
 
 PApplet APPLET = this;
 Map map;
@@ -53,7 +53,7 @@ PImage skyTexCur;
 
 //PShader lines;
 //PShader noise;
-PShader noise2;
+PShader SHADER_NOISE;
 PShader lasershader;
 PShader pixel;
 PShader deform;
@@ -94,7 +94,7 @@ void setup()
   
   //lines = loadShader("linesfrag.glsl");
   //noise = loadShader("noisefrag.glsl");
-  noise2 = loadShader("noisefrag.glsl");
+  SHADER_NOISE = loadShader("noisefrag.glsl");
   lasershader = loadShader("potentiallaserfrag.glsl");
   pixel = loadShader("pixelfrag.glsl");
   deform = loadShader("deformfrag.glsl");
@@ -121,13 +121,13 @@ void draw()
     //lines.set("time", (float) millis() * .001);
     //lines.set("bin", 10.0);
     //noise.set("time", (millis() * .001));
-    noise2.set("time", (millis() * .001));
-    noise2.set("resolution", (float) width, (float) height); //these values reproduce the site's effect
-    noise2.set("alpha", .95); 
+    SHADER_NOISE.set("time", (millis() * .001));
+    SHADER_NOISE.set("resolution", (float) width, (float) height); //these values reproduce the site's effect
+    SHADER_NOISE.set("alpha", .95); 
     //pixel.set("pixels", 50.0, 50.0);
     //alias.set("time", millis() * .001);
    // alias.set("alpha", 1.0);
-    shader(noise2);
+    shader(SHADER_NOISE);
     terrain.draw();
     map.update();
     map.display();
@@ -178,8 +178,8 @@ public void accelData(int x, int y, int z)
     {
       if ((x > -30) && (x <= 30)) { acc.x = 0; } 
       else { acc.x = map(constrain(x, -70, 70), -70, 70, -1, 1); }
-      if ((y > 40) && (y <= 120)) { acc.y = 0; }
-      else { acc.y = map(constrain(y, 30, 127), 30, 127, -1, 1); }
+      if ((y > 60) && (y <= 110)) { acc.y = 0; }
+      else { acc.y = map(constrain(y, 10, 140), 10, 140, -1, 1); }
       acc.z = acc.y;
     
       acc.x *= -1.0;
@@ -434,6 +434,29 @@ void keyPressed()
     case 'm': acc.y = -1; break;
     case 'D': adebug = 0; break;
     case 'A': adebug = 1; break;
+    case 'c': 
+    {
+      float STRIKE_RADIUS = 50;
+      //sendMelee(cam.pos, myLocation);
+      //sendMelee(cam.pos, myBroadcastLocation);
+      int indx = map.checkBounds(cam.pos, STRIKE_RADIUS);
+      if (map.isAvatar(indx))
+      {
+        Avatar a = (Avatar) map.objects.get(indx);
+        Player p = a.player;
+        if ( (a.kill() != -1)  && (p != null ) )
+        {
+          sendKill(p.prefix, myLocation);
+          sendKill(p.prefix, myBroadcastLocation);
+        }
+        
+      }
+      else 
+      {
+        println("beatin' meat!");
+      }
+      break;
+    }
     case 'z':
     {
       sendShot(cam.pos, cam.aim, myLocation);
@@ -448,11 +471,12 @@ void keyPressed()
           sendKill(p.prefix, myLocation);
           sendKill(p.prefix, myBroadcastLocation);
         }
-        else 
+        
+      }
+      else 
         {
           println("shootin' blanks!");
         }
-      }
       break;
     }
   }

@@ -64,6 +64,7 @@ class Map
     for (int i = objects.size() - 1; i >= 0; i--)
     {
       Object3D object = objects.get(i);
+      object.update();
       if (object.isLiving == -1)
       {
         objects.remove(object);
@@ -76,10 +77,25 @@ class Map
     for (int i = objects.size() - 1; i >= 0; i--)
     {
       Object3D object = objects.get(i);
-      shader(noise2);
+      shader(SHADER_NOISE);
       object.display();
       resetShader();
     }
+  }
+  
+  int checkBounds(PVector icoord, float dist) //this function may be the cause of many of our problems
+  {
+    for (int i = objects.size() - 1; i >= 0; i--)
+    {
+      Object3D oobject = objects.get(i);
+      PVector ic = new PVector(icoord.x, 0, icoord.z);
+      PVector oc = new PVector(oobject.p.x, 0, oobject.p.z);
+      if (PVector.dist(ic, oc) <= (oobject.radius + dist))
+      {
+        return i; 
+      }
+    }  
+    return -1;
   }
   
   int checkBounds(PVector icoord) //this function may be the cause of many of our problems
