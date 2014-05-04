@@ -79,7 +79,7 @@ class Roster
     }
     
     return iaddr;
-  }  
+  }
   
   void print()
   {

@@ -18,7 +18,7 @@ class Map
     if ( (isIn == -1) && (isInBounds == -1) )
     {
       objects.add(iobject);
-      println(iobject.p, iobject.r, iobject.radius);
+      //println(iobject.p, iobject.r, iobject.radius);
       
       return 0;
     }
@@ -59,28 +59,27 @@ class Map
     }
   }
   
+  void update()
+  {
+    for (int i = objects.size() - 1; i >= 0; i--)
+    {
+      Object3D object = objects.get(i);
+      if (object.isLiving == -1)
+      {
+        objects.remove(object);
+      }
+    }
+  }
+  
   void display()
   {
     for (int i = objects.size() - 1; i >= 0; i--)
     {
       Object3D object = objects.get(i);
-      if (object.isLiving == 1)
-      {
-        shader(noise2);
-        object.display();
-        resetShader();
-      }
-      else if (object.isLiving == 0)
-      {
-        object.destroy();
-        object.display();
-      }
-      else
-      {
-        println("player at index "+i+" is fully dead");
-      }
+      shader(noise2);
+      object.display();
+      resetShader();
     }
-    
   }
   
   int checkBounds(PVector icoord) //this function may be the cause of many of our problems
@@ -160,6 +159,34 @@ class Map
     return -1;
   }
   
+  boolean isAvatar (int iindx)
+  {
+    if (iindx < 0 || iindx >= objects.size())
+    {
+      return false;
+    }
+    return objects.get(iindx).type.equals("avatar");
+  }
+  
+  /*
+  int killAvatar(int iindx)
+  {
+    if (iindx < 0 || iindx > objects.size())
+    {
+      return -1;
+    }
+    else if (objects.get(i).type != "avatar")
+    {
+      return -1;
+    }
+    else
+    {
+      Avatar a =  (Avatar) map.objects.get(iindx);
+      return a.kill();
+    }
+  }
+  */
+    
   void print()
   {
     println("-----MAP-----");

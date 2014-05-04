@@ -2,14 +2,11 @@ class Player
 {
   String prefix;
   Avatar avatar;
-  //boolean isAlive;
   
   Player(String iprefix)
   {
     prefix = iprefix;
     avatar = null;
-    //isAlive = false;
-    //println("new Player! prefix "+prefix+"");
   }
   
   void initAvatar(PVector ip, PVector ir, PVector isize)

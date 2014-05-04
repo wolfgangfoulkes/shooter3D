@@ -100,7 +100,7 @@ void setup()
   deform = loadShader("deformfrag.glsl");
   alias = loadShader("aliasingfrag.glsl");
   crosshair = loadShader("crosshairfrag.glsl");
-  playerdeath = loadShader("noisedissolvefrag.glsl");
+  playerdeath = loadShader("noisedissolve2frag.glsl");
   
 }
 
@@ -129,6 +129,7 @@ void draw()
    // alias.set("alpha", 1.0);
     shader(noise2);
     terrain.draw();
+    map.update();
     map.display();
     resetShader();
     
@@ -319,8 +320,6 @@ void oscEvent(OscMessage theOscMessage)
       if (is.equals(myprefix)) 
       {
         cam.living = false;
-        //noLoop; //crashed shit
-        //killCamera(); //crashed shit
       }
       else //everything below should be encapsulated.
       {
@@ -329,15 +328,16 @@ void oscEvent(OscMessage theOscMessage)
         {
           Player player = roster.players.get(indx);
           Avatar avatar = player.avatar;
-          if (map.remove(avatar) != -1)
+          if (avatar != null);
           {
-            println("player "+player+" has been killed");
-            avatar = null;
+            avatar.kill();
           }
-          
         }
+        
       }
     }
+  
+
     
     //player positions, currently updated at draw-rate (could be just at change))
     else if (iaddr.equals("/pos") && messagetag.equals("ffffff"))
@@ -352,10 +352,10 @@ void oscEvent(OscMessage theOscMessage)
         PVector ip = new PVector(ix, iy, iz); //ignore lookheight
         PVector ir = new PVector(irx, iry, irz); //don't rotate avatar
         
-        println("before indexOF!");
+        //println("before indexOF!");
         if (map.objects.indexOf(iplayer.avatar) == -1) //if player does not have an avatar in the map.
         {
-          println("after indexOF! true!");
+          //println("after indexOF! true!");
           int HEIGHT_OFFSET = 50;
           PVector ivec = adjustY(new PVector(ix, iy, iz), terrain, HEIGHT_OFFSET);
           PVector isize = new PVector(random(20, 90), random(90, 180), random(20, 90));  
@@ -366,7 +366,7 @@ void oscEvent(OscMessage theOscMessage)
         }
         else
         {
-          println("after indexOF! false!");
+          //println("after indexOF! false!");
           int HEIGHT_OFFSET = 50;
           PVector ivec = adjustY(new PVector(ix, iy, iz), terrain, HEIGHT_OFFSET);
           map.move(iplayer.avatar, ivec, new PVector(0, 0, 0));
@@ -434,21 +434,25 @@ void keyPressed()
     case 'm': acc.y = -1; break;
     case 'D': adebug = 0; break;
     case 'A': adebug = 1; break;
-    
-    case 'X': 
-    for (int i = 0; i < roster.players.size(); i++)
-    {
-      Avatar a = roster.players.get(i).avatar;
-      if (a != null)
-      {
-        a.isLiving = 0;
-        a.lifespan = 1;
-      }
-    }
-    break;
     case 'z':
     {
-      if (shoot(cam.pos, cam.aim) == -1) { println( "in' blanks" ); }
+      sendShot(cam.pos, cam.aim, myLocation);
+      sendShot(cam.pos, cam.aim, myBroadcastLocation);
+      int indx = map.getIndexByAngle(cam.pos, cam.aim);
+      if (map.isAvatar(indx)) //checks for -1
+      {
+        Avatar a = (Avatar) map.objects.get(indx);
+        Player p = a.player;
+        if ( (a.kill() != -1)  && (p != null ) )
+        {
+          sendKill(p.prefix, myLocation);
+          sendKill(p.prefix, myBroadcastLocation);
+        }
+        else 
+        {
+          println("shootin' blanks!");
+        }
+      }
       break;
     }
   }
@@ -463,7 +467,7 @@ int randomSpawnCamera(int tries)
     PVector rvec = new PVector(0, 0, 0);
     if (map.checkBounds(pvec) == -1)
     {
-      println("pvec", pvec);
+      //println("pvec", pvec);
       cam.spawnCamera(pvec.get(), rvec);
       return 0;
     }
@@ -479,26 +483,6 @@ void killCamera()
   textSize(50);
   fill(100, 100, 100);
   text("Scream!", width/2, height/2);
-}
-
-int shoot(PVector pos, PVector aim)
-{
-  int indx = map.getIndexByAngle(pos, aim);
-  sendShot(pos, aim, myLocation);
-  sendShot(pos, aim, myBroadcastLocation);
-  if (indx != -1)
-  { 
-    if (map.objects.get(indx).getType().equals("avatar"))
-    {
-      Avatar a =  (Avatar) map.objects.get(indx);
-      println("killed player "+a.player.prefix+"");
-      sendKill(a.player.prefix, myBroadcastLocation);
-      map.remove(a); 
-      a.player.avatar = null; //good place to implement a "Player isLiving"
-      return indx;
-    }
-  }
-  return -1;
 }
 
 PVector adjustY(PVector ipv, Terrain it)
@@ -524,5 +508,5 @@ void initTextures()
   laserTexCur = loadImage( laserTex[ (int) random(0, laserTex.length) ] );
   skyTexCur = loadImage( laserTex[ (int) random(0, laserTex.length) ] );
   terrainTexCur = loadImage( laserTex[ (int) random(0, laserTex.length) ] );
-  println("Texture for laser:", laserTexCur, "Texture for sky:", skyTexCur, "texture for terrain:", terrainTexCur);
+  //println("Texture for laser:", laserTexCur, "Texture for sky:", skyTexCur, "texture for terrain:", terrainTexCur);
 }
