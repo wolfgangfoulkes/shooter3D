@@ -9,7 +9,21 @@ import shapes3d.utils.*;
 import shapes3d.animation.*;
 
 int adebug = 0;
+//for when you die...
+PImage killScreen;
+//for sky rendering
+PVector camVector = new PVector(0, 0, 0);
+PImage texGlobe;//can be sent to other MAC's to allow for background sync
+float globeRadius = 12000;//size of world
+int sDetail = 20;  // Sphere detail setting...number of triangles
+float pushBack = 0;//for rendering
+float[] cx, cz, sphereX, sphereY, sphereZ;
+float sinLUT[];
+float cosLUT[];
+float SINCOS_PRECISION = 0.5;
+int SINCOS_LENGTH = int(360.0 / SINCOS_PRECISION);
 
+///////////****OSC****\\\\\\\\\\\\\
 OscP5 pos_in;
 OscP5 oscP5;
 int lport = 12000;
@@ -20,6 +34,8 @@ NetAddress myLocation;
 NetAddress myBroadcastLocation; 
 String myprefix = "/tweez";
 boolean connected = true;
+//for texture syncing
+int texCycle = (int)random(0,5);
 
 PApplet APPLET = this;
 Map map;
@@ -31,20 +47,25 @@ Terrain terrain;
 int X_SIZE = 1001;
 int Z_SIZE = 1001;
 
-int TERRAIN_SLICES = 25;
+int TERRAIN_SLICES = 16;
 float TERRAIN_HORIZON = 500;
 float TERRAIN_AMP = 70;
 
-String[] laserTex = new String[] {
-  "laser1.jpg", "laser2.jpg", "laser3.JPG", "laser4.jpg",
-};
+//*******Texture Arrays*******\\ 
 
+String[] respawnTex = new String[] {
+  "respawn1.png", "respawn2.png", "respawn3.png", "respawn4.png"
+};
+String[] laserTex = new String[] {
+  "laser1.jpg", "laser2.jpg", "laser3.JPG", "laser4.jpg", "laser1.jpg", "laser2.jpg"
+};
+//texture order is fire/ice/glass/space/abstract repeating
 String[] terrainTex = new String[] {//textures for terrain
-  "floor1.jpg", "sky2.gif", "build3.jpg", "sky3.jpg", "floor5.jpg", "floor6.jpg", "floor7.jpg","floor8.jpg","floor9.jpg"
+  "lava1.jpg", "floor4.jpg", "elec1.jpg", "wires2.jpeg", "laser3.JPG", "metal1.jpg"
 };
 
 String[] skyTex = new String[] {//could load fog as background
-  "sky1.jpg", "sky2.jpg", "sky3.jpg", "sky4.jpg", "sky5.jpg", "sky6.jpg", "sky7.jpg", "sky8.jpg", "sky9.jpg"
+  "laser3.JPG", "axe5.jpg", "wires1.jpg", "snow1.jpg", "fire1.jpg", "metal2.jpg"
 };
 
 PImage laserTexCur;
@@ -75,13 +96,18 @@ void setup()
   pos_in = new OscP5(this, cinport);
   pos_in.plug(this, "accelData", "/nunchuck/accel");
   pos_in.plug(this, "joystickData", "/nunchuck/joystick");
+  pos_in.plug(this, "chuckRespawn", "/chuck/init");
+  pos_in.plug(this,"cButtonPing", "/nunchuck/Cbutton");
+  pos_in.plug(this,"zButtonPing", "/nunchuck/Zbutton");
+
   
   oscP5 = new OscP5(this,lport);
   
   myLocation = new NetAddress("127.0.0.1", coutport);
-  myBroadcastLocation = new NetAddress("169.254.174.206", bcport);
-  
+  myBroadcastLocation = new NetAddress("169.254.192.98", bcport);
+  //
   initTextures();
+  
   roster = new Roster();
   map = new Map(1001, 1001);
   cam = new Camera(this);
@@ -118,6 +144,7 @@ void draw()
   {
     background(0);
     lights(); //unneccessary, this just calls the default.
+    
     SHADER_NOISE.set("time", (millis() * .001));
     SHADER_NOISE.set("resolution", (float) width * random(1, 1), (float) height * random(1, 1)); //these values reproduce the site's effect
     SHADER_NOISE.set("alpha", .8); 
@@ -125,14 +152,16 @@ void draw()
     terrain.draw();
     map.update();
     map.display();
+    
     resetShader();
     
+    //
     //println("pos", cam.pos);
     //println("eye", cam.cam.eye());
-    
     cam.display();
     cam.look(acc.x, acc.y);
     cam.move(joystick);
+    //renderGlobe();
     PVector next = adjustY(PVector.add(cam.pos, cam.move), terrain, 0);
     if (map.checkBounds(next) == -1)
     { 
@@ -150,7 +179,50 @@ void draw()
   
   
 }
+public void cButtonPing(int ping){
+  
+      cam.laser = 1.0;
+      sendShot(cam.pos, cam.aim, myLocation);
+      sendShot(cam.pos, cam.aim, myBroadcastLocation);
+      int indx = map.getIndexByAngle(cam.pos, cam.aim);
+      if (map.isAvatar(indx)) //checks for -1
+      {
+        Avatar a = (Avatar) map.objects.get(indx);
+        Player p = a.player;
+        if ( (a.kill() != -1)  && (p != null ) )
+        {
+          sendKill(p.prefix, myLocation);
+          sendKill(p.prefix, myBroadcastLocation);
+        }
+        
+      }
+      else 
+        {
+          println("shootin' blanks!");
+        }
+}
 
+public void zButtonPing(int ping){
+      float STRIKE_RADIUS = 50;
+      sendMelee(1, myLocation);
+      sendMelee(1, myBroadcastLocation);
+      int indx = map.checkBounds(cam.pos, STRIKE_RADIUS);
+      if (map.isAvatar(indx))
+      {
+        Avatar a = (Avatar) map.objects.get(indx);
+        Player p = a.player;
+        if ( (a.kill() != -1)  && (p != null ) )
+        {
+          sendKill(p.prefix, myLocation);
+          sendKill(p.prefix, myBroadcastLocation);
+        }
+        
+      }
+      else 
+      {
+        println("beatin' meat!");
+      }
+}
 public void joystickData(int x, int z) 
 {
   if (joystick != null)
@@ -174,7 +246,6 @@ public void accelData(int x, int y, int z)
       else { acc.x = map(constrain(x, -70, 70), -70, 70, -1, 1); }
       acc.y = map(constrain(y, 30, 120), 30, 120, -1, 1); 
       acc.z = acc.y;
-    
       acc.x *= -1.5;
       acc.y *= -1.0; //this should be a "set" value for height, rather than an "increment"
     }
@@ -417,7 +488,17 @@ void sendKill(String iaddr, NetAddress ilocation)
   OscMessage oaddr = new OscMessage(myprefix + "/kill");
   oaddr.add(iaddr);
   oscP5.send(oaddr, ilocation);
-  
+}
+void newPlayer() {
+  OscMessage newP = new OscMessage("/arena/newPlayer");
+  newP.add(1);
+  oscP5.send(newP, myLocation);
+}
+void sendExplosion() {
+  OscMessage sendExplosion = new OscMessage(myprefix + "/explosion");
+  sendExplosion.add(1);
+  oscP5.send(sendExplosion, myLocation);
+  println("explosion Trigger sent to Chuck");
 }
 
 void keyPressed()
@@ -445,6 +526,9 @@ void keyPressed()
     case 'm': acc.y = -1; break;
     case 'D': adebug = 0; break;
     case 'A': adebug = 1; break;
+    case 'P': newPlayer();break;
+    case 'O': sendExplosion(); break;
+    case '[': initTextures(); break;
     case 'c': 
     {
       float STRIKE_RADIUS = 50;
@@ -513,12 +597,9 @@ int randomSpawnCamera(int tries)
 
 void killCamera()
 {
-  background(80, 0, 0);
   camera();
-  textAlign(CENTER);
-  textSize(50);
-  fill(100, 100, 100);
-  text("Scream!", width/2, height/2);
+  killScreen = loadImage(respawnTex[(int)random(0, respawnTex.length -1)]);
+  image(killScreen, 0, 0, width, height);
 }
 
 PVector adjustY(PVector ipv, Terrain it)
@@ -538,11 +619,157 @@ PVector adjustY(PVector ipv, Terrain it, float ihover)
   opv.y = oy;
   return opv;
 }
+void initTextures()
+{//for syncing texture changes
+    texGlobe = loadImage(skyTex[texCycle]);    
+  laserTexCur = loadImage( laserTex[texCycle] );
+  terrainTexCur = loadImage( terrainTex[texCycle] );
+   //terrain.setTexture(terrainTexCur, TERRAIN_SLICES);
+   initializeSphere(sDetail);
+  println("Texture for laser:", laserTexCur, "Texture for sky:", skyTexCur, "texture for terrain:", terrainTexCur);
 
+  if (texCycle < 5) {
+    texCycle++;
+  }
+  else {
+    texCycle = 0;
+  }
+}
+/*
 void initTextures()
 {
   laserTexCur = loadImage( laserTex[ (int) random(0, laserTex.length) ] );
   skyTexCur = loadImage( laserTex[ (int) random(0, laserTex.length) ] );
   terrainTexCur = loadImage( laserTex[ (int) random(0, laserTex.length) ] );
+  initializeSphere(sDetail);
   //println("Texture for laser:", laserTexCur, "Texture for sky:", skyTexCur, "texture for terrain:", terrainTexCur);
 }
+*/
+//////////////////for sky\\\\\\\\\\\\\\\\\\\\\\
+
+
+void renderGlobe() {
+  pushMatrix();
+  // println(cam.eye());
+  camVector = cam.pos;
+
+  float cX = camVector.x;
+  float cY = camVector.y;
+  float cZ = camVector.z;
+  translate(cX, cY, cZ);
+  noFill();
+  pushMatrix();  
+  tint(255, 200);
+  strokeWeight(2);
+  smooth();
+  textureMode(IMAGE);  
+  texturedSphere(globeRadius, texGlobe);
+  popMatrix();  
+  popMatrix();
+  noTint();
+}
+
+
+void initializeSphere(int res)
+{
+  sinLUT = new float[SINCOS_LENGTH];
+  cosLUT = new float[SINCOS_LENGTH];
+
+  for (int i = 0; i < SINCOS_LENGTH; i++) {
+    sinLUT[i] = (float) Math.sin(i * DEG_TO_RAD * SINCOS_PRECISION);
+    cosLUT[i] = (float) Math.cos(i * DEG_TO_RAD * SINCOS_PRECISION);
+  }
+
+  float delta = (float)SINCOS_LENGTH/res;
+  float[] cx = new float[res];
+  float[] cz = new float[res];
+
+  // Calc unit circle in XZ plane
+  for (int i = 0; i < res; i++) {
+    cx[i] = -cosLUT[(int) (i*delta) % SINCOS_LENGTH];
+    cz[i] = sinLUT[(int) (i*delta) % SINCOS_LENGTH];
+  }
+
+  // Computing vertexlist vertexlist starts at south pole
+  int vertCount = res * (res-1) + 2;
+  int currVert = 0;
+
+  // Re-init arrays to store vertices
+  sphereX = new float[vertCount];
+  sphereY = new float[vertCount];
+  sphereZ = new float[vertCount];
+  float angle_step = (SINCOS_LENGTH*0.5f)/res;
+  float angle = angle_step;
+
+  // Step along Y axis
+  for (int i = 1; i < res; i++) {
+    float curradius = sinLUT[(int) angle % SINCOS_LENGTH];
+    float currY = -cosLUT[(int) angle % SINCOS_LENGTH];
+    for (int j = 0; j < res; j++) {
+      sphereX[currVert] = cx[j] * curradius;
+      sphereY[currVert] = currY;
+      sphereZ[currVert++] = cz[j] * curradius;
+    }
+    angle += angle_step;
+  }
+  sDetail = res;
+}
+
+// Generic routine to draw textured sphere
+void texturedSphere(float r, PImage t) {
+  int v1, v11, v2;
+  r = (r + 240 ) * 0.33;
+  beginShape(TRIANGLE_STRIP);
+  noStroke();
+  texture(t);
+  float iu=(float)(t.width-1)/(sDetail);
+  float iv=(float)(t.height-1)/(sDetail);
+  float u=0, v=iv;
+  for (int i = 0; i < sDetail; i++) {
+    vertex(0, -r, 0, u, 0);
+    vertex(sphereX[i]*r, sphereY[i]*r, sphereZ[i]*r, u, v);
+    u+=iu;
+  }
+  vertex(0, -r, 0, u, 0);
+  vertex(sphereX[0]*r, sphereY[0]*r, sphereZ[0]*r, u, v);
+  endShape();   
+
+  // Middle rings
+  int voff = 0;
+  for (int i = 2; i < sDetail; i++) {
+    v1=v11=voff;
+    voff += sDetail;
+    v2=voff;
+    u=0;
+    beginShape(TRIANGLE_STRIP);
+    noStroke();
+    texture(t);
+    for (int j = 0; j < sDetail; j++) {
+      vertex(sphereX[v1]*r, sphereY[v1]*r, sphereZ[v1++]*r, u, v);
+      vertex(sphereX[v2]*r, sphereY[v2]*r, sphereZ[v2++]*r, u, v+iv);
+      u+=iu;
+    }
+    // Close each ring
+    v1=v11;
+    v2=voff;
+    vertex(sphereX[v1]*r, sphereY[v1]*r, sphereZ[v1]*r, u, v);
+    vertex(sphereX[v2]*r, sphereY[v2]*r, sphereZ[v2]*r, u, v+iv);
+    endShape();
+    v+=iv;
+  }
+  u=0;
+
+  // Add the northern cap
+  beginShape(TRIANGLE_STRIP);
+  noStroke();
+  texture(t);
+  for (int i = 0; i < sDetail; i++) {
+    v2 = voff + i;
+    vertex(sphereX[v2]*r, sphereY[v2]*r, sphereZ[v2]*r, u, v);
+    vertex(0, r, 0, u, v+iv);    
+    u+=iu;
+  }
+  vertex(sphereX[voff]*r, sphereY[voff]*r, sphereZ[voff]*r, u, v);
+  endShape();
+}
+

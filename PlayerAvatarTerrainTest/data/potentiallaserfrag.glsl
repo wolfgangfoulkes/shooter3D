@@ -2,8 +2,6 @@
 precision mediump float;
 #endif
 
-varying vec4 vertColor;
-
 uniform float time;
 uniform vec2 mouse;
 uniform vec2 resolution;
