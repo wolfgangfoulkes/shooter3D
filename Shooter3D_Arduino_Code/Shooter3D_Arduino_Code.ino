@@ -165,7 +165,7 @@ class WiiChuck {
     }
 
     bool zPressed() {
-        return (buttonZ);
+        return (buttonZ && ! lastZ);
     }
     bool cPressed() {
         return (buttonC && ! lastC);

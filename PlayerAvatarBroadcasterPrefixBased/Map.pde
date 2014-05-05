@@ -11,13 +11,16 @@ class Map
     objects = new ArrayList<Object3D>(0);
   }
   
-  int add(Object3D iobject) //type-check to include "isIn?" right now.
+  int add(Object3D iobject)
   {
     int isIn = objects.indexOf(iobject);
-    int isInBounds = checkBounds(iobject.p);
+    PVector ip = iobject.p.get();
+    int isInBounds = checkBounds(ip);
     if ( (isIn == -1) && (isInBounds == -1) )
     {
+      iobject.set(ip, iobject.r);
       objects.add(iobject);
+      //println("p", iobject.p);
       return 0;
     }
     
@@ -41,13 +44,14 @@ class Map
     objects.clear();
   }
   
-  int move(Object3D iobject, PVector icoord)
+  int move(Object3D iobject, PVector ipos, PVector irot)
   {
-    int iindx = objects.indexOf(iobject);
-    int isInBounds = checkBounds(icoord);
-    if ( (iindx != -1) && (isInBounds == iindx) ) 
+    int iindx = this.remove(iobject);
+    int isInBounds = checkBounds(ipos);
+    if ( (iindx != -1) ) //janky as shit.
     {
-      objects.get(iindx).p = icoord;
+      iobject.set(ipos, irot);
+      this.add(iobject); //adjusts to terrain.
       return iindx;
     }
     else 
@@ -60,20 +64,19 @@ class Map
   {
     for (int i = objects.size() - 1; i >= 0; i--)
     {
-      objects.get(i).display();
+      Object3D object = objects.get(i);
+      object.display();
     }
   }
   
   int checkBounds(PVector icoord) //this function may be the cause of many of our problems
   {
-    if (Math.abs(icoord.x) > ( xsize / 2 ) || Math.abs(icoord.z) > ( zsize / 2 )) 
-    { println("map bounds!"); return 0; }
     for (int i = objects.size() - 1; i >= 0; i--)
     {
       Object3D oobject = objects.get(i);
       if (PVector.dist(icoord, oobject.p) <= oobject.radius)
-      //temporary solution
       {        
+        //println("object:", oobject.p);
         return i; 
       }
     }  
@@ -83,8 +86,6 @@ class Map
   int checkBounds(float ix, float iy, float iz)
   {
     PVector icoord = new PVector(ix, iy, iz);
-    if (Math.abs(icoord.x) >= ( xsize / 2 ) || Math.abs(icoord.z) >= ( zsize / 2 )) 
-    { println("map bounds!"); return 0; }
     for (int i = objects.size() - 1; i >= 0; i--)
     {
       Object3D oobject = objects.get(i);
@@ -102,7 +103,7 @@ class Map
     for (int i = objects.size() - 1; i >= 0; i--)
     {
       Object3D oobject = objects.get(i);
-      if (oobject.p == icoord) //((oobject.p.x == icoord.x) && (oobject.p.y == icoord.y) && (oobject.p.z == icoord.z))
+      if (oobject.p == icoord) 
       {
         return i;
       }
@@ -124,8 +125,7 @@ class Map
     return -1;
   }
   
-  int getIndexByAngle(PVector ipos, PVector iaim) //this function needs to be rewritten. 
-  //solution might be multiplying the look by the distance between the two points, or normalizing that second angle.
+  int getIndexByAngle(PVector ipos, PVector iaim) 
   {
     for (int i = objects.size() - 1; i >= 0; i--)
     {
@@ -144,11 +144,11 @@ class Map
   {
     for (int i = 0; i < many; i++)
     {
-      Object3D robject = new Object3D(random(-(xsize/2), xsize/2), 0, random(-(zsize/2), zsize/2), 0, 0, 0);
+      Object3D robject = new Object3D(random(-(xsize/2), xsize/2), random(50, 80), random(-(zsize/2), zsize/2), 0, 0, 0);
+      robject.type = (random(0, 1) > .5) ? "spire" : "cone";
       add(robject);
     }
   }
-  
   
   void print()
   {

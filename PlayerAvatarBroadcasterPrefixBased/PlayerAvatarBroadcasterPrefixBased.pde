@@ -18,10 +18,10 @@ void setup()
 {
   oscP5 = new OscP5(this, myListeningPort);
   masterMap = new Map(1001, 1001);
-  masterMap.add(new Object3D(new PVector(500, 0, 0), new PVector(0, 0, 0)));
-  masterMap.add(new Object3D(new PVector(0, 0, 500), new PVector(0, 0, 0)));
-  masterMap.add(new Object3D(new PVector(-500, 0, 0), new PVector(0, 0, 0)));
-  masterMap.add(new Object3D(new PVector(0, 0, -500), new PVector(0, 0, 0)));
+  //masterMap.add(new Object3D(new PVector(100, 0, 0), new PVector(0, 0, 0), "cone"));
+  //masterMap.add(new Object3D(new PVector(300, 0, 0), new PVector(0, 0, 0), "spire"));
+ // masterMap.add(new Object3D(new PVector(100, 0, -100), new PVector(0, 0, 0), "spire"));
+  //masterMap.add(new Object3D(new PVector(300, 0, -300), new PVector(0, 0, 0), "spire"));
   //masterMap.randomObjects(15);
   frameRate(25);
 }
@@ -84,6 +84,7 @@ void oscEvent(OscMessage theOscMessage)
          ocoor.add(oobj.r.x);
          ocoor.add(oobj.r.y);
          ocoor.add(oobj.r.z);
+         ocoor.add(oobj.type);
          sendAll(ocoor);
        }
      } 
