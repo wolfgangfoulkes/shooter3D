@@ -9,6 +9,8 @@ class Camera
  
  PVector aim;
  float aimheight;
+ 
+ float laser;
 
   Camera (PApplet iapp)
   {
@@ -77,6 +79,17 @@ PVector lInfo(){
   void display()
   {
     cam.camera();
+    
+    laser = (laser >= .12) ? laser * .98 : 0;
+    crosshair.set("time", millis() * .001);
+    crosshair.set("resolution", (float) width, (float) height);
+    crosshair.set("mouse", (float) width/2, (float) (acc.y * height/2) + height/2);
+    crosshair.set("opacity", laser);
+    crosshair.set("ir", 1.0);
+    crosshair.set("ig", 1.0);
+    crosshair.set("ib", 1.0);
+    filter(crosshair);
+    println("acc.y", acc.y);
     
     PVector ch = PVector.add(pos, PVector.mult(look, 1)); //could scale the sight further. does a sight further from the eye have more accuracy?
     ch.y += (aimheight * .002); //gotta do it here, because we don't wanna affect the real aimheight

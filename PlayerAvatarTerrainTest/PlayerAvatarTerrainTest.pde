@@ -94,12 +94,12 @@ void setup()
   
   //lines = loadShader("linesfrag.glsl");
   //noise = loadShader("noisefrag.glsl");
-  SHADER_NOISE = loadShader("noisefrag.glsl");
+  SHADER_NOISE = loadShader("noisenormalizedfrag.glsl");
   lasershader = loadShader("potentiallaserfrag.glsl");
   pixel = loadShader("pixelfrag.glsl");
   deform = loadShader("deformfrag.glsl");
   alias = loadShader("aliasingfrag.glsl");
-  crosshair = loadShader("crosshairfrag.glsl");
+  crosshair = loadShader("potentiallaserfrag2.glsl");
   playerdeath = loadShader("noisedissolve2frag.glsl");
   
 }
@@ -122,8 +122,8 @@ void draw()
     //lines.set("bin", 10.0);
     //noise.set("time", (millis() * .001));
     SHADER_NOISE.set("time", (millis() * .001));
-    SHADER_NOISE.set("resolution", (float) width, (float) height); //these values reproduce the site's effect
-    SHADER_NOISE.set("alpha", .95); 
+    SHADER_NOISE.set("resolution", (float) width * random(1, 1), (float) height * random(1, 1)); //these values reproduce the site's effect
+    SHADER_NOISE.set("alpha", .8); 
     //pixel.set("pixels", 50.0, 50.0);
     //alias.set("time", millis() * .001);
    // alias.set("alpha", 1.0);
@@ -207,13 +207,14 @@ void disconnect(int ilport, String ipre)
 
 void oscEvent(OscMessage theOscMessage) 
 {
-  //println("###2 received an osc message with addrpattern "+theOscMessage.addrPattern()+" and typetag "+theOscMessage.typetag());
-  //theOscMessage.print();
+  println("###2 received an osc message with addrpattern "+theOscMessage.addrPattern()+" and typetag "+theOscMessage.typetag());
+  theOscMessage.print();
   String messageIP = theOscMessage.netaddress().address();
   String messageaddr = theOscMessage.addrPattern();
   String messagetag = theOscMessage.typetag();
+  String iaddr = roster.removePrefix(messageaddr);
   int isin = roster.indexFromAddrPattern(messageaddr); //this could be the only check function, because "begins with" is the same as "equals"
-
+  
   //player initialization message. 
   if (messageaddr.equals("/players/add")) //remember this fucking string functions you fucking cunt don't fuck up and fucking == with two strings.
   {
@@ -290,7 +291,6 @@ void oscEvent(OscMessage theOscMessage)
   if (isin != -1)
   {
     Player iplayer = roster.players.get(isin);
-    String iaddr = roster.removePrefix(messageaddr);
     
     if (iaddr.equals("/shot") && messagetag.equals("ffffff"))
     {
@@ -307,6 +307,17 @@ void oscEvent(OscMessage theOscMessage)
         if (a != null) 
         {
           a.startLaser(new PVector(ix, iy, iz));
+        }
+    }
+    
+    if (iaddr.equals("/melee") && messagetag.equals("ffffff"))
+    {
+      //println("###2 received an osc message with addrpattern "+the.addrPattern()+" and typetag "+theOscMessage.typetag());
+      //the.print();
+        Avatar a = iplayer.avatar;
+        if (a != null) 
+        {
+          a.melee();
         }
     }
     
@@ -401,6 +412,13 @@ void sendShot(PVector ipos, PVector iaim, NetAddress ilocation)
   oscP5.send(ocoor, ilocation);
 }
 
+void sendMelee(int istatus, NetAddress ilocation)
+{
+  OscMessage oint = new OscMessage(myprefix + "/melee");
+  oint.add(istatus);
+  oscP5.send(oint, ilocation);
+}
+
 void sendKill(String iaddr, NetAddress ilocation)
 {
   OscMessage oaddr = new OscMessage(myprefix + "/kill");
@@ -417,7 +435,7 @@ void keyPressed()
     case 'f': disconnect(lport, myprefix); connected = false; break;
     case 'R': roster.print(); break;
     case 'M': map.print(); break;
-    case 'I': loop(); cam.spawnCamera(new PVector(-100, 0, 0), new PVector(0, 0, 0)); break; //randomSpawnCamera(5000); break;
+    case 'I': loop(); cam.spawnCamera(new PVector(0, 0, 0), new PVector(0, 0, 0)); break; //randomSpawnCamera(5000); break;
     case 'v': cam.living = false; sendKill(myprefix, myLocation); sendKill(myprefix, myBroadcastLocation); break; //cam.living = false; killCamera(); (myprefix); break;
     
     //temp testing variables
@@ -437,8 +455,8 @@ void keyPressed()
     case 'c': 
     {
       float STRIKE_RADIUS = 50;
-      //sendMelee(cam.pos, myLocation);
-      //sendMelee(cam.pos, myBroadcastLocation);
+      sendMelee(1, myLocation);
+      sendMelee(1, myBroadcastLocation);
       int indx = map.checkBounds(cam.pos, STRIKE_RADIUS);
       if (map.isAvatar(indx))
       {
@@ -459,6 +477,7 @@ void keyPressed()
     }
     case 'z':
     {
+      cam.laser = 1.0;
       sendShot(cam.pos, cam.aim, myLocation);
       sendShot(cam.pos, cam.aim, myBroadcastLocation);
       int indx = map.getIndexByAngle(cam.pos, cam.aim);

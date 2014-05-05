@@ -55,7 +55,7 @@ class Avatar extends O3DCone
   {
     if (isLiving == 1) //rather than these checks, could implement a dig where the shader is set externally, and handle most stuff in-shader with millis()
     {
-      
+      if (melee > 0) { shader(lasershader); }
       super.display();
       resetShader();
       lasershader.set("time", (millis() % 10000) * .001); //elapsed could be set to the initial elapsed value, then mod by that number to get count from 0
@@ -88,6 +88,10 @@ class Avatar extends O3DCone
     laser.set(new PVector(p.x, p.y-size.y, p.z), iaim, .88); //laser.adjustToTerrain?
   }
   
+  void melee()
+  {
+    melee = 1;
+  }
   
   int kill()
   {
