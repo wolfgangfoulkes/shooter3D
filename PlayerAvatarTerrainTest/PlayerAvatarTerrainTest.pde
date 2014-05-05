@@ -99,7 +99,7 @@ void setup()
   pixel = loadShader("pixelfrag.glsl");
   deform = loadShader("deformfrag.glsl");
   alias = loadShader("aliasingfrag.glsl");
-  crosshair = loadShader("potentiallaserfrag2.glsl");
+  crosshair = loadShader("circlefrag.glsl");
   playerdeath = loadShader("noisedissolve2frag.glsl");
   
 }
@@ -118,15 +118,9 @@ void draw()
   {
     background(0);
     lights(); //unneccessary, this just calls the default.
-    //lines.set("time", (float) millis() * .001);
-    //lines.set("bin", 10.0);
-    //noise.set("time", (millis() * .001));
     SHADER_NOISE.set("time", (millis() * .001));
     SHADER_NOISE.set("resolution", (float) width * random(1, 1), (float) height * random(1, 1)); //these values reproduce the site's effect
     SHADER_NOISE.set("alpha", .8); 
-    //pixel.set("pixels", 50.0, 50.0);
-    //alias.set("time", millis() * .001);
-   // alias.set("alpha", 1.0);
     shader(SHADER_NOISE);
     terrain.draw();
     map.update();
@@ -167,8 +161,8 @@ public void joystickData(int x, int z)
     else { joystick.z = map(constrain(x, -32, 220), -32, 220, -1, 1); }
     
     //println("joystick called!", joystick);
-    joystick.x *= 1.5;
-    joystick.z *= 1.5;
+    joystick.x *= 2.0;
+    joystick.z *= 2.0;
   }
 }
 
@@ -178,11 +172,10 @@ public void accelData(int x, int y, int z)
     {
       if ((x > -30) && (x <= 30)) { acc.x = 0; } 
       else { acc.x = map(constrain(x, -70, 70), -70, 70, -1, 1); }
-      if ((y > 60) && (y <= 110)) { acc.y = 0; }
-      else { acc.y = map(constrain(y, 10, 140), 10, 140, -1, 1); }
+      acc.y = map(constrain(y, 30, 120), 30, 120, -1, 1); 
       acc.z = acc.y;
     
-      acc.x *= -1.0;
+      acc.x *= -1.5;
       acc.y *= -1.0; //this should be a "set" value for height, rather than an "increment"
     }
  }

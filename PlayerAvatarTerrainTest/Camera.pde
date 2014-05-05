@@ -21,6 +21,7 @@ class Camera
     look = new PVector(0, 0, 1);
     aim = PVector.add(pos, PVector.mult(look, 500));
     aimheight = 0;
+    laser = 0.0;
     living = false;
   }
   
@@ -80,31 +81,19 @@ PVector lInfo(){
   {
     cam.camera();
     
-    laser = (laser >= .12) ? laser * .98 : 0;
+    laser = (laser >= .01) ? laser * .85 : 0;
     crosshair.set("time", millis() * .001);
     crosshair.set("resolution", (float) width, (float) height);
-    crosshair.set("mouse", (float) width/2, (float) (acc.y * height/2) + height/2);
-    crosshair.set("opacity", laser);
-    crosshair.set("ir", 1.0);
-    crosshair.set("ig", 1.0);
-    crosshair.set("ib", 1.0);
+    crosshair.set("mouse", (float) width/2, (float) (-acc.y * height/2) + height/2);
+    
+    crosshair.set("circle_radius", .08 + (laser * .04)); //relative to center of screen.
+    crosshair.set("border", .04 + (laser * .08)); 
+    crosshair.set("mix", .6); 
+    crosshair.set("circles", (1 - laser) * (1 - laser) * 2000.0);
+    crosshair.set("pulse", 5.0 );
+    
     filter(crosshair);
     println("acc.y", acc.y);
-    
-    PVector ch = PVector.add(pos, PVector.mult(look, 1)); //could scale the sight further. does a sight further from the eye have more accuracy?
-    ch.y += (aimheight * .002); //gotta do it here, because we don't wanna affect the real aimheight
-    pushMatrix();
-    translate(ch.x, ch.y, ch.z);
-    rotateY(radians(90 + rot.y)); //think it's this value because the camera looks to the positive x axis.
-    
-    stroke(255);
-    fill(255);
-    rectMode(CENTER);
-    rect(0, 0, .05, .05);
-    
-    popMatrix();
-    
-    
     
   }
   
