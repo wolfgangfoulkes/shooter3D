@@ -2,10 +2,14 @@ public class Scream {
     
     adc => FFT fft =^ RMS rms => blackhole;
     
-    adc => LiSa screamLisa => JCRev reverb => Gain master => dac; 
+    adc => LiSa screamLisa => Chorus chorus => JCRev reverb => Gain master => dac; 
     
-       
-    0.32 => reverb.mix;
+    2 => chorus.modFreq;
+    0.5 => chorus.modDepth;
+    0.6 => chorus.mix;
+    
+    
+    0.22 => reverb.mix;
     1 => screamLisa.bi;
     100::ms => dur recFadeTime;
     //fft settings
@@ -15,21 +19,21 @@ public class Scream {
     Windowing.hann(WinSize) => fft.window;
     //for the scream placyback
     0 => int screamTime;
-    0.0040 => float threshold;//0.008 ish for installation
-    10::hour => screamLisa.duration;
+    0.00150 => float threshold;//0.008 ish for installation
+    6::minute => screamLisa.duration;//extremely long duration seems to not help much
     0 => int gate;
     1 => screamLisa.rate;
-    0.4 => master.gain;
-    1 => screamLisa.maxVoices;//perhaps this will solves our problem
-    //this message is for when the player is killed
-    screamLisa.loop(1);
+    0.6 => master.gain;
+    1 => screamLisa.maxVoices;//limiting voices doesn't help (its like tracks)
+    screamLisa.loop(1);//setting the recorder to loop mode doesn't help
     
     fun void killed(){
         //adc =< dac;
         //0.4 => master.gain;
         
         <<<"Long Scream">>>;
-        //screamLisa.playPos(1::ms);
+        screamLisa.playPos(1::ms);
+        screamLisa.recPos(1::ms);
         screamLisa.play(1);
         screamLisa.rampUp(0.2::second);
         ((screamTime)*0.5)::second => now;
@@ -49,11 +53,13 @@ public class Scream {
             rms.upchuck() @=> UAnaBlob blobRMS;//0.04 is loud
             //<<<blobRMS.fval(0)>>>;
             if(blobRMS.fval(0) > threshold){
+                screamLisa.playPos(1::ms);
+                screamLisa.recPos(1::ms);
                 
                 screamLisa.record(1); 
                 //env.keyOn();
                 //recFadeTime => now;
-                while(blobRMS.fval(0) > threshold/4){
+                while(blobRMS.fval(0) > threshold/2){
                     .5::second => now;   
                     rms.upchuck() @=> UAnaBlob blobRMS;//0.04 is loud
                     <<<blobRMS.fval(0)>>>;
