@@ -15,6 +15,7 @@ OscRecv oscIn;
 14000 => oscIn.port;
 //for when the player hits an object with the axe
 oscIn.listen();
+
 oscIn.event(myPrefix + "/axe, i") @=> OscEvent axeImpact;//or shot
 oscIn.event(myPrefix + "/shot, i") @=> OscEvent laserImpact;//or shot
 oscIn.event(myPrefix + "/kill, s") @=> OscEvent playerKilled;
@@ -28,7 +29,6 @@ SerialIO.list() @=> string list[];
 for( int i; i< list.cap(); i++ )
 {
     chout <= i <= ": " <= list[i] <= IO.newline();
-    //5::second => now;
 }
 //opens serial ports
 serial.open(serialPort, SerialIO.B9600, SerialIO.ASCII);
@@ -199,9 +199,7 @@ fun void newPlayerPoll(){
 fun void playerKillListen() {
     while(true){
         playerKilled => now;
-        
         if (playerKilled.nextMsg() != 0) {
-            
             playerKilled.getString() => string playerPre;
             <<<playerPre + " killed!">>>;
             if (playerPre == myPrefix)
@@ -218,7 +216,7 @@ fun void playerKillListen() {
                     
                     scream.killed();
                     walking.dead();
-                    //0.85::second => now;
+                    0.45::second => now;//for reverb tail
                     scream.dead();
                     sendRespawnPing();
                     walking.alive();

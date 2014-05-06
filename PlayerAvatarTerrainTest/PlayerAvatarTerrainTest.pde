@@ -392,6 +392,7 @@ void oscEvent(OscMessage theOscMessage)
       //theOscMessage.print();
       String is = theOscMessage.get(0).stringValue();
       sendKill(is, myLocation);
+      //sendKill(is, myBroadcastLocation);
       if (is.equals(myprefix)) 
       {
         cam.living = false;
@@ -600,6 +601,7 @@ void killCamera()
   camera();
   killScreen = loadImage(respawnTex[(int)random(0, respawnTex.length -1)]);
   image(killScreen, 0, 0, width, height);
+  sendExplosion();
 }
 
 PVector adjustY(PVector ipv, Terrain it)

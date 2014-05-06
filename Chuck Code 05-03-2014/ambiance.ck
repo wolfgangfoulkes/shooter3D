@@ -1,11 +1,13 @@
-public class soundTrack {
-    /*
-    SndBuf st => JCRev reverb => Gain master => dac;
-    0.2 => reverb.mix;
-    0.4 => master.gain;
-    0 => int place;
-    dur length;
+public class soundTrack{
+    
+    SndBuf buf;
+    LiSa looper => JCRev reverb => Gain master => dac;
+    SinOsc tracker => looper;
+    Step off => looper;
+    
     0 => int gate;
+    0.12 => reverb.mix;
+    0.07 => master.gain;
     
     string backgroundTunes[4];
     
@@ -14,28 +16,38 @@ public class soundTrack {
     me.dir() + "/audio/soundTrack3.wav" => backgroundTunes[2];
     me.dir() + "/audio/soundTrack4.wav" => backgroundTunes[3];
     
-    backgroundTunes[Math.random2(0, backGroundTunes.cap()-1)] => st.read;
-    
-    fun void shuffle(){
-        if (place < backgroundTunes.cap()){
-            backgroundTunes[place] => st.read;   
-            gate++;
-            place++;
+    fun void loadSample(int arrayPos){
+        
+        if (arrayPos < backgroundTunes.cap()){
+            backgroundTunes[arrayPos] => buf.read;
+            buf.samples()::samp => looper.duration;  
+            for ( 0 => int i; i < buf.samples(); i++){
+                looper.valueAt(buf.valueAt(i), i::samp);//puts values into LiSa   
+            }
+            while(true){
+                1 => looper.sync;
+                0.025 => tracker.freq;
+                1.0 => tracker.gain;
+                0.0 => off.next; 
+                1 => looper.play;
+                1.0 => looper.gain;
+                buf.samples()::samp => now;
+            }
         }
         else{
-            0 => place; 
-            gate++;  
-        }
-    }
-    
-    fun void loop(){
-        0 => gate;
-        st.length() => length;
-        while(gate < 1){
-            0 => st.pos;
-            //0.2 => st.rate;
-            length => now;
-        }  
-    } 
-    */
+            backgroundTunes[Math.random2(0,backgroundTunes.cap()-1)] => buf.read;
+            buf.samples()::samp => looper.duration;  
+            for ( 0 => int i; i < buf.samples(); i++){
+                looper.valueAt(buf.valueAt(i), i::samp);//puts values into LiSa   
+            }
+            while(true){
+               1 => looper.sync;
+                0.025 => tracker.freq;
+                1.0 => tracker.gain;
+                0.0 => off.next; 
+                1 => looper.play;
+                1.0 => looper.gain;
+                buf.samples()::samp => now;            }
+        }   
+    }   
 }
