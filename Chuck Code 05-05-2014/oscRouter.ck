@@ -5,7 +5,7 @@ string line;//the data comming in
 "/tweez" => string myPrefix;
 second/samp => float samplerate;
 //sets the windowing of the FFT
-2 => int serialPort;
+4 => int serialPort;
 //osc info to send messages for player respawn
 //set up OSC to send info
 OscSend xmit;
