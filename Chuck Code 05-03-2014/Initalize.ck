@@ -1,5 +1,5 @@
 //Master File
-me.dir() + "/ambiance-rework.ck" => string ambiancePath;
+me.dir() + "/ambiance.ck" => string ambiancePath;
 me.dir() + "/proxAlarm.ck" => string proxPath;
 me.dir() + "/announcer.ck" => string announcerPath;
 me.dir() + "/LaserClass.ck" => string laserPath;

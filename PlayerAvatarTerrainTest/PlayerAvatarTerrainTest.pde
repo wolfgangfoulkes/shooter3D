@@ -489,6 +489,7 @@ void sendKill(String iaddr, NetAddress ilocation)
   OscMessage oaddr = new OscMessage(myprefix + "/kill");
   oaddr.add(iaddr);
   oscP5.send(oaddr, ilocation);
+  oscP5.send(oaddr, myLocation);
 }
 void newPlayer() {
   OscMessage newP = new OscMessage("/arena/newPlayer");
@@ -602,6 +603,7 @@ void killCamera()
   killScreen = loadImage(respawnTex[(int)random(0, respawnTex.length -1)]);
   image(killScreen, 0, 0, width, height);
   sendExplosion();
+  //sendKill(myPrefix,)
 }
 
 PVector adjustY(PVector ipv, Terrain it)
