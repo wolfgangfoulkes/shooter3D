@@ -55,24 +55,24 @@ class Avatar extends O3DCone
   {
     if (isLiving == 1) //rather than these checks, could implement a dig where the shader is set externally, and handle most stuff in-shader with millis()
     {
-      if (melee > 0) { shader(lasershader); }
+      if (melee > 0) { shader(SHADER_LASER); }
       super.display();
       resetShader();
-      lasershader.set("time", (millis() % 10000) * .001); //elapsed could be set to the initial elapsed value, then mod by that number to get count from 0
-      lasershader.set("resolution", (float) width, (float) height);
-      lasershader.set("alpha", laser.lifespan * 2);
+      SHADER_LASER.set("time", (millis() % 10000) * .001); //elapsed could be set to the initial elapsed value, then mod by that number to get count from 0
+      SHADER_LASER.set("resolution", (float) width, (float) height);
+      SHADER_LASER.set("alpha", laser.lifespan * 2);
       if (laser.lifespan > 0) { println(laser.lifespan); } 
-      shader(lasershader);
+      shader(SHADER_LASER);
       laser.update(); //right now, this's all that'd be in "update" for any object excepting the camera.
       laser.display();
       resetShader();
     }
     else if (isLiving == 0)
     {
-      playerdeath.set("time", millis() * .001);
-      playerdeath.set("resolution", (float) width, (float) height);
-      playerdeath.set("opacity", lifespan);
-      shader(playerdeath);
+      SHADER_DEATH.set("time", millis() * .001);
+      SHADER_DEATH.set("resolution", (float) width, (float) height);
+      SHADER_DEATH.set("opacity", lifespan);
+      shader(SHADER_DEATH);
       super.display();
       resetShader();
     }

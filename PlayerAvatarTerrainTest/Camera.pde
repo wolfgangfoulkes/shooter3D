@@ -82,17 +82,17 @@ PVector lInfo(){
     cam.camera();
     
     laser = (laser >= .01) ? laser * .85 : 0;
-    crosshair.set("time", millis() * .001);
-    crosshair.set("resolution", (float) width, (float) height);
-    crosshair.set("mouse", (float) width/2, (float) (-acc.y * height/2) + height/2);
+    SHADER_CROSSHAIR.set("time", millis() * .001);
+    SHADER_CROSSHAIR.set("resolution", (float) width, (float) height);
+    SHADER_CROSSHAIR.set("mouse", (float) width/2, (float) (-acc.y * height/2) + height/2);
     
-    crosshair.set("circle_radius", .08 + (laser * .04)); //relative to center of screen.
-    crosshair.set("border", .04 + (laser * .08)); 
-    crosshair.set("mix", .6); 
-    crosshair.set("circles", (1 - laser) * (1 - laser) * 2000.0);
-    crosshair.set("pulse", 5.0 );
+    SHADER_CROSSHAIR.set("circle_radius", .08 + (laser * .04)); //relative to center of screen.
+    SHADER_CROSSHAIR.set("border", .04 + (laser * .08)); 
+    SHADER_CROSSHAIR.set("mix", .6); 
+    SHADER_CROSSHAIR.set("circles", (1 - laser) * (1 - laser) * 2000.0);
+    SHADER_CROSSHAIR.set("pulse", 5.0 );
     
-    filter(crosshair);
+    filter(SHADER_CROSSHAIR);
     println("acc.y", acc.y);
     
   }

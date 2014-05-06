@@ -11,17 +11,20 @@ import shapes3d.animation.*;
 int adebug = 0;
 //for when you die...
 PImage killScreen;
+
+/*
 //for sky rendering
 PVector camVector = new PVector(0, 0, 0);
 PImage texGlobe;//can be sent to other MAC's to allow for background sync
 float globeRadius = 12000;//size of world
 int sDetail = 20;  // Sphere detail setting...number of triangles
-float pushBack = 0;//for rendering
+float pushBack = 0;//for rencdering
 float[] cx, cz, sphereX, sphereY, sphereZ;
 float sinLUT[];
 float cosLUT[];
 float SINCOS_PRECISION = 0.5;
 int SINCOS_LENGTH = int(360.0 / SINCOS_PRECISION);
+*/
 
 ///////////****OSC****\\\\\\\\\\\\\
 OscP5 pos_in;
@@ -34,14 +37,12 @@ NetAddress myLocation;
 NetAddress myBroadcastLocation; 
 String myprefix = "/tweez";
 boolean connected = true;
-//for texture syncing
-int texCycle = (int)random(0,5);
+
 
 PApplet APPLET = this;
 Map map;
 Camera cam;
 Roster roster;
-//ArrayList<ParticleSystem>explosions = new ArrayList<ParticleSystem>();
 
 Terrain terrain;
 int X_SIZE = 1001;
@@ -50,6 +51,9 @@ int Z_SIZE = 1001;
 int TERRAIN_SLICES = 16;
 float TERRAIN_HORIZON = 300;
 float TERRAIN_AMP = 70;
+
+//for texture syncing
+int texCycle = (int)random(0,5);
 
 //*******Texture Arrays*******\\ 
 
@@ -75,13 +79,13 @@ PImage skyTexCur;
 //PShader lines;
 //PShader noise;
 PShader SHADER_NOISE;
-PShader lasershader;
+PShader SHADER_LASER;
 PShader pixel;
 PShader deform;
 PShader laserfire;
 PShader alias;
-PShader crosshair;
-PShader playerdeath;
+PShader SHADER_CROSSHAIR;
+PShader SHADER_DEATH;
 
 PVector acc = new PVector(0, 0, 0); //can we set Camera directly from OSC?
 PVector joystick = new PVector(0, 0, 0);
@@ -122,12 +126,12 @@ void setup()
   //lines = loadShader("linesfrag.glsl");
   //noise = loadShader("noisefrag.glsl");
   SHADER_NOISE = loadShader("noisenormalizedfrag.glsl");
-  lasershader = loadShader("potentiallaserfrag.glsl");
+  SHADER_LASER = loadShader("potentiallaserfrag.glsl");
   pixel = loadShader("pixelfrag.glsl");
   deform = loadShader("deformfrag.glsl");
   alias = loadShader("aliasingfrag.glsl");
-  crosshair = loadShader("circlefrag.glsl");
-  playerdeath = loadShader("noisedissolve2frag.glsl");
+  SHADER_CROSSHAIR = loadShader("circlefrag.glsl");
+  SHADER_DEATH = loadShader("noisedissolve2frag.glsl");
   
 }
 
@@ -497,7 +501,7 @@ void newPlayer() {
   newP.add(1);
   oscP5.send(newP, myLocation);
 }
-void sendExplosion() {
+void sendExplosion() { //maybe redundant, only happens on kill and death
   OscMessage sendExplosion = new OscMessage(myprefix + "/explosion");
   sendExplosion.add(1);
   oscP5.send(sendExplosion, myLocation);
@@ -624,15 +628,14 @@ PVector adjustY(PVector ipv, Terrain it, float ihover)
   opv.y = oy;
   return opv;
 }
+
 void initTextures()
 {//for syncing texture changes
-    texGlobe = loadImage(skyTex[texCycle]);    
+  //texGlobe = loadImage(skyTex[texCycle]);    
   laserTexCur = loadImage( laserTex[texCycle] );
   terrainTexCur = loadImage( terrainTex[texCycle] );
-   terrain.setTexture(terrainTexCur, TERRAIN_SLICES);
+  terrain.setTexture(terrainTexCur, TERRAIN_SLICES);
   terrain.drawMode(S3D.TEXTURE);
-   //terrain.setTexture(terrainTexCur, TERRAIN_SLICES);
-   //initializeSphere(sDetail);
   println("Texture for laser:", laserTexCur, "Texture for sky:", skyTexCur, "texture for terrain:", terrainTexCur);
 
   if (texCycle < 5) {
@@ -652,6 +655,8 @@ void initTextures()
   //println("Texture for laser:", laserTexCur, "Texture for sky:", skyTexCur, "texture for terrain:", terrainTexCur);
 }
 */
+
+/*
 //////////////////for sky\\\\\\\\\\\\\\\\\\\\\\
 
 
@@ -779,4 +784,5 @@ void texturedSphere(float r, PImage t) {
   vertex(sphereX[voff]*r, sphereY[voff]*r, sphereZ[voff]*r, u, v);
   endShape();
 }
+*/
 
