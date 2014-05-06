@@ -58,7 +58,7 @@ int texCycle = (int)random(0,5);
 //*******Texture Arrays*******\\ 
 
 String[] respawnTex = new String[] {
-  "respawn1.png", "respawn2.png", "respawn3.png", "respawn4.png"
+  "respawnNew1.png", "respawnNew3.png"
 };
 String[] laserTex = new String[] {
   "laser1.jpg", "laser2.jpg", "laser3.JPG", "laser4.jpg", "laser1.jpg", "laser2.jpg"
@@ -108,7 +108,7 @@ void setup()
   oscP5 = new OscP5(this,lport);
   
   myLocation = new NetAddress("127.0.0.1", coutport);
-  myBroadcastLocation = new NetAddress("169.254.192.98", bcport);
+  myBroadcastLocation = new NetAddress("169.254.44.112", bcport);
   //
  
   
@@ -247,12 +247,13 @@ public void accelData(int x, int y, int z)
 { 
     if (acc != null && adebug == 1)
     {
+      println("Receiving accel Data");
       if ((x > -30) && (x <= 30)) { acc.x = 0; } 
       else { acc.x = map(constrain(x, -70, 70), -70, 70, -1, 1); }
       acc.y = map(constrain(y, 30, 120), 30, 120, -1, 1); 
-      acc.z = acc.y;
-      acc.x *= -1.5;
-      acc.y *= -1.0; //this should be a "set" value for height, rather than an "increment"
+      //acc.z = acc.y;
+      //acc.x *= -1.5;
+      //acc.y *= -1.0; //this should be a "set" value for height, rather than an "increment"
     }
  }
 
