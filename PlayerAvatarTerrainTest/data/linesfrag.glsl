@@ -11,26 +11,29 @@ uniform float time;
 uniform vec2 mouse;
 uniform vec2 resolution;
 
-uniform float mod;
-uniform float size;
+uniform vec3 color1;
+uniform vec3 color2;
+
+uniform float div1;
+uniform float div2;
 uniform float alpha;
+uniform float rate;
 
 void main( void ) {
 
-	vec2 position = ( gl_FragCoord.xy / resolution.xy ); //unused
-	vec2 start_pos = vec2(0 ,resolution.y); //unused
+	vec2 position = ( gl_FragCoord.xy / resolution.xy );
+
+	vec3 wet;
 	
-	if (mod(gl_FragCoord.x + (time * 1000.0), mod) < size)
-	//time is in milliseconds
-	//alter time mult to change rate
-	//alter the value we mod by to change size of black bars
-	//alter the value we compare it against to change size of white bars 
+	if (mod(position.x + (time * rate), (1.0/div1)) < (1.0/div1) / div2)
 	{
-		gl_FragColor = texture2D(texture, vertTexCoord.st) * vec4(1.0, 1.0, 1.0, alpha);
+		wet = texture2D(texture, vertTexCoord.st).xyz * color1;
 	}	
 	else
 	{
-		gl_FragColor = texture2D(texture, vertTexCoord.st) * vec4(0, 0, 0, alpha);
+		discard;
 	}
+
+	gl_FragColor = vec4( wet, alpha );
 
 }

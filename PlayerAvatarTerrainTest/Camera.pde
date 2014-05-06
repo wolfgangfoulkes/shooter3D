@@ -90,10 +90,9 @@ PVector lInfo(){
     SHADER_CROSSHAIR.set("border", .04 + (laser * .08)); 
     SHADER_CROSSHAIR.set("mix", .6); 
     SHADER_CROSSHAIR.set("circles", (1 - laser) * (1 - laser) * 2000.0);
-    SHADER_CROSSHAIR.set("pulse", 5.0 );
     
     filter(SHADER_CROSSHAIR);
-    println("acc.y", acc.y);
+    //println("acc.y", acc.y);
     
   }
   

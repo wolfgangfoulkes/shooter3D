@@ -40,8 +40,8 @@ class Avatar extends O3DCone
     {
       if (lifespan > .1) 
       { 
-        lifespan *= .88;
-        println("lifespan", lifespan);
+        lifespan *= .98;
+        //println("lifespan", lifespan);
       }
       else
       {
@@ -59,9 +59,10 @@ class Avatar extends O3DCone
       super.display();
       resetShader();
       SHADER_LASER.set("time", (millis() % 10000) * .001); //elapsed could be set to the initial elapsed value, then mod by that number to get count from 0
+      println("millis:", (millis() % 10000) * .001);
       SHADER_LASER.set("resolution", (float) width, (float) height);
       SHADER_LASER.set("alpha", laser.lifespan * 2);
-      if (laser.lifespan > 0) { println(laser.lifespan); } 
+      //if (laser.lifespan > 0) { println(laser.lifespan); } 
       shader(SHADER_LASER);
       laser.update(); //right now, this's all that'd be in "update" for any object excepting the camera.
       laser.display();
@@ -69,10 +70,24 @@ class Avatar extends O3DCone
     }
     else if (isLiving == 0)
     {
+      
       SHADER_DEATH.set("time", millis() * .001);
       SHADER_DEATH.set("resolution", (float) width, (float) height);
-      SHADER_DEATH.set("opacity", lifespan);
+      SHADER_DEATH.set("floor", lerp(.8, 2.0, pow((1 - lifespan), 2))); //lerp(.8, 1.0, (1 - lifespan)));
+      SHADER_DEATH.set("ceil", .8);
+      SHADER_DEATH.set("alpha", .8);
+    
+      SHADER_DEATH.set("mouse", (float) width/2, (float) (-acc.y * height/2) + height/2);
+    
+      SHADER_DEATH.set("circle_radius", lerp(.08, 1.0, (1-lifespan))); //relative to center of screen.
+      SHADER_DEATH.set("border", .08); 
+      SHADER_DEATH.set("periods", 4.0);
+      SHADER_DEATH.set("rate", 50.0);
+      
+      SHADER_DEATH.set("color", 1.0, 0.0, 0.0); //new PVector(random(1.0), 0.0, random(1.0)));
+
       shader(SHADER_DEATH);
+      
       super.display();
       resetShader();
     }
