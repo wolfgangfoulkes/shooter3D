@@ -91,6 +91,8 @@ PShader colorlines;
 PVector acc = new PVector(0, 0, 0); //can we set Camera directly from OSC?
 PVector joystick = new PVector(0, 0, 0);
 
+PVector [] COLORS;
+
 void setup() 
 {
   smooth();
@@ -134,6 +136,7 @@ void setup()
   SHADER_DEATH = loadShader("circledeathfrag.glsl");
   colorlines = loadShader("linesfrag.glsl");
   
+  COLORS = shiftGlobalColors();
 }
 
 void draw() 
@@ -151,6 +154,7 @@ void draw()
   {
     background(0);
     lights(); //unneccessary, this just calls the default.
+    COLORS = shiftGlobalColors();
     
     SHADER_NOISE.set("time", (millis() * .001));
     SHADER_NOISE.set("resolution", (float) width * random(1, 1), (float) height * random(1, 1)); //these values reproduce the site's effect
@@ -661,6 +665,11 @@ void initTextures()
   else {
     texCycle = 0;
   }
+}
+
+PVector [] shiftGlobalColors()
+{
+  return new PVector[4];
 }
 /*
 void initTextures()
