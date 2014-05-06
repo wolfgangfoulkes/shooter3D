@@ -57,12 +57,12 @@ void main(void)
 		filter = vec3(norm) * vec3(noise) * color;
 	}
 
-	else if(rand;
-
 	gl_FragColor = vec4(filter, alpha);
 
 }
 
+/*
 float rand(vec2 co){
     return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453);
 }
+*/
