@@ -183,25 +183,7 @@ fun void explosionPoll(){
         if (explosion.nextMsg() != 0){
             boom.impact();  
             <<<"Explosion">>>; 
-            /*
-            //////////////this next part is my work around for now
-            if(firstTime < 1) 
-            {
-                scream.dead(); 
-                firstTime++;
-                sendRespawnPing();
-            }
-            else
-            {
-                walking.dead();
-                scream.killed();
-                //0.45::second => now;//for reverb tail
-                scream.dead();
-                sendRespawnPing();
-                walking.alive();
-            }
-            /////////////work around over
-            */
+          
         }   
     }   
 }
