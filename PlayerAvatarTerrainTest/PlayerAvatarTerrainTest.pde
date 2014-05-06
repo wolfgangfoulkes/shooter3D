@@ -48,7 +48,7 @@ int X_SIZE = 1001;
 int Z_SIZE = 1001;
 
 int TERRAIN_SLICES = 16;
-float TERRAIN_HORIZON = 500;
+float TERRAIN_HORIZON = 300;
 float TERRAIN_AMP = 70;
 
 //*******Texture Arrays*******\\ 
@@ -90,7 +90,7 @@ PVector joystick = new PVector(0, 0, 0);
 void setup() 
 {
   smooth();
-  size(1000,1000, P3D);
+  size(900,900, P3D);
   frameRate(24);
   
   pos_in = new OscP5(this, cinport);
@@ -106,7 +106,7 @@ void setup()
   myLocation = new NetAddress("127.0.0.1", coutport);
   myBroadcastLocation = new NetAddress("169.254.192.98", bcport);
   //
-  initTextures();
+ 
   
   roster = new Roster();
   map = new Map(1001, 1001);
@@ -114,8 +114,9 @@ void setup()
   terrain = new Terrain(APPLET, TERRAIN_SLICES, X_SIZE, TERRAIN_HORIZON);
   terrain.usePerlinNoiseMap(-TERRAIN_AMP, TERRAIN_AMP, 2.125f, 2.125f);
   terrain.fill(255);
-  terrain.setTexture(terrainTexCur, TERRAIN_SLICES);
-  terrain.drawMode(S3D.TEXTURE);
+   initTextures();
+  //terrain.setTexture(terrainTexCur, TERRAIN_SLICES);
+  //terrain.drawMode(S3D.TEXTURE);
   terrain.cam = cam.cam;
   
   //lines = loadShader("linesfrag.glsl");
@@ -628,8 +629,10 @@ void initTextures()
     texGlobe = loadImage(skyTex[texCycle]);    
   laserTexCur = loadImage( laserTex[texCycle] );
   terrainTexCur = loadImage( terrainTex[texCycle] );
+   terrain.setTexture(terrainTexCur, TERRAIN_SLICES);
+  terrain.drawMode(S3D.TEXTURE);
    //terrain.setTexture(terrainTexCur, TERRAIN_SLICES);
-   initializeSphere(sDetail);
+   //initializeSphere(sDetail);
   println("Texture for laser:", laserTexCur, "Texture for sky:", skyTexCur, "texture for terrain:", terrainTexCur);
 
   if (texCycle < 5) {
