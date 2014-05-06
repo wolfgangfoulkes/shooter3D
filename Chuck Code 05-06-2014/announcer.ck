@@ -1,8 +1,8 @@
 public class Announcer {
     
     SndBuf announcer => Gain master => dac;
-    SndBuf announcer1 => master;
-    0 => master.gain;
+    SndBuf announcer1 => Gain master1 => dac;
+    0 => master.gain => master1.gain;
     
     string newPlayer[6];
     
@@ -22,14 +22,14 @@ public class Announcer {
     me.dir() + "/audio/playerKilled5.wav" => playerKilled[4];
     me.dir() + "/audio/playerKilled6.wav" => playerKilled[5];
     
-    fun void oppKill(){
+    fun void announceOppKill(){
         playerKilled[Math.random2(0,playerKilled.cap() -1)] => announcer1.read;
         0 => announcer1.pos;
         1.0 => announcer1.rate;
         0.65 => master1.gain;
     }
     
-    fun void newPlayer()
+    fun void announceNewPlayer()
     {
         newPlayer[Math.random2(0,newPlayer.cap() -1)] => announcer.read;
         0 => announcer.pos;

@@ -32,8 +32,6 @@ for( int i; i< list.cap(); i++ )
 }
 //opens serial ports
 serial.open(serialPort, SerialIO.B9600, SerialIO.ASCII);
-
-
 /////////////////////////////////////////
 Axe axe;
 Walking walking;
@@ -131,10 +129,9 @@ fun void sendCButtonData(){//laser
 
 fun void sendZButtonData(){//the melee attack
     if(runState == 1){
-        
         xmit.startMsg("/nunchuck/Zbutton", "i"); 
         xmit.addInt(z_button);
-        axe.swing();  
+        axe.swing(); //dont spork it if we want it to wait until you attack again...
         <<<"Z Button Pressed">>>;
     }
 }
@@ -187,7 +184,6 @@ fun void explosionPoll(){
         if (explosion.nextMsg() != 0){
             boom.impact();  
             <<<"Explosion">>>; 
-          
         }   
     }   
 }
@@ -196,7 +192,7 @@ fun void newPlayerPoll(){
     while(1){
         newPlayer => now;
         if (newPlayer.nextMsg() != 0){
-            announcer.newP();   
+            announcer.announceNewPlayer();   
             <<<"New player">>>;
         }   
     }
@@ -209,10 +205,11 @@ fun void playerKillListen() {
             <<<playerPre + " killed!">>>;
             if (playerPre == myPrefix)
             {
-                0 => runState;
+                 0 => runState;
                 walking.dead();
                 scream.killed();
-                //0.45::second => now;//for reverb tail
+               
+                0.45::second => now;//for reverb tail
                 scream.dead();
                 sendRespawnPing();
                 walking.alive();

@@ -1,9 +1,10 @@
 public class Explosion
 {
     
-    SndBuf impactBuf => Gain master => dac;
+    SndBuf impactBuf => Gain master => ADSR env => dac;
     SndBuf low => master;
     
+    env.set(2::ms, 30::ms, 0.9, 1::second);
     
     0 => master.gain;
     
@@ -21,10 +22,14 @@ public class Explosion
     //me.dir() + "/audio/impact6.wav" => impact_samples[5];
     
     fun void impact(){
+        env.keyOn();
         Math.random2f(0.49,0.61) => master.gain;
         impact_samples[Math.random2(0,impact_samples.cap()-1)] => impactBuf.read;
         0 => impactBuf.pos => low.pos;
         Math.random2f(0.85,1.15) => impactBuf.rate;
-        1 => low.rate;   
+        1 => low.rate; 
+        32::ms  => now;  
+        env.keyOff();
+        1.7::second => now;
     }
 }

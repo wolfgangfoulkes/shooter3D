@@ -5,11 +5,11 @@ public class Scream {
     adc => LiSa screamLisa => Chorus chorus => JCRev reverb => Gain master => dac; 
     
     200 => chorus.modFreq;
-    0.4 => chorus.modDepth;
-    0.24 => chorus.mix;
+    0.24 => chorus.modDepth;
+    0.124 => chorus.mix;
     
     
-    0.2 => reverb.mix;
+    0.12 => reverb.mix;
     1 => screamLisa.bi;
     100::ms => dur recFadeTime;
     //fft settings
