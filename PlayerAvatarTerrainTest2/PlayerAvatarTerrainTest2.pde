@@ -90,11 +90,14 @@ PShader SHADER_DEATH;
 PVector acc = new PVector(0, 0, 0); //can we set Camera directly from OSC?
 PVector joystick = new PVector(0, 0, 0);
 
+boolean sketchFullScreen() {
+  return true;
+}
 
 void setup() 
 {
   smooth();
-  size(900,900, P3D);
+  size(displayWidth,displayHeight, P3D);
   frameRate(24);
   
   pos_in = new OscP5(this, cinport);
@@ -108,7 +111,7 @@ void setup()
   oscP5 = new OscP5(this,lport);
   
   myLocation = new NetAddress("127.0.0.1", coutport);
-  myBroadcastLocation = new NetAddress("169.254.44.112", bcport);
+  myBroadcastLocation = new NetAddress("169.254.51.101", bcport);
   //
  
   

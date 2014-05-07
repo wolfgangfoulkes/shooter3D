@@ -1,5 +1,9 @@
 Readme for chuck
 
+05-05-2014
+-
+
+
 05-03-2014 - 
 
 -fixed issue with axe triggering multiple times for each button pressed, changed arduino code
@@ -9,7 +13,7 @@ Readme for chuck
 -added sounds for running vs walking
 -added sounds for out of ammo
 -made SFX chain for voice .... stand in samples at moment
--aadded sounds for axe - they suck
+-added sounds for axe - they suck
 -added sounds for laser
 -added reverb to scream and time for reverb tail to hang
 -added class for proximity sensors

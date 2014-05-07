@@ -33,8 +33,8 @@ public class Announcer {
     {
         newPlayer[Math.random2(0,newPlayer.cap() -1)] => announcer.read;
         0 => announcer.pos;
-        1.0 => announcer.rate;
-        0.65 => master.gain;
+        .8 => announcer.rate;
+        0.78 => master.gain;
     }
   
     
