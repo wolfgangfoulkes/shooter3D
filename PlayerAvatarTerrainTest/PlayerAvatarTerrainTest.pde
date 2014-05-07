@@ -9,8 +9,6 @@ import shapes3d.utils.*;
 import shapes3d.animation.*;
 
 int adebug = 0;
-//for when you die...
-PImage killScreen;
 
 /*
 //for sky rendering
@@ -43,14 +41,16 @@ PApplet APPLET = this;
 Map map;
 Camera cam;
 Roster roster;
-
 Terrain terrain;
+
 int X_SIZE = 1001;
 int Z_SIZE = 1001;
 
 int TERRAIN_SLICES = 16;
 float TERRAIN_HORIZON = 300;
 float TERRAIN_AMP = 70;
+
+PVector [] COLORS;
 
 //for texture syncing
 int texCycle = (int)random(0,5);
@@ -75,6 +75,7 @@ String[] skyTex = new String[] {//could load fog as background
 PImage laserTexCur;
 PImage terrainTexCur;
 PImage skyTexCur;
+PImage killScreen;
 
 //PShader lines;
 //PShader noise;
@@ -91,7 +92,6 @@ PShader colorlines;
 PVector acc = new PVector(0, 0, 0); //can we set Camera directly from OSC?
 PVector joystick = new PVector(0, 0, 0);
 
-PVector [] COLORS;
 
 void setup() 
 {
@@ -119,10 +119,9 @@ void setup()
   terrain = new Terrain(APPLET, TERRAIN_SLICES, X_SIZE, TERRAIN_HORIZON);
   terrain.usePerlinNoiseMap(-TERRAIN_AMP, TERRAIN_AMP, 2.125f, 2.125f);
   terrain.fill(255);
-   initTextures();
-  //terrain.setTexture(terrainTexCur, TERRAIN_SLICES);
-  //terrain.drawMode(S3D.TEXTURE);
   terrain.cam = cam.cam;
+  initTextures();
+  COLORS = shiftGlobalColors();
   
   //lines = loadShader("linesfrag.glsl");
   //noise = loadShader("noisefrag.glsl");
@@ -135,7 +134,6 @@ void setup()
   SHADER_DEATH = loadShader("circledeathfrag.glsl");
   colorlines = loadShader("linesfrag.glsl");
   
-  COLORS = shiftGlobalColors();
 }
 
 void draw() 
@@ -153,6 +151,7 @@ void draw()
   {
     background(0);
     lights(); //unneccessary, this just calls the default.
+    
     COLORS = shiftGlobalColors();
     
     SHADER_NOISE.set("time", (millis() * .001));
@@ -670,7 +669,11 @@ void initTextures()
 
 PVector [] shiftGlobalColors()
 {
-  return new PVector[4];
+  PVector ovec = new PVector[3]; //later, increment these, rather than randomizing.
+  ovec[0] = new PVector(random(0, 1), 0, random(0, 1));
+  ovec[1] = new PVector(random(0, 1), 0, random(0, 1));
+  ovec[2] = new PVector(sin(millis() * .001), 0, cos(millis() * .001));
+  return ovec;
 }
 /*
 void initTextures()
