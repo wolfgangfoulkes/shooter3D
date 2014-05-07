@@ -9,7 +9,7 @@ public class Walking{
     20 => chorus.modFreq;
     0.2 => chorus.modDepth;
     0.5 => chorus.mix;
-    0.5 => level.gain;
+    0.25 => level.gain;
     440 => sin1.freq => sin2.freq => sin3.freq => sin4.freq;
     0 => master.gain;
     fun void dead(){

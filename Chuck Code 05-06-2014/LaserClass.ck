@@ -3,6 +3,10 @@ public class Laser{
     SndBuf click => Gain master2 => Chorus chorus4 => env => reverb => master;
     SndBuf explosion1 => Gain master3 => Chorus chorus2 => env => reverb => master;
     TriOsc explosion2 => Chorus chorus3 => env => reverb => master;
+    SndBuf click1 => Gain clickGain => dac;
+    
+    0.8 => clickGain.gain;
+    
     0.3 => explosion2.gain;
     1245 => explosion2.freq;
     //envR.set(0::ms,0::ms,1.0,10::ms);//for OOA clicks
@@ -11,8 +15,7 @@ public class Laser{
     0.5 => reverb.gain;
     env.set(10::ms, 30::ms, 0.82, 100::ms);
     0.65::second => dur laserLength;
-    
-    0.14 => master.gain;
+    0 => master.gain;
     
     0 => master1.gain => master2.gain => master3.gain;
     20 => chorus1.modFreq => chorus2.modFreq => chorus3.modFreq => chorus4.modFreq;
@@ -38,6 +41,8 @@ public class Laser{
     //me.dir() + "/audio/explosion5.wav" => click_samples[4];
     
     fun void shoot(){
+        
+        0.14 => master.gain;
         if (shots > 0){
             env.keyOn();
             Math.random2(2100,2150) => explosion2.freq;
@@ -52,17 +57,21 @@ public class Laser{
             0 => click.pos;
             0 => laser.pos;
             Math.random2f(0.095,.305) => click.rate; 
-            Math.random2f(1.9,3.15) => laser.rate;
+            Math.random2f(.9,4.15) => laser.rate;
             Math.random2f(-.25,-.145) => explosion1.rate;
             shots--;   
             laserLength => now;
             env.keyOff();
         }
         else{
-            <<<"You are out of Ammo">>>;   
-            Math.random2f(0.55,0.65) => master3.gain;
-            click_samples[Math.random2(0,click_samples.cap()-1)] => click.read; 
-            Math.random2f(0.95,1.05) => click.rate;    
+            <<<"You are out of Ammo">>>;  
+            0 => master1.gain => master2.gain => master3.gain => explosion2.gain;
+            env.keyOn();
+            Math.random2f(0.55,0.65) => clickGain.gain;
+            click_samples[Math.random2(0,click_samples.cap()-1)] => click1.read; 
+            Math.random2f(0.95,1.05) => click1.rate; 
+            laserLength => now;  
+            env.keyOff(); 
         }
     }
     

@@ -25,8 +25,9 @@ public class Axe{
     me.dir() + "/audio/woosh6.wav" => impact_samples[5];
     me.dir() + "/audio/woosh7.wav" => impact_samples[6];
     me.dir() + "/audio/woosh8.wav" => impact_samples[7];
+    
     fun void swing(){
-        <<<"Entered Swing">>>;
+        <<<"Swing">>>;
         env.keyOn();//only needs to be triggered in swing, they both play at same time
         Math.random2f(0.42,0.55) => master1.gain;
         Math.random2f(0.42,0.55) => master2.gain;
@@ -38,7 +39,7 @@ public class Axe{
         Math.random2f(-1.25,1.35) => axe1Rate;
         Math.random2f(-1.25,1.35) => axe2Rate;
         Math.random2f(-1.25,1.35) => axe3Rate;
-        <<<"rate1", axe1Rate,"rate2", axe2Rate,"Rate3", axe3Rate>>>;
+       // <<<"rate1", axe1Rate,"rate2", axe2Rate,"Rate3", axe3Rate>>>;
         if (axe1Rate < 0){
             axe1.samples() => axe1.pos;
             axe1Rate => axe1.rate;   

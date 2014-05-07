@@ -1,11 +1,11 @@
 public class proxAlarms{
     
-    TriOsc sin1 => Chorus chorus => JCRev reverb =>  Gain master => dac;
+    TriOsc sin1 => Chorus chorus => JCRev reverb =>  Gain master => Gain level => dac;
     //just in case it is four player
     TriOsc sin2 => reverb;
     TriOsc sin3 => reverb;
     
-    
+    0.3 => level.gain;
     
     200 => chorus.modFreq;
     0.4 => chorus.modDepth;
@@ -89,9 +89,9 @@ public class proxAlarms{
         freqBase * 0.87 => sin2.freq;
         freqBase * 1.11 => sin3.freq;
         if((play1 < 1)|| (play1 == 1)){
-            <<<"Entered the If for play1">>>;
+            //<<<"Entered the If for play1">>>;
             1 - (Math.pow(play1, 3)) => playerDist1;
-            <<<playerDist1>>>;
+            //<<<playerDist1>>>;
             if (playerDist1 < 1){
                 playerDist1 => sin1.gain;
             }

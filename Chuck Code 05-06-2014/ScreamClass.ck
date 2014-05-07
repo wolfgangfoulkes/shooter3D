@@ -30,8 +30,8 @@ public class Scream {
     fun void killed(){
         //adc =< dac;
         //0.4 => master.gain;
-        
-        <<<"Long Scream">>>;
+        <<<"Scream PlayingBack">>>;
+        //<<<"Long Scream">>>;
         screamLisa.playPos(1::ms);
         screamLisa.recPos(1::ms);
         screamLisa.play(1);
@@ -48,15 +48,17 @@ public class Scream {
         
         screamLisa.track(0);
         // 0 => screamLisa.recordPos;
-        <<<"Player Death Data Received">>>;
+       // <<<"Player Death Data Received">>>;
         while(gate < 1){
             rms.upchuck() @=> UAnaBlob blobRMS;//0.04 is loud
             //<<<blobRMS.fval(0)>>>;
+            <<<"Listening for Scream, RMS = ", blobRMS.fval(0)>>>;
             if(blobRMS.fval(0) > threshold){
                 screamLisa.playPos(1::ms);
                 screamLisa.recPos(1::ms);
                 
                 screamLisa.record(1); 
+                <<<"Recording Player Scream">>>;
                 //env.keyOn();
                 //recFadeTime => now;
                 while(blobRMS.fval(0) > threshold/3){

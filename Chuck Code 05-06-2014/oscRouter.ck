@@ -108,12 +108,15 @@ fun void sendJoyData(){
 
 fun void sendAccData(){
     while(true){
+        if(runState==1){
         xmit.startMsg("/nunchuck/accel", "i,i,i");
         xmit.addInt(x_acc);
         xmit.addInt(y_acc);
         xmit.addInt(z_acc);
         windTilt.tiltData(x_acc, y_acc);
         10::ms => now;
+    }
+    10::ms => now;
     }
 }
 
@@ -181,8 +184,17 @@ fun void explosionPoll(){
     while(1){
         explosion => now;
         if (explosion.nextMsg() != 0){
+            explosion.getInt() => int ex;
+            if (ex == 1){
             boom.impact();  
             <<<"Explosion">>>; 
+        }
+        else if (ex == 2){
+            announcer.announceOppKill();
+        }
+        else{
+         <<<"Invalad Message on explosion OSC path", explosion.nextMsg() >>>;  
+        }
         }   
     }   
 }
@@ -235,14 +247,21 @@ fun void serialPoller(){
             line.substring(20,1) => z_buttonS;
             Std.atoi(z_buttonS) => z_button ;
             if ( z_button > 0){
+                if (runState ==1){
                 spork ~ sendZButtonData();  
+            }
             }
             line.substring(22,1) => c_buttonS;
             Std.atoi(c_buttonS) => c_button;
             if( c_button > 0)
             { 
+                if (runState == 1){
                 spork ~ sendCButtonData();
             }
+            }
+        }
+        else{
+         <<<"Error, Serial Message too short">>>;   
         }
     }
 }

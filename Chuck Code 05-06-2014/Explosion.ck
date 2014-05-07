@@ -27,7 +27,7 @@ public class Explosion
     
     fun void impact(){
         env.keyOn();
-        Math.random2f(0.69,0.75) => master.gain;
+        Math.random2f(0.79,0.85) => master.gain;
         impact_samples[Math.random2(0,impact_samples.cap()-1)] => impactBuf.read;
         0 => impactBuf.pos => low.pos;
         Math.random2f(0.85,1.15) => impactBuf.rate;
