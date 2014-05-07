@@ -110,12 +110,7 @@ void setup()
   oscP5 = new OscP5(this,lport);
   
   myLocation = new NetAddress("127.0.0.1", coutport);
-<<<<<<< HEAD
   myBroadcastLocation = new NetAddress("169.254.44.112", bcport);
-=======
-  myBroadcastLocation = new NetAddress("169.254.147.152", bcport);
->>>>>>> FETCH_HEAD
-  //
  
   
   roster = new Roster();
@@ -337,18 +332,12 @@ public void accelData(int x, int y, int z)
       println("Receiving accel Data");
       if ((x > -30) && (x <= 30)) { acc.x = 0; } 
       else { acc.x = map(constrain(x, -70, 70), -70, 70, -1, 1); }
-<<<<<<< HEAD
-      acc.y = map(constrain(y, 30, 120), 30, 120, -1, 1); 
-      //acc.z = acc.y;
-      //acc.x *= -1.5;
-      //acc.y *= -1.0; //this should be a "set" value for height, rather than an "increment"
-=======
+
       acc.y = map(constrain(y, 30, 120), 30, 120, -1, 1);
       acc.z = acc.y;
       
       acc.x *= -1.5;
       acc.y *= -1.0; //this is a "set" not an "increment.
->>>>>>> FETCH_HEAD
     }
  }
 
