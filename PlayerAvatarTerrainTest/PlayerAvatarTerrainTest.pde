@@ -58,7 +58,7 @@ int texCycle = (int)random(0,5);
 //*******Texture Arrays*******\\ 
 
 String[] respawnTex = new String[] {
-  "respawnNew1.png", "respawnNew3.png"
+  "respawn1.png", "respawn2.png", "respawn3.png", "respawn4.png"
 };
 String[] laserTex = new String[] {
   "laser1.jpg", "laser2.jpg", "laser3.JPG", "laser4.jpg", "laser1.jpg", "laser2.jpg"
@@ -110,7 +110,8 @@ void setup()
   oscP5 = new OscP5(this,lport);
   
   myLocation = new NetAddress("127.0.0.1", coutport);
-  myBroadcastLocation = new NetAddress("169.254.44.112", bcport);
+  myBroadcastLocation = new NetAddress("169.254.143.93", bcport);
+  //
  
   
   roster = new Roster();
@@ -328,10 +329,8 @@ public void accelData(int x, int y, int z)
 { 
     if (acc != null && adebug == 1)
     {
-      println("Receiving accel Data");
       if ((x > -30) && (x <= 30)) { acc.x = 0; } 
       else { acc.x = map(constrain(x, -70, 70), -70, 70, -1, 1); }
-
       acc.y = map(constrain(y, 30, 120), 30, 120, -1, 1);
       acc.z = acc.y;
       
@@ -669,7 +668,7 @@ void initTextures()
 
 PVector [] shiftGlobalColors()
 {
-  PVector ovec = new PVector[3]; //later, increment these, rather than randomizing.
+  PVector [] ovec = new PVector[3]; //later, increment these, rather than randomizing.
   ovec[0] = new PVector(random(0, 1), 0, random(0, 1));
   ovec[1] = new PVector(random(0, 1), 0, random(0, 1));
   ovec[2] = new PVector(sin(millis() * .001), 0, cos(millis() * .001));
