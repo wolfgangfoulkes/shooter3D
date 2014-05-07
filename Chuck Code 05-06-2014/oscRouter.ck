@@ -41,7 +41,7 @@ Explosion boom;
 Announcer announcer;
 proxAlarms proxAlarm;
 soundTrack ambiance;
-//WindTilt windTilt;
+WindTilt windTilt;
 //////////////////////////////////////////////////////////
 int xDiff, yDiff;
 float aDiff;
@@ -70,17 +70,19 @@ spork ~ explosionPoll();
 //spork ~ windTilt.loadSample(50);
 
 while (true) {
-    0.1::second => now;
+    0.5::second => now;
     if (runState < 1){//to avoid false triggers and uneeded noise
         1 => runState;
+        //windTilt.loadSample(0);
     }
+    
     <<<"x_axis :", x_axis>>>;
     <<<"y_axis :", y_axis>>>;
     <<<"x_acc :", x_acc>>>;
     <<<"y_acc :", y_acc>>>;
     <<<"z_acc :", z_acc>>>;
     <<<"-------------------------">>>;
-    0.1::second => now; 
+    0.5::second => now; 
 }
 
 //////////     **********OUTGOING COMMUNICATION FUNCTIONS*********     \\\\\\\\\\
@@ -109,13 +111,13 @@ fun void sendAccData(){
         xmit.addInt(x_acc);
         xmit.addInt(y_acc);
         xmit.addInt(z_acc);
+        windTilt.tiltData(x_acc, y_acc);
         10::ms => now;
     }
 }
 
 fun void sendCButtonData(){//laser
     if (runState == 1){
-        
         xmit.startMsg("/nunchuck/Cbutton", "i"); 
         xmit.addInt(c_button);  
         laser.shoot();  
@@ -136,7 +138,7 @@ fun void sendRespawnPing(){
     xmit.addInt(1);
     <<<"Respawn Ping sent to Processing">>>;
     laser.reload();
-    //windTilt.loadSample(50);
+    
     ambiance.loadSample(50);//the 50 will just cause the function to randomly choose a sample 
 }
 
@@ -201,10 +203,9 @@ fun void playerKillListen() {
             <<<playerPre + " killed!">>>;
             if (playerPre == myPrefix)
             {
-                 0 => runState;
+                0 => runState;
                 walking.dead();
                 scream.killed();
-               
                 0.45::second => now;//for reverb tail
                 scream.dead();
                 sendRespawnPing();
@@ -218,7 +219,6 @@ fun void serialPoller(){
     {
         serial.onLine() => now;
         serial.getLine() => line;
-        //<<<line>>>;
         if( line$Object == null ) continue;
         if (line.length() > 22){ 
             line.substring(0,3) => x_axisS;
@@ -242,8 +242,6 @@ fun void serialPoller(){
             { 
                 spork ~ sendCButtonData();
             }
-            //windTilt.tiltData(x_acc, y_acc);
-            
         }
     }
 }
@@ -251,7 +249,6 @@ fun void serialPoller(){
 //////////     **********UTILITY FUNCTIONS*********     \\\\\\\\\\
 fun void aDif(){
     Std.abs(125 - x_axis) => xDiff;
-    //<<<"XDiff :", xDiff>>>;
     Std.abs(125 - y_axis) => yDiff;
     (xDiff + yDiff)/2 => aDiff;  
     //<<<aDiff>>>;

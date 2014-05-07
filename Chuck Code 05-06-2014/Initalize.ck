@@ -1,5 +1,5 @@
 //Master File
-me.dir() + "/windTiltTest01.ck" => string windTiltPath;
+me.dir() + "/windTilt.ck" => string windTiltPath;
 me.dir() + "/ambiance.ck" => string ambiancePath;
 me.dir() + "/proxAlarm.ck" => string proxPath;
 me.dir() + "/announcer.ck" => string announcerPath;
