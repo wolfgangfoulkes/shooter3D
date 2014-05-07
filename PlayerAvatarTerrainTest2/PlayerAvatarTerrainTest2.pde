@@ -35,7 +35,7 @@ int cinport = 14001;
 int bcport = 32000;
 NetAddress myLocation;
 NetAddress myBroadcastLocation; 
-String myprefix = "/tweez2";
+String myprefix = "/tweez";
 boolean connected = true;
 
 

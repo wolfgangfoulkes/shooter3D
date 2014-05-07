@@ -70,21 +70,17 @@ spork ~ explosionPoll();
 //spork ~ windTilt.loadSample(50);
 
 while (true) {
-    2::second => now;
+    0.1::second => now;
     if (runState < 1){//to avoid false triggers and uneeded noise
         1 => runState;
     }
-    
     <<<"x_axis :", x_axis>>>;
     <<<"y_axis :", y_axis>>>;
     <<<"x_acc :", x_acc>>>;
     <<<"y_acc :", y_acc>>>;
     <<<"z_acc :", z_acc>>>;
     <<<"-------------------------">>>;
-    3::second => now; 
-    
-    //proxAlarm.alarm(Math.random2f(0,1),Math.random2f(0,1),Math.random2f(0,1));
-    //100::ms => now;
+    0.1::second => now; 
 }
 
 //////////     **********OUTGOING COMMUNICATION FUNCTIONS*********     \\\\\\\\\\
