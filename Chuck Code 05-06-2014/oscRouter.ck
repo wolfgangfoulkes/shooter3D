@@ -75,7 +75,7 @@ while (true) {
         1 => runState;
         //windTilt.loadSample(0);
     }
-    /*
+    
     <<<"x_axis :", x_axis>>>;
     <<<"y_axis :", y_axis>>>;
     <<<"x_acc :", x_acc>>>;
@@ -83,7 +83,7 @@ while (true) {
     <<<"z_acc :", z_acc>>>;
     <<<"-------------------------">>>;
     0.5::second => now; 
-    */
+    
 }
 
 //////////     **********OUTGOING COMMUNICATION FUNCTIONS*********     \\\\\\\\\\
