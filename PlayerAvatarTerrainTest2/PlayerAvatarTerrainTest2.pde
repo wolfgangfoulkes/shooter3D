@@ -9,8 +9,6 @@ import shapes3d.utils.*;
 import shapes3d.animation.*;
 
 int adebug = 0;
-//for when you die...
-PImage killScreen;
 
 /*
 //for sky rendering
@@ -29,28 +27,30 @@ int SINCOS_LENGTH = int(360.0 / SINCOS_PRECISION);
 ///////////****OSC****\\\\\\\\\\\\\
 OscP5 pos_in;
 OscP5 oscP5;
-int lport = 12000;
+int lport = 12001;
 int coutport = 14000;
 int cinport = 14001;
 int bcport = 32000;
 NetAddress myLocation;
 NetAddress myBroadcastLocation; 
-String myprefix = "/tweez";
-boolean connected = true;
+String myprefix = "/tw33k";
+boolean connected = false;
 
 
 PApplet APPLET = this;
 Map map;
 Camera cam;
 Roster roster;
-
 Terrain terrain;
+
 int X_SIZE = 1001;
 int Z_SIZE = 1001;
 
 int TERRAIN_SLICES = 16;
 float TERRAIN_HORIZON = 300;
 float TERRAIN_AMP = 70;
+
+PVector [] COLORS;
 
 //for texture syncing
 int texCycle = (int)random(0,5);
@@ -75,6 +75,7 @@ String[] skyTex = new String[] {//could load fog as background
 PImage laserTexCur;
 PImage terrainTexCur;
 PImage skyTexCur;
+PImage killScreen;
 
 //PShader lines;
 //PShader noise;
@@ -86,18 +87,16 @@ PShader laserfire;
 PShader alias;
 PShader SHADER_CROSSHAIR;
 PShader SHADER_DEATH;
+PShader colorlines;
 
 PVector acc = new PVector(0, 0, 0); //can we set Camera directly from OSC?
 PVector joystick = new PVector(0, 0, 0);
 
-boolean sketchFullScreen() {
-  return true;
-}
 
 void setup() 
 {
   smooth();
-  size(displayWidth,displayHeight, P3D);
+  size(900,900, P3D);
   frameRate(24);
   
   pos_in = new OscP5(this, cinport);
@@ -111,7 +110,7 @@ void setup()
   oscP5 = new OscP5(this,lport);
   
   myLocation = new NetAddress("127.0.0.1", coutport);
-  myBroadcastLocation = new NetAddress("169.254.51.101", bcport);
+  myBroadcastLocation = new NetAddress("169.254.143.93", bcport);
   //
  
   
@@ -121,10 +120,9 @@ void setup()
   terrain = new Terrain(APPLET, TERRAIN_SLICES, X_SIZE, TERRAIN_HORIZON);
   terrain.usePerlinNoiseMap(-TERRAIN_AMP, TERRAIN_AMP, 2.125f, 2.125f);
   terrain.fill(255);
-   initTextures();
-  //terrain.setTexture(terrainTexCur, TERRAIN_SLICES);
-  //terrain.drawMode(S3D.TEXTURE);
   terrain.cam = cam.cam;
+  initTextures();
+  COLORS = shiftGlobalColors();
   
   //lines = loadShader("linesfrag.glsl");
   //noise = loadShader("noisefrag.glsl");
@@ -134,7 +132,8 @@ void setup()
   deform = loadShader("deformfrag.glsl");
   alias = loadShader("aliasingfrag.glsl");
   SHADER_CROSSHAIR = loadShader("circlefrag.glsl");
-  SHADER_DEATH = loadShader("noisedissolve2frag.glsl");
+  SHADER_DEATH = loadShader("circledeathfrag.glsl");
+  colorlines = loadShader("linesfrag.glsl");
   
 }
 
@@ -144,6 +143,7 @@ void draw()
   if ( (cam.living == false) || (connected == false) )
   {
     background(0);
+    
     killCamera();
     noLoop(); 
     
@@ -153,16 +153,20 @@ void draw()
     background(0);
     lights(); //unneccessary, this just calls the default.
     
+    COLORS = shiftGlobalColors();
+    
     SHADER_NOISE.set("time", (millis() * .001));
     SHADER_NOISE.set("resolution", (float) width * random(1, 1), (float) height * random(1, 1)); //these values reproduce the site's effect
     SHADER_NOISE.set("alpha", .8); 
+    SHADER_NOISE.set("floor", .6);
+    SHADER_NOISE.set("ceil", .8);
     shader(SHADER_NOISE);
     terrain.draw();
-   
+    map.update();
+    map.display();
     
     resetShader();
-     map.update();
-    map.display();
+    
     //
     //println("pos", cam.pos);
     //println("eye", cam.cam.eye());
@@ -187,6 +191,82 @@ void draw()
   
   
 }
+
+//-----OSC SEND FUNCTIONS
+void connect(int ilport, String ipre) //should do all this crap automatically before players "spawn" because we ought to have bugs in this worked out before players are allowed to see anything
+{
+  OscMessage m = new OscMessage("/server/connect");
+  m.add(ilport); 
+  m.add(ipre);
+  oscP5.send(m, myBroadcastLocation);
+}
+
+void disconnect(int ilport, String ipre)
+{
+  roster.clear();
+  map.clear();
+  OscMessage m = new OscMessage("/server/disconnect");
+  m.add(ilport); 
+  m.add(ipre);
+  oscP5.send(m, myBroadcastLocation);
+}
+
+
+void sendPos(float ix, float iy, float iz, float irx, float iry, float irz) //+ rotation
+{
+  OscMessage ocoor = new OscMessage(myprefix + "/pos");
+  ocoor.add(ix);
+  ocoor.add(iy);
+  ocoor.add(iz);
+  ocoor.add(irx);
+  ocoor.add(iry);
+  ocoor.add(irz);
+  oscP5.send(ocoor, myBroadcastLocation);
+}
+
+void sendShot(PVector ipos, PVector iaim, NetAddress ilocation)
+{
+  OscMessage ocoor = new OscMessage(myprefix + "/shot");
+  ocoor.add(ipos.x);
+  ocoor.add(ipos.y);
+  ocoor.add(ipos.z);
+  ocoor.add(iaim.x);
+  ocoor.add(iaim.y);
+  ocoor.add(iaim.z);
+  oscP5.send(ocoor, ilocation);
+}
+
+void sendMelee(int istatus, NetAddress ilocation)
+{
+  OscMessage oint = new OscMessage(myprefix + "/melee");
+  oint.add(istatus);
+  oscP5.send(oint, ilocation);
+}
+
+void sendKill(String iaddr, NetAddress ilocation)
+{
+  OscMessage oaddr = new OscMessage(myprefix + "/kill");
+  oaddr.add(iaddr);
+  oscP5.send(oaddr, ilocation);
+  oscP5.send(oaddr, myLocation);
+}
+
+void newPlayer() 
+{
+  OscMessage newP = new OscMessage("/arena/newPlayer");
+  newP.add(1);
+  oscP5.send(newP, myLocation);
+}
+
+void sendExplosion() 
+{ //maybe redundant, only happens on kill and death
+  OscMessage sendExplosion = new OscMessage(myprefix + "/explosion");
+  sendExplosion.add(1);
+  oscP5.send(sendExplosion, myLocation);
+  println("explosion Trigger sent to Chuck");
+}
+
+//-----OSC FROM CHUCK
 public void cButtonPing(int ping){
   
       cam.laser = 1.0;
@@ -240,9 +320,8 @@ public void joystickData(int x, int z)
     if ((x > 110) && (x <= 135)) { joystick.z = 0;} 
     else { joystick.z = map(constrain(x, -32, 220), -32, 220, -1, 1); }
     
-    //println("joystick called!", joystick);
-    joystick.x *= 2.0;
-    joystick.z *= 2.0;
+    joystick.x *= 2.5;
+    joystick.z *= 2.5;
   }
 }
 
@@ -250,38 +329,24 @@ public void accelData(int x, int y, int z)
 { 
     if (acc != null && adebug == 1)
     {
-      println("Receiving accel Data");
       if ((x > -30) && (x <= 30)) { acc.x = 0; } 
       else { acc.x = map(constrain(x, -70, 70), -70, 70, -1, 1); }
-      acc.y = map(constrain(y, 30, 120), 30, 120, -1, 1); 
-      //acc.z = acc.y;
-      //acc.x *= -1.5;
-      //acc.y *= -1.0; //this should be a "set" value for height, rather than an "increment"
+      acc.y = map(constrain(y, 30, 120), 30, 120, -1, 1);
+      acc.z = acc.y;
+      
+      acc.x *= -1.5;
+      acc.y *= -1.0; //this is a "set" not an "increment.
     }
  }
 
-void connect(int ilport, String ipre) //should do all this crap automatically before players "spawn" because we ought to have bugs in this worked out before players are allowed to see anything
-{
-  OscMessage m = new OscMessage("/server/connect");
-  m.add(ilport); 
-  m.add(ipre);
-  oscP5.send(m, myBroadcastLocation);
-}
 
-void disconnect(int ilport, String ipre)
-{
-  roster.clear();
-  map.clear();
-  OscMessage m = new OscMessage("/server/disconnect");
-  m.add(ilport); 
-  m.add(ipre);
-  oscP5.send(m, myBroadcastLocation);
-}
 
+
+//-----OSC RECIEVE
 void oscEvent(OscMessage theOscMessage) 
 {
-  println("###2 received an osc message with addrpattern "+theOscMessage.addrPattern()+" and typetag "+theOscMessage.typetag());
-  theOscMessage.print();
+  //println("###2 received an osc message with addrpattern "+theOscMessage.addrPattern()+" and typetag "+theOscMessage.typetag());
+  //theOscMessage.print();
   String messageIP = theOscMessage.netaddress().address();
   String messageaddr = theOscMessage.addrPattern();
   String messagetag = theOscMessage.typetag();
@@ -462,55 +527,6 @@ void oscEvent(OscMessage theOscMessage)
 }
 }
 
-void sendPos(float ix, float iy, float iz, float irx, float iry, float irz) //+ rotation
-{
-  OscMessage ocoor = new OscMessage(myprefix + "/pos");
-  ocoor.add(ix);
-  ocoor.add(iy);
-  ocoor.add(iz);
-  ocoor.add(irx);
-  ocoor.add(iry);
-  ocoor.add(irz);
-  oscP5.send(ocoor, myBroadcastLocation);
-}
-
-void sendShot(PVector ipos, PVector iaim, NetAddress ilocation)
-{
-  OscMessage ocoor = new OscMessage(myprefix + "/shot");
-  ocoor.add(ipos.x);
-  ocoor.add(ipos.y);
-  ocoor.add(ipos.z);
-  ocoor.add(iaim.x);
-  ocoor.add(iaim.y);
-  ocoor.add(iaim.z);
-  oscP5.send(ocoor, ilocation);
-}
-
-void sendMelee(int istatus, NetAddress ilocation)
-{
-  OscMessage oint = new OscMessage(myprefix + "/melee");
-  oint.add(istatus);
-  oscP5.send(oint, ilocation);
-}
-
-void sendKill(String iaddr, NetAddress ilocation)
-{
-  OscMessage oaddr = new OscMessage(myprefix + "/kill");
-  oaddr.add(iaddr);
-  oscP5.send(oaddr, ilocation);
-  oscP5.send(oaddr, myLocation);
-}
-void newPlayer() {
-  OscMessage newP = new OscMessage("/arena/newPlayer");
-  newP.add(1);
-  oscP5.send(newP, myLocation);
-}
-void sendExplosion() { //maybe redundant, only happens on kill and death
-  OscMessage sendExplosion = new OscMessage(myprefix + "/explosion");
-  sendExplosion.add(1);
-  oscP5.send(sendExplosion, myLocation);
-  println("explosion Trigger sent to Chuck");
-}
 
 void keyPressed()
 {
@@ -520,7 +536,7 @@ void keyPressed()
     case 'f': disconnect(lport, myprefix); connected = false; break;
     case 'R': roster.print(); break;
     case 'M': map.print(); break;
-    case 'I': loop(); cam.spawnCamera(new PVector(0, 0, 0), new PVector(0, 0, 0)); break; //randomSpawnCamera(5000); break;
+    case 'I': loop(); cam.spawnCamera(new PVector(100, 0, 0), new PVector(0, 0, 0)); break; //randomSpawnCamera(5000); break;
     case 'v': cam.living = false; sendKill(myprefix, myLocation); sendKill(myprefix, myBroadcastLocation); break; //cam.living = false; killCamera(); (myprefix); break;
     
     //temp testing variables
@@ -648,6 +664,15 @@ void initTextures()
   else {
     texCycle = 0;
   }
+}
+
+PVector [] shiftGlobalColors()
+{
+  PVector [] ovec = new PVector[3]; //later, increment these, rather than randomizing.
+  ovec[0] = new PVector(random(0, 1), 0, random(0, 1));
+  ovec[1] = new PVector(random(0, 1), 0, random(0, 1));
+  ovec[2] = new PVector(sin(millis() * .001), 0, cos(millis() * .001));
+  return ovec;
 }
 /*
 void initTextures()
@@ -789,4 +814,3 @@ void texturedSphere(float r, PImage t) {
   endShape();
 }
 */
-

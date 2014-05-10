@@ -27,14 +27,14 @@ int SINCOS_LENGTH = int(360.0 / SINCOS_PRECISION);
 ///////////****OSC****\\\\\\\\\\\\\
 OscP5 pos_in;
 OscP5 oscP5;
-int lport = 12000;
+int lport = 12001;
 int coutport = 14000;
 int cinport = 14001;
 int bcport = 32000;
 NetAddress myLocation;
 NetAddress myBroadcastLocation; 
-String myprefix = "/tweez";
-boolean connected = true;
+String myprefix = "/tw33k";
+boolean connected = false;
 
 
 PApplet APPLET = this;
@@ -536,7 +536,7 @@ void keyPressed()
     case 'f': disconnect(lport, myprefix); connected = false; break;
     case 'R': roster.print(); break;
     case 'M': map.print(); break;
-    case 'I': loop(); cam.spawnCamera(new PVector(0, 0, 0), new PVector(0, 0, 0)); break; //randomSpawnCamera(5000); break;
+    case 'I': loop(); cam.spawnCamera(new PVector(200, 0, 0), new PVector(0, 0, 0)); break; //randomSpawnCamera(5000); break;
     case 'v': cam.living = false; sendKill(myprefix, myLocation); sendKill(myprefix, myBroadcastLocation); break; //cam.living = false; killCamera(); (myprefix); break;
     
     //temp testing variables

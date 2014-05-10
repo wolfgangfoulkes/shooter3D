@@ -80,9 +80,9 @@ class Avatar extends O3DCone
       SHADER_DEATH.set("mouse", (float) width/2, (float) (-acc.y * height/2) + height/2);
     
       SHADER_DEATH.set("circle_radius", lerp(.08, 1.0, (1-lifespan))); //relative to center of screen.
-      SHADER_DEATH.set("border", .08); 
-      SHADER_DEATH.set("periods", 4.0);
-      SHADER_DEATH.set("rate", 50.0);
+      SHADER_DEATH.set("border", .08); //make this much bigger. prolly just equate to radius.
+      SHADER_DEATH.set("periods", 1.0); //this or real high
+      SHADER_DEATH.set("rate", 60.0);
       
       SHADER_DEATH.set("color", 1.0, 0.0, 0.0); //new PVector(random(1.0), 0.0, random(1.0)));
 
